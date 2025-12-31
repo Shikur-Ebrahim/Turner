@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, increment, Timestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { Loader2, Eye, EyeOff, ChevronDown, AlertCircle, Globe } from "lucide-react";
 
@@ -95,6 +95,53 @@ export default function AuthForm() {
                 const userCredential = await createUserWithEmailAndPassword(auth, generatedEmail, formData.password);
                 const user = userCredential.user;
 
+                // Referral Tracking Logic
+                let inviterData = {
+                    inviterA: "",
+                    inviterB: "",
+                    inviterC: "",
+                    inviterD: ""
+                };
+
+                // Try to get ref from URL or LocalStorage
+                const searchParams = new URLSearchParams(window.location.search);
+                const refParam = searchParams.get("ref");
+                let refCode = refParam || localStorage.getItem("turner_ref");
+
+                if (refParam) {
+                    localStorage.setItem("turner_ref", refParam);
+                }
+
+                if (refCode) {
+                    let normalizedRef = refCode.trim();
+                    let foundInviter: any = null;
+
+                    // 1. Try Direct UID Lookup (Primary Method)
+                    const uidDocSnap = await getDoc(doc(db, "users", normalizedRef));
+                    if (uidDocSnap.exists()) {
+                        foundInviter = uidDocSnap.data();
+                    } else {
+                        // 2. Fallback: Phone Number Lookup (Legacy Support)
+                        let phoneSearch = normalizedRef;
+                        if (/^\d+$/.test(phoneSearch)) {
+                            phoneSearch = "+" + phoneSearch;
+                        }
+
+                        const q = query(collection(db, "users"), where("phoneNumber", "==", phoneSearch));
+                        const querySnapshot = await getDocs(q);
+                        if (!querySnapshot.empty) {
+                            foundInviter = querySnapshot.docs[0].data();
+                        }
+                    }
+
+                    if (foundInviter) {
+                        inviterData.inviterA = foundInviter.uid;
+                        inviterData.inviterB = foundInviter.inviterA || "";
+                        inviterData.inviterC = foundInviter.inviterB || "";
+                        inviterData.inviterD = foundInviter.inviterC || "";
+                    }
+                }
+
                 await setDoc(doc(db, "users", user.uid), {
                     uid: user.uid,
                     email: generatedEmail,
@@ -108,13 +155,40 @@ export default function AuthForm() {
                     teamSize: 0,
                     totalIncome: 0,
                     dailyIncome: 0,
-                    inviterA: "",
-                    inviterB: "",
-                    inviterC: "",
-                    inviterD: "",
-                    inviterE: "",
+                    inviterA: inviterData.inviterA,
+                    inviterB: inviterData.inviterB,
+                    inviterC: inviterData.inviterC,
+                    inviterD: inviterData.inviterD,
                     createdAt: new Date().toISOString(),
                 });
+
+                // Update Team Size and Notify Inviters (A-D)
+                const levelLabels = ["Level A", "Level B", "Level C", "Level D"];
+                const invitersToUpdate = [
+                    { uid: inviterData.inviterA, level: "Level A" },
+                    { uid: inviterData.inviterB, level: "Level B" },
+                    { uid: inviterData.inviterC, level: "Level C" },
+                    { uid: inviterData.inviterD, level: "Level D" }
+                ].filter(i => i.uid);
+
+                for (const inviter of invitersToUpdate) {
+                    const inviterRef = doc(db, "users", inviter.uid);
+                    await updateDoc(inviterRef, {
+                        teamSize: increment(1)
+                    });
+
+                    // Create Registration Notification
+                    const notifRef = doc(collection(db, "UserNotifications"));
+                    await setDoc(notifRef, {
+                        userId: inviter.uid,
+                        type: "registration",
+                        level: inviter.level,
+                        message: `New user registered successfully in your ${inviter.level}.`,
+                        fromUser: fullPhoneNumber || "A new member",
+                        createdAt: Timestamp.now(),
+                        read: false
+                    });
+                }
 
                 setActiveTab("login");
                 setFormData({ ...formData, password: "", confirmPassword: "" });

@@ -21,7 +21,10 @@ import {
     Settings,
     UploadCloud,
     Camera,
-    Bell
+    Bell,
+    Banknote,
+    ShieldCheck,
+    Percent
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -143,7 +146,10 @@ export default function AdminDashboard() {
     const navigation = [
         { id: "home", label: "Dashboard", icon: Home },
         { id: "banners", label: "Banner Ads", icon: ImageIcon },
+        { id: "payment-methods", label: "Payment Methods", icon: Banknote },
+        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck },
         { id: "notifications", label: "Withdrawal Alerts", icon: Bell },
+        { id: "referral", label: "Referral Rule", icon: Percent },
         { id: "settings", label: "Settings", icon: Settings },
     ];
 
@@ -174,6 +180,12 @@ export default function AdminDashboard() {
                                 onClick={() => {
                                     if (item.id === "notifications") {
                                         router.push("/admin/notifications");
+                                    } else if (item.id === "payment-methods") {
+                                        router.push("/admin/payment-methods");
+                                    } else if (item.id === "recharge") {
+                                        router.push("/admin/recharge-verification");
+                                    } else if (item.id === "referral") {
+                                        router.push("/admin/referral-settings");
                                     } else {
                                         setActiveTab(item.id);
                                     }
