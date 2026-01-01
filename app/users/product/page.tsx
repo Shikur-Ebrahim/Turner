@@ -73,7 +73,7 @@ export default function UserProductsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-24 relative">
+        <div className="min-h-screen bg-slate-50 pb-44 relative">
             {/* Top Bar */}
             <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl z-40 px-6 py-4 flex items-center justify-between border-b border-gray-100/50 shadow-sm">
                 <div className="flex items-center gap-4">
@@ -96,17 +96,23 @@ export default function UserProductsPage() {
             <main className="pt-24 px-6 space-y-8 pb-10">
                 <div className="space-y-8 animate-in fade-in duration-500">
                     {/* Category Selector */}
-                    <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">
-                        {["ALL", "Level 1", "Level 2", "Level 3", "VIP"].map((cat) => (
+                    <div className="grid grid-cols-5 gap-1.5 w-full">
+                        {[
+                            { id: "ALL", label: "ALL" },
+                            { id: "Level 1", label: "Lev 1" },
+                            { id: "Level 2", label: "Lev 2" },
+                            { id: "Level 3", label: "Lev 3" },
+                            { id: "VIP", label: "VIP" }
+                        ].map((cat) => (
                             <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${activeCategory === cat
+                                key={cat.id}
+                                onClick={() => setActiveCategory(cat.id)}
+                                className={`py-3 rounded-xl text-[9px] font-black uppercase tracking-tight transition-all whitespace-nowrap border flex items-center justify-center ${activeCategory === cat.id
                                     ? "bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-600/20"
                                     : "bg-white text-gray-400 border-gray-100 hover:bg-gray-50"
                                     }`}
                             >
-                                {cat}
+                                {cat.label}
                             </button>
                         ))}
                     </div>

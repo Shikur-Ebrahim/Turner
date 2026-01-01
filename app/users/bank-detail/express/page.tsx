@@ -97,7 +97,7 @@ function ExpressContent() {
     if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-black" /></div>;
 
     return (
-        <div className="min-h-screen bg-white text-black font-sans pb-24">
+        <div className="min-h-screen bg-white text-black font-sans pb-44">
             {/* Minimal Header */}
             <header className="px-4 sm:px-6 py-5 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-slate-100">
                 <button onClick={() => router.back()} className="w-11 h-11 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 active:scale-95 transition-all">
@@ -186,7 +186,7 @@ function ExpressContent() {
             </main>
 
             {/* Action Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-slate-100 z-50">
+            <div className="p-6 bg-white border-t border-slate-100">
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}

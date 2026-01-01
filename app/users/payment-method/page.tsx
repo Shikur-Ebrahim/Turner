@@ -137,7 +137,7 @@ function PaymentMethodContent() {
             </main>
 
             {/* Fixed Bottom Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/80 to-transparent pt-10">
+            <div className="p-6 bg-white pt-10">
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleRecharge}

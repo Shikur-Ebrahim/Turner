@@ -9,6 +9,9 @@ function BottomNavContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("home");
+    const isChat = pathname === "/users/chat";
+
+    if (isChat) return null;
 
     useEffect(() => {
         const tab = searchParams.get("tab");

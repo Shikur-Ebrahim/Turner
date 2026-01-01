@@ -139,7 +139,7 @@ export default function UserProductDetailPage() {
                     const q = query(
                         rechargeReviewRef,
                         where("userId", "==", userId),
-                        where("status", "==", "under review")
+                        where("status", "==", "Under Review")
                     );
                     const snap = await getDocs(q);
                     const targetPath = !snap.empty ? "/users/transaction-pending" : "/users/recharge";
@@ -188,7 +188,7 @@ export default function UserProductDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 pb-32">
+        <div className="min-h-screen bg-white text-slate-900 pb-44">
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex items-center gap-4">
                 <button
@@ -297,7 +297,7 @@ export default function UserProductDetailPage() {
             </main>
 
             {/* Bottom Interaction Area */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-3xl border-t border-slate-100 z-[100]">
+            <div className="p-6 bg-white border-t border-slate-100">
                 <div className="max-w-xl mx-auto">
 
                     <button

@@ -246,7 +246,7 @@ function RegularBankDetailContent() {
             </main>
 
             {/* Fixed Bottom Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-white/60 z-40">
+            <div className="p-6 bg-white border-t border-white/60">
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}

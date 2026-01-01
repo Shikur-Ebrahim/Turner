@@ -165,13 +165,13 @@ export default function TeamPage() {
                 </div>
             </div>
 
-            <div className="max-w-md mx-auto p-4 pb-24">
+            <div className="max-w-md mx-auto p-4 pb-44">
                 {/* Overview Cards */}
                 {/* Advanced Dashboard Card */}
                 <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-50 mb-8 relative overflow-hidden">
                     <div className="flex items-center gap-8 relative z-10">
                         {/* Circular Gauge */}
-                        <div className="relative w-40 h-40 shrink-0 flex items-center justify-center">
+                        <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
                             {/* SVG Gauge with Continuous Rotation */}
                             <style>
                                 {`
@@ -227,10 +227,10 @@ export default function TeamPage() {
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none">
                                 <Trophy size={20} className="text-[#FBBF24] mb-0.5 fill-[#FBBF24]" />
                                 <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-[0.15em] leading-tight">Team Assets</span>
-                                <span className={`font-black text-[#1E293B] tabular-nums leading-none tracking-tight transition-all duration-300 ${stats.totalTeamRecharge.toLocaleString().length > 12 ? 'text-[10px]' :
-                                        stats.totalTeamRecharge.toLocaleString().length > 9 ? 'text-[12px]' :
-                                            stats.totalTeamRecharge.toLocaleString().length > 7 ? 'text-lg' :
-                                                'text-2xl'
+                                <span className={`font-black text-[#1E293B] tabular-nums leading-none tracking-tight transition-all duration-300 ${stats.totalTeamRecharge.toLocaleString().length > 12 ? 'text-[8px]' :
+                                    stats.totalTeamRecharge.toLocaleString().length > 9 ? 'text-[10px]' :
+                                        stats.totalTeamRecharge.toLocaleString().length > 7 ? 'text-sm' :
+                                            'text-xl'
                                     }`}>
                                     {stats.totalTeamRecharge.toLocaleString()}
                                 </span>
@@ -241,8 +241,8 @@ export default function TeamPage() {
                         <div className="flex-1 space-y-6">
                             <div>
                                 <p className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-[0.1em] mb-1">Total Income</p>
-                                <p className="text-3xl font-black text-[#0F172A] tabular-nums leading-none">
-                                    {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <p className="text-2xl font-black text-[#0F172A] tabular-nums leading-none">
+                                    {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                 </p>
                             </div>
 

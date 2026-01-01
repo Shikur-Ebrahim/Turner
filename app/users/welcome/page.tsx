@@ -235,7 +235,7 @@ function WelcomeContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-24 relative" onClick={() => showNotifPanel && setShowNotifPanel(false)}>
+        <div className="min-h-screen bg-slate-50 pb-44 relative" onClick={() => showNotifPanel && setShowNotifPanel(false)}>
             {/* Top Bar */}
             <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl z-40 px-6 py-4 flex items-center justify-between border-b border-gray-100/50 shadow-sm">
                 <div className="flex items-center gap-2">

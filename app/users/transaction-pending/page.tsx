@@ -197,7 +197,7 @@ function PendingContent() {
             {/* Header */}
             <header className="px-6 py-6 flex justify-between items-center relative z-10">
                 <button
-                    onClick={() => router.push("/users/home")}
+                    onClick={() => router.push("/users/welcome")}
                     className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all active:scale-95 backdrop-blur-3xl border shadow-lg ${!isLight ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white/60 border-slate-200 text-slate-800 hover:bg-white'}`}
                 >
                     <ChevronLeft size={22} />
@@ -311,7 +311,7 @@ function PendingContent() {
             </main>
 
             {/* Elite Glass Bottom Action */}
-            <div className={`fixed bottom-0 left-0 right-0 px-6 pb-8 pt-10 z-50 backdrop-blur-2xl border-t ${!isLight ? 'bg-black/60 border-white/5' : 'bg-white/70 border-slate-200'}`}>
+            <div className={`px-6 pb-8 pt-10 border-t ${!isLight ? 'bg-black border-white/5' : 'bg-white border-slate-200'}`}>
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={() => router.push("/users/welcome")}

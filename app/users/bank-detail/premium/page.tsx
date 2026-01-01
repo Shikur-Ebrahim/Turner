@@ -108,7 +108,7 @@ function PremiumContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-32">
+        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-44">
             {/* Elegant Header */}
             <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-amber-500/20">
                 <header className="flex items-center justify-between px-6 py-6 max-w-lg mx-auto">
@@ -234,7 +234,7 @@ function PremiumContent() {
             </main>
 
             {/* Action Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-950 to-transparent z-50">
+            <div className="p-6 bg-slate-950">
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}

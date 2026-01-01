@@ -214,7 +214,7 @@ export default function RechargeRecordsPage() {
                 </div>
             </header>
 
-            <main className="relative z-10 pt-32 bg-white rounded-t-[3.5rem] min-h-screen p-6 pb-40 overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
+            <main className="relative z-10 pt-32 bg-white rounded-t-[3.5rem] min-h-screen p-6 pb-52 overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-blue-100 to-transparent"></div>
                 <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-500/10 rounded-full blur-[60px] animate-pulse"></div>
@@ -300,7 +300,7 @@ export default function RechargeRecordsPage() {
                         <button
                             key={tab.key}
                             onClick={() => setFilter(tab.key as any)}
-                            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-sm whitespace-nowrap transition-all ${filter === tab.key
+                            className={`flex items-center gap-2 px-3 py-3 rounded-2xl font-black text-xs whitespace-nowrap transition-all ${filter === tab.key
                                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/30 scale-105"
                                 : "bg-white text-gray-600 border-2 border-gray-200 hover:border-blue-300 active:scale-95"
                                 }`}

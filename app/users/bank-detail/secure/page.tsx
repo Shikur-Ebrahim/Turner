@@ -96,7 +96,7 @@ function SecureContent() {
     if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="animate-spin text-blue-900" /></div>;
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-32">
+        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-44">
 
             <header className="bg-blue-900 text-white px-6 pt-6 pb-12 rounded-b-[2.5rem] shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
@@ -211,7 +211,7 @@ function SecureContent() {
                 </div>
             </main>
 
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 z-50">
+            <div className="bg-white border-t border-slate-100 p-4">
                 <div className="max-w-md mx-auto">
                     <button
                         onClick={handleSubmit}

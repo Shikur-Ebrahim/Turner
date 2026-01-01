@@ -96,7 +96,7 @@ function DigitalContent() {
     if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><Loader2 className="animate-spin text-cyan-500" /></div>;
 
     return (
-        <div className="min-h-screen bg-black text-cyan-50 font-mono pb-32 selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-black text-cyan-50 font-mono pb-44 selection:bg-cyan-500/30">
             {/* Grid Background */}
             <div className="fixed inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
 
@@ -215,7 +215,7 @@ function DigitalContent() {
                 </div>
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 p-4 bg-black/90 border-t border-cyan-500/30 backdrop-blur-sm z-50">
+            <footer className="p-4 bg-black border-t border-cyan-500/30 backdrop-blur-sm">
                 <button
                     onClick={handleSubmit}
                     disabled={!smsContent.trim()}

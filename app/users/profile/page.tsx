@@ -95,7 +95,7 @@ export default function ProfilePage() {
                 </div>
             </header>
 
-            <main className="relative z-10 pt-32 bg-white rounded-t-[3.5rem] min-h-screen p-6 pb-40 overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
+            <main className="relative z-10 pt-32 bg-white rounded-t-[3.5rem] min-h-screen p-6 pb-48 overflow-hidden shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
                 {/* Decorative background pulse */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-blue-100 to-transparent"></div>
                 {/* Advanced Profile Header & Identity Card */}

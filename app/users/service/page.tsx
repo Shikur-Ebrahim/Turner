@@ -95,7 +95,7 @@ export default function ServicePage() {
                 <h1 className="text-xl font-black text-gray-900 uppercase tracking-tight">Customer Service</h1>
             </header>
 
-            <main className="pt-28 px-6 max-w-md mx-auto space-y-8 pb-10">
+            <main className="pt-28 px-6 max-w-md mx-auto space-y-8 pb-44">
                 {/* Intro Section */}
                 <div className="text-center space-y-3 px-4">
                     <div className="w-20 h-20 bg-blue-600 rounded-[2rem] mx-auto flex items-center justify-center shadow-xl shadow-blue-500/20 mb-4 transform rotate-3 hover:rotate-0 transition-transform duration-500">

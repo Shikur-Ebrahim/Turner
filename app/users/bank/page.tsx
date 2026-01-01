@@ -152,7 +152,7 @@ export default function UserBankPage() {
                     </h1>
                 </header>
 
-                <main className="flex-1 px-6 py-4">
+                <main className="flex-1 px-6 py-4 pb-44">
                     {view === "list" ? (
                         linkedBank ? (
                             /* Linked State */

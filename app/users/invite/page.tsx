@@ -99,7 +99,7 @@ export default function InvitePage() {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 w-full max-w-lg mx-auto px-6 flex flex-col items-center relative z-10 pt-2 pb-8">
+            <main className="flex-1 w-full max-w-lg mx-auto px-6 flex flex-col items-center relative z-10 pt-2 pb-44">
 
                 {/* Hero Section */}
                 <div className="flex flex-col items-center text-center space-y-2 mb-10">

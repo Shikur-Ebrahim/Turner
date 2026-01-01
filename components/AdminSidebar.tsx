@@ -17,7 +17,8 @@ import {
     BookOpen,
     Settings,
     LogOut,
-    UserX
+    UserX,
+    Package
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -37,6 +38,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "unlink-account", label: "Unlink Account", icon: UserX, path: "/admin/unlink-account" },
         { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
         { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
+        { id: "products", label: "Products", icon: Package, path: "/admin/product" },
         { id: "referral", label: "Referral Rule", icon: Percent, path: "/admin/referral-settings" },
         { id: "telegram", label: "Telegram Staff", icon: Send, path: "/admin/telegram" },
         { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
@@ -122,8 +124,8 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
                                         setIsOpen(false);
                                     }}
                                     className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${active
-                                            ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
+                                        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30"
+                                        : "text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
                                         }`}
                                 >
                                     <item.icon size={22} />

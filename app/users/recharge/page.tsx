@@ -44,7 +44,7 @@ export default function RechargePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-10">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-40">
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl z-50 px-6 py-5 flex items-center justify-between border-b border-slate-100">
                 <button
