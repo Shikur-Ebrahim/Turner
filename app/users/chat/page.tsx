@@ -136,9 +136,15 @@ export default function UserChatPage() {
             setLoading(false);
         });
 
+        // Safety timeout to prevent permanent loading state
+        const loadingTimeout = setTimeout(() => {
+            setLoading(false);
+        }, 5000);
+
         return () => {
             unsubscribeAuth();
             unsubscribeGuidelines();
+            clearTimeout(loadingTimeout);
             if (unsubscribeMessages) unsubscribeMessages();
         };
     }, [router, mounted]);
