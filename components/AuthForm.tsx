@@ -245,6 +245,7 @@ export default function AuthForm() {
                     phoneNumber: fullPhoneNumber,
                     vip: 0,
                     balance: 0,
+                    Recharge: 0,
                     totalRecharge: 0,
                     totalWithdrawal: 0,
                     teamIncome: 0,

@@ -360,41 +360,6 @@ export default function ProfilePage() {
                 </div>
             </main >
 
-            {/* Elite Separate-Node Navigation - Pinned to Bottom */}
-            < div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 bg-gradient-to-t from-white via-white/80 to-transparent pt-10" >
-                <div className="max-w-md mx-auto flex items-center justify-between gap-2">
-                    {[
-                        { id: "home", icon: Home, label: "HOME", path: "/users/welcome" },
-                        { id: "product", icon: Ship, label: "MARKET", path: "/users/welcome" },
-                        { id: "team", icon: Users, label: "NODES", path: "/users/welcome" },
-                        { id: "wallet", icon: Wallet, label: "ASSETS", path: "/users/welcome" },
-                        { id: "me", icon: Shield, label: "ME", path: "/users/profile" }
-                    ].map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => {
-                                if (item.id === "me") return;
-                                router.push(`${item.path}?tab=${item.id}`);
-                            }}
-                            className="flex-1 flex flex-col items-center gap-1.5 group relative"
-                        >
-                            <div className={`relative w-full h-14 flex items-center justify-center rounded-[1.5rem] transition-all duration-500 ${item.id === "me"
-                                ? "bg-blue-600 text-white shadow-[0_12px_25px_-5px_rgba(37,99,235,0.6)] scale-110"
-                                : "bg-slate-900/95 backdrop-blur-xl text-gray-500 border border-white/5 active:scale-90"
-                                }`}>
-                                <item.icon size={22} className="relative z-10" />
-                                {item.id === "me" && (
-                                    <div className="absolute inset-0 bg-blue-400 rounded-[1.5rem] blur-lg opacity-40 animate-pulse"></div>
-                                )}
-                            </div>
-                            <span className={`text-[8px] font-black uppercase tracking-tighter transition-colors leading-none truncate ${item.id === "me" ? "text-blue-500" : "text-gray-500"
-                                }`}>
-                                {item.label}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-            </div >
         </div >
     );
 }

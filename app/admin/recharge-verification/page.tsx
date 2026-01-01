@@ -120,7 +120,8 @@ export default function RechargeVerificationPage() {
 
                 // Update User
                 transaction.update(userDocRef, {
-                    totalRecharge: increment(amount)
+                    totalRecharge: increment(amount),
+                    Recharge: increment(amount)
                 });
 
                 // Update Recharge Status

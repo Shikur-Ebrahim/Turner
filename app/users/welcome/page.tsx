@@ -13,10 +13,14 @@ import {
     Bell,
     TrendingUp,
     Loader2,
-    Shield
+    Shield,
+    Package
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
-export default function WelcomePage() {
+import { Suspense } from "react";
+
+function WelcomeContent() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [userData, setUserData] = useState<any>(null);
@@ -27,22 +31,23 @@ export default function WelcomePage() {
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isResetting, setIsResetting] = useState(false);
 
+
     // Notification State
     const [userNotifs, setUserNotifs] = useState<any[]>([]);
     const [latestRecharge, setLatestRecharge] = useState<any>(null);
     const [showNotifPanel, setShowNotifPanel] = useState(false);
     const [hasUnread, setHasUnread] = useState(false);
 
+    const searchParams = useSearchParams();
+
     useEffect(() => {
-        // Handle tab selection from URL search params
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const tab = params.get('tab');
-            if (tab && ['home', 'product', 'team', 'wallet'].includes(tab)) {
-                setActiveNav(tab);
-            }
+        const tab = searchParams.get('tab');
+        if (tab && ['home', 'product', 'team', 'wallet'].includes(tab)) {
+            setActiveNav(tab);
+        } else {
+            setActiveNav('home');
         }
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => {
         if (!user) return;
@@ -165,6 +170,7 @@ export default function WelcomePage() {
             const notifData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setNotifications(notifData);
         });
+
 
         return () => {
             unsubscribeAuth();
@@ -545,7 +551,10 @@ export default function WelcomePage() {
                                     <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase">RECHARGE</span>
                                 </button>
 
-                                <button className="relative bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] border border-gray-100 hover:shadow-2xl transition-all active:scale-95 group overflow-hidden">
+                                <button
+                                    onClick={() => router.push("/users/product")}
+                                    className="relative bg-white rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] border border-gray-100 hover:shadow-2xl transition-all active:scale-95 group overflow-hidden"
+                                >
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-400/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-emerald-400/10 transition-colors"></div>
                                     <div className="w-20 h-20 relative group-hover:scale-110 transition-transform duration-500">
                                         <img src="/assets/buy_product.png" alt="Buy Product" className="w-full h-full object-contain drop-shadow-[0_12px_20px_rgba(16,185,129,0.25)]" />
@@ -583,7 +592,6 @@ export default function WelcomePage() {
                                 ))}
                             </div>
                         </section>
-
                     </>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-gray-400 italic">
@@ -593,44 +601,18 @@ export default function WelcomePage() {
                 )}
             </main>
 
-            {/* Elite Separate-Node Navigation - Pinned to Bottom */}
-            <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 bg-gradient-to-t from-white via-white/80 to-transparent pt-10">
-                <div className="max-w-md mx-auto flex items-center justify-between gap-2">
-                    {[
-                        { id: "home", icon: Home, label: "HOME" },
-                        { id: "product", icon: Ship, label: "MARKET" },
-                        { id: "team", icon: Users, label: "NODES" },
-                        { id: "wallet", icon: Wallet, label: "ASSETS" },
-                        { id: "me", icon: Shield, label: "ME" }
-                    ].map((item: any) => (
-                        <button
-                            key={item.id}
-                            onClick={() => {
-                                if (item.id === "me") {
-                                    router.push("/users/profile");
-                                    return;
-                                }
-                                setActiveNav(item.id);
-                            }}
-                            className="flex-1 flex flex-col items-center gap-1.5 group relative"
-                        >
-                            <div className={`relative w-full h-14 flex items-center justify-center rounded-[1.5rem] transition-all duration-500 ${activeNav === item.id
-                                ? "bg-blue-600 text-white shadow-[0_12px_25px_-5px_rgba(37,99,235,0.6)] scale-110"
-                                : "bg-slate-900/95 backdrop-blur-xl text-gray-500 border border-white/5 active:scale-90"
-                                }`}>
-                                {item.icon && <item.icon size={22} className="relative z-10" />}
-                                {(activeNav === item.id) && (
-                                    <div className="absolute inset-0 bg-blue-400 rounded-[1.5rem] blur-lg opacity-40 animate-pulse"></div>
-                                )}
-                            </div>
-                            <span className={`text-[8px] font-black uppercase tracking-tighter transition-colors leading-none truncate ${activeNav === item.id ? "text-blue-500" : "text-gray-500"
-                                }`}>
-                                {item.label}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-            </div>
         </div>
+    );
+}
+
+export default function WelcomePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
+            </div>
+        }>
+            <WelcomeContent />
+        </Suspense>
     );
 }
