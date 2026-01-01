@@ -9,11 +9,15 @@ function BottomNavContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("home");
+    const [mounted, setMounted] = useState(false);
     const isChat = pathname === "/users/chat";
 
-    if (isChat) return null;
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
+        if (!mounted) return;
         const tab = searchParams.get("tab");
         if (pathname === "/users/welcome") {
             setActiveTab(tab || "home");
@@ -24,7 +28,9 @@ function BottomNavContent() {
         } else if (pathname.includes("/users/team")) {
             setActiveTab("team");
         }
-    }, [pathname, searchParams]);
+    }, [pathname, searchParams, mounted]);
+
+    if (!mounted || isChat) return null;
 
     const navItems = [
         { id: "home", icon: Home, label: "HOME", path: "/users/welcome?tab=home" },

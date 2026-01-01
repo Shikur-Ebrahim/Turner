@@ -8,6 +8,7 @@ import { ChevronLeft, MessageCircle, ExternalLink, ShieldCheck, Loader2 } from "
 
 export default function ServicePage() {
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
     const [loading, setLoading] = useState(true);
     const [links, setLinks] = useState({
         channelLink: "",
@@ -15,6 +16,7 @@ export default function ServicePage() {
     });
 
     useEffect(() => {
+        setMounted(true);
         const fetchLinks = async () => {
             try {
                 const docRef = doc(db, "telegram_links", "active");
@@ -82,7 +84,7 @@ export default function ServicePage() {
         }
     ];
 
-    if (loading) {
+    if (!mounted || loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
@@ -143,7 +145,7 @@ export default function ServicePage() {
                             <div className="flex items-center gap-5">
                                 <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-gray-100 shadow-sm relative overflow-hidden">
                                     <img
-                                        src={option.image}
+                                        src={encodeURI(option.image)}
                                         alt={option.title}
                                         className="w-10 h-10 object-contain relative z-10"
                                     />

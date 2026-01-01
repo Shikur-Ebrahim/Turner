@@ -30,6 +30,7 @@ function WelcomeContent() {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [isResetting, setIsResetting] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
 
     // Notification State
@@ -41,6 +42,11 @@ function WelcomeContent() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) return;
         const tab = searchParams.get('tab');
         if (tab && ['home', 'product', 'team', 'wallet'].includes(tab)) {
             setActiveNav(tab);
@@ -226,7 +232,7 @@ function WelcomeContent() {
         }
     };
 
-    if (loading) {
+    if (!mounted || loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
@@ -346,7 +352,7 @@ function WelcomeContent() {
 
                                                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
                                                         <img
-                                                            src={`/level ${levelNum}.jpg`}
+                                                            src={encodeURI(`/level ${levelNum}.jpg`)}
                                                             alt={notif.level}
                                                             className="w-full h-full object-cover"
                                                         />
@@ -424,7 +430,7 @@ function WelcomeContent() {
 
                                                     <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
                                                         <img
-                                                            src={`/level ${levelNum}.jpg`}
+                                                            src={encodeURI(`/level ${levelNum}.jpg`)}
                                                             alt={notif.level}
                                                             className="w-full h-full object-cover"
                                                         />

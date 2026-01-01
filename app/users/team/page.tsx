@@ -26,6 +26,7 @@ interface TeamData {
 export default function TeamPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
     const [activeTab, setActiveTab] = useState<'A' | 'B' | 'C' | 'D'>('A');
     const [teamData, setTeamData] = useState<TeamData>({ A: [], B: [], C: [], D: [] });
     const [stats, setStats] = useState({
@@ -37,6 +38,11 @@ export default function TeamPage() {
     const [rates, setRates] = useState({ levelA: 12, levelB: 7, levelC: 4, levelD: 2 });
 
     useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) return;
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 router.push("/");
@@ -139,7 +145,7 @@ export default function TeamPage() {
         return phone.substring(0, 4) + "****" + phone.substring(phone.length - 2);
     };
 
-    if (loading) {
+    if (!mounted || loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -308,7 +314,7 @@ export default function TeamPage() {
                                         <div className="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-indigo-300 to-purple-300 shrink-0 shadow-lg shadow-indigo-200/50">
                                             <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
                                                 <img
-                                                    src={`/level ${activeTab === 'A' ? 1 : activeTab === 'B' ? 2 : activeTab === 'C' ? 3 : 4}.jpg`}
+                                                    src={encodeURI(`/level ${activeTab === 'A' ? 1 : activeTab === 'B' ? 2 : activeTab === 'C' ? 3 : 4}.jpg`)}
                                                     alt="Member"
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                 />
