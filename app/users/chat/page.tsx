@@ -54,6 +54,8 @@ export default function UserChatPage() {
             setGuidelines(sorted);
         });
 
+        let unsubscribeMessages: (() => void) | null = null;
+
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push("/");
@@ -78,7 +80,7 @@ export default function UserChatPage() {
             const messagesRef = collection(db, "chats", currentUser.uid, "messages");
             const q = query(messagesRef, orderBy("timestamp", "asc"), limit(100));
 
-            const unsubscribeMessages = onSnapshot(q, (snapshot) => {
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
                 const msgs = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
@@ -110,16 +112,12 @@ export default function UserChatPage() {
                 // Clear unread count for user when they open the chat
                 updateUnreadCount(currentUser.uid);
             });
-
-            return () => {
-                unsubscribeMessages();
-                unsubscribeGuidelines();
-            };
         });
 
         return () => {
             unsubscribeAuth();
             unsubscribeGuidelines();
+            if (unsubscribeMessages) (unsubscribeMessages as () => void)();
         };
     }, [router]);
 
@@ -162,9 +160,13 @@ export default function UserChatPage() {
 
     const updateUnreadCount = async (uid: string) => {
         try {
-            await setDoc(doc(db, "chats", uid), {
-                unreadCountUser: 0
-            }, { merge: true });
+            const chatRef = doc(db, "chats", uid);
+            const chatSnap = await getDoc(chatRef);
+            if (chatSnap.exists()) {
+                await setDoc(chatRef, {
+                    unreadCountUser: 0
+                }, { merge: true });
+            }
         } catch (error) {
             console.error("Error updating unread count:", error);
         }
@@ -189,12 +191,15 @@ export default function UserChatPage() {
 
             // 2. Update chat summary for admin inbox
             const chatRef = doc(db, "chats", user.uid);
+            const chatSnap = await getDoc(chatRef);
+            const currentUnread = chatSnap.exists() ? (chatSnap.data().unreadCountAdmin || 0) : 0;
+
             await setDoc(chatRef, {
                 lastMessage: text,
                 lastTimestamp: serverTimestamp(),
                 userId: user.uid,
                 userPhone: userData?.phone || user.email || "Unknown User",
-                unreadCountAdmin: (messages.length > 0 ? (await getDoc(chatRef)).data()?.unreadCountAdmin || 0 : 0) + 1,
+                unreadCountAdmin: currentUnread + 1,
                 updatedAt: serverTimestamp()
             }, { merge: true });
 
@@ -207,11 +212,16 @@ export default function UserChatPage() {
 
     const formatTime = (timestamp: any) => {
         if (!timestamp) return "";
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        try {
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            if (isNaN(date.getTime())) return "";
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            return "";
+        }
     };
 
-    if (loading) {
+    if (loading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-zinc-50">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
