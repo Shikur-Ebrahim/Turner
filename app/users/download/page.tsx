@@ -20,61 +20,45 @@ import {
     Calendar,
     ShieldAlert
 } from "lucide-react";
+import { useEffect } from "react";
 
 export default function DownloadAppPage() {
     const router = useRouter();
-    const [downloading, setDownloading] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [status, setStatus] = useState("idle"); // idle, starting, downloading, completed
 
-    const handleDownload = () => {
-        if (downloading) return;
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [showInstruction, setShowInstruction] = useState(false);
 
-        setDownloading(true);
-        setStatus("starting");
-        setProgress(0);
+    useEffect(() => {
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener("beforeinstallprompt", handler);
+        return () => window.removeEventListener("beforeinstallprompt", handler);
+    }, []);
 
-        setTimeout(() => {
-            setStatus("downloading");
-            const interval = setInterval(() => {
-                setProgress(prev => {
-                    if (prev >= 100) {
-                        clearInterval(interval);
-                        setStatus("completed");
-                        setDownloading(false);
-                        // Redirect to hardware warning page after a short delay for visual confirmation
-                        setTimeout(() => {
-                            router.push("/users/download/warning");
-                        }, 1000);
-                        return 100;
-                    }
-                    const increment = Math.random() * 12;
-                    return Math.min(prev + increment, 100);
-                });
-            }, 600);
-        }, 1200);
+    const handleDownload = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDeferredPrompt(null);
+            }
+        } else {
+            setShowInstruction(true);
+        }
     };
+
 
     return (
         <div className="min-h-screen bg-white text-gray-900 flex flex-col font-sans">
-            {/* Play Store Global Header */}
-            <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between border-b border-gray-100/50 shadow-sm">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => router.back()} className="p-2.5 hover:bg-gray-100 rounded-full transition-all active:scale-90">
-                        <ChevronLeft size={24} className="text-gray-700" />
+            {/* Minimal App Header */}
+            <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-gray-100/50 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => router.back()} className="p-2 -ml-2 hover:bg-gray-50 rounded-full transition-all active:scale-95">
+                        <ChevronLeft size={22} className="text-gray-900" />
                     </button>
-                    <div className="flex flex-col">
-                        <span className="text-xs font-bold text-gray-400 leading-none mb-0.5">Google Play</span>
-                        <img src="/app logo.png" alt="Icon" className="w-5 h-5 object-contain" />
-                    </div>
-                </div>
-                <div className="flex items-center gap-1">
-                    <button className="p-2.5 hover:bg-gray-100 rounded-full transition-all text-gray-600">
-                        <Share2 size={20} />
-                    </button>
-                    <button className="p-2.5 hover:bg-gray-100 rounded-full transition-all text-gray-600">
-                        <MoreVertical size={20} />
-                    </button>
+                    <span className="text-sm font-black tracking-widest uppercase text-gray-900">App Store</span>
                 </div>
             </header>
 
@@ -125,49 +109,13 @@ export default function DownloadAppPage() {
 
                 {/* Primary Action Section */}
                 <section className="px-6 py-8">
-                    {status === "completed" ? (
-                        <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 mb-6 flex items-center gap-5 animate-in zoom-in-95 duration-500 shadow-sm">
-                            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md shadow-emerald-200/50">
-                                <CheckCircle2 className="text-emerald-500" size={32} />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">Installation Ready</h3>
-                                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Verified Package</p>
-                            </div>
-                            <button
-                                onClick={() => setStatus("idle")}
-                                className="px-4 py-2 bg-emerald-600 text-white text-[10px] font-black rounded-xl shadow-lg shadow-emerald-200"
-                            >
-                                OPEN
-                            </button>
-                        </div>
-                    ) : downloading ? (
-                        <div className="mb-8 space-y-4 px-2">
-                            <div className="flex justify-between items-end">
-                                <div className="space-y-0.5">
-                                    <p className="text-[10px] font-black text-emerald-600 px-2 py-1 bg-emerald-50 rounded-lg inline-block uppercase tracking-[0.2em] mb-2">Installing...</p>
-                                    <p className="text-lg font-black text-gray-900 tracking-tighter">{Math.floor(progress)}% <span className="text-gray-300 font-medium">/ 32.4 MB</span></p>
-                                </div>
-                                <Loader2 className="animate-spin text-emerald-600 mr-2" size={24} />
-                            </div>
-                            <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-50">
-                                <div
-                                    className="h-full bg-emerald-600 transition-all duration-300 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)] relative"
-                                    style={{ width: `${progress}%` }}
-                                >
-                                    <div className="absolute top-0 right-0 h-full w-20 bg-white/20 blur-md"></div>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleDownload}
-                            className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-emerald-200/60"
-                        >
-                            <Download size={22} className="text-white" />
-                            <span className="text-lg font-black text-white tracking-widest uppercase">Install</span>
-                        </button>
-                    )}
+                    <button
+                        onClick={handleDownload}
+                        className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-emerald-200/60"
+                    >
+                        <Download size={22} className="text-white" />
+                        <span className="text-lg font-black text-white tracking-widest uppercase">Install App</span>
+                    </button>
 
                     <div className="flex items-center gap-3 mt-6 px-3 py-3 bg-gray-50 rounded-2xl border border-gray-100">
                         <ShieldCheck size={16} className="text-emerald-600" />
@@ -273,6 +221,32 @@ export default function DownloadAppPage() {
                         </p>
                     </div>
                 </section>
+                {/* Install Instruction Modal */}
+                {showInstruction && (
+                    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowInstruction(false)}></div>
+                        <div className="relative w-full max-w-sm bg-white rounded-[2rem] p-6 shadow-2xl animate-in slide-in-from-bottom border border-gray-100">
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
+                                    <Download size={32} />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">How to Install</h3>
+                                    <p className="text-sm text-gray-500 font-medium leading-relaxed">
+                                        Tap <Share2 size={14} className="inline mx-1" /> <strong>Share</strong> in your browser menu, then select <br />
+                                        <strong>"Add to Home Screen"</strong>
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setShowInstruction(false)}
+                                    className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest mt-4"
+                                >
+                                    Got it
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
 
         </div>

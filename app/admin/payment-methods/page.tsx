@@ -34,8 +34,10 @@ import {
     Building2,
     Power,
     Bell,
-    ShieldCheck
+    ShieldCheck,
+    UserX
 } from "lucide-react";
+import AdminSidebar from "@/components/AdminSidebar";
 
 const ETHIOPIAN_BANKS = [
     { name: "Commercial Bank of Ethiopia (CBE)", logo: "/banks/cbe.png" },
@@ -204,67 +206,12 @@ export default function AdminPaymentMethods() {
         );
     }
 
-    const navigation = [
-        { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-        { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard" },
-        { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
-        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
-        { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
-        { id: "settings", label: "Settings", icon: Settings, path: "/admin/dashboard" },
-    ];
+    // Navigation handled by AdminSidebar
 
     return (
         <div className="min-h-screen bg-[#F0F2F9] flex text-gray-900">
-            {/* Sidebar Overlay */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-100 z-50 transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-                <div className="p-8 h-full flex flex-col">
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/20">
-                            <LayoutDashboard size={20} />
-                        </div>
-                        <h1 className="text-xl font-black text-gray-900 tracking-tight">Turner Boss</h1>
-                    </div>
-
-                    <nav className="flex-1 space-y-2">
-                        {navigation.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    router.push(item.path);
-                                    setIsSidebarOpen(false);
-                                }}
-                                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${item.id === "payment-methods"
-                                    ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30"
-                                    : "text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
-                                    }`}
-                            >
-                                <item.icon size={22} />
-                                {item.label}
-                            </button>
-                        ))}
-                    </nav>
-
-                    <button
-                        onClick={async () => {
-                            localStorage.removeItem("admin_session");
-                            await signOut(auth);
-                            router.push("/admin");
-                        }}
-                        className="mt-auto flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
-                    >
-                        <LogOut size={22} />
-                        Logout
-                    </button>
-                </div>
-            </aside>
+            {/* Sidebar Replaced */}
+            <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-h-screen max-w-full overflow-hidden">
@@ -355,7 +302,15 @@ export default function AdminPaymentMethods() {
                                                     <select
                                                         required
                                                         value={formData.bankName}
-                                                        onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                                                        onChange={(e) => {
+                                                            const selectedBank = ETHIOPIAN_BANKS.find(b => b.name === e.target.value);
+                                                            setFormData({
+                                                                ...formData,
+                                                                bankName: e.target.value,
+                                                                bankLogoUrl: selectedBank?.logo || formData.bankLogoUrl
+                                                            });
+                                                            if (selectedBank) setBankPreview(selectedBank.logo);
+                                                        }}
                                                         className="w-full py-4 pl-12 pr-10 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-600/50 outline-none transition-all appearance-none font-bold text-gray-900"
                                                     >
                                                         <option value="">Select a Bank...</option>
@@ -537,7 +492,7 @@ export default function AdminPaymentMethods() {
                                                     {method.bankDetailType && (
                                                         <div className="flex items-center justify-between border-t border-gray-100 pt-2 mt-2">
                                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</p>
-                                                            <p className="text-[10px] font-black text-indigo-400">{method.bankDetailType}</p>
+                                                            <p className="text-[10px] font-black text-indigo-400 capitalize">{method.bankDetailType}</p>
                                                         </div>
                                                     )}
                                                 </div>

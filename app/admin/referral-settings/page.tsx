@@ -16,10 +16,12 @@ import {
     LogOut,
     Menu,
     Save,
-    Percent,
-    Loader2
+    Building2,
+    Loader2,
+    Percent
 } from "lucide-react";
 import { toast } from "sonner";
+import AdminSidebar from "@/components/AdminSidebar";
 
 export default function ReferralSettingsPage() {
     const router = useRouter();
@@ -79,15 +81,7 @@ export default function ReferralSettingsPage() {
         router.push("/admin");
     };
 
-    const navItems = [
-        { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-        { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard" }, // In dashboard tab
-        { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
-        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
-        { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
-        { id: "referral", label: "Referral Rule", icon: Percent, path: "/admin/referral-settings", active: true },
-        { id: "settings", label: "Settings", icon: Settings, path: "/admin/dashboard" }, // In dashboard tab
-    ];
+    // Navigation handled by AdminSidebar
 
     if (loading) {
         return (
@@ -99,49 +93,7 @@ export default function ReferralSettingsPage() {
 
     return (
         <div className="min-h-screen bg-[#F8F9FD] flex">
-            {/* Sidebar Overlay */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-100 z-50 transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-                <div className="p-8 h-full flex flex-col">
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-600/20">
-                            <LayoutDashboard size={20} />
-                        </div>
-                        <h1 className="text-xl font-black text-gray-900 tracking-tight">Turner Boss</h1>
-                    </div>
-
-                    <nav className="flex-1 space-y-2">
-                        {navItems.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => router.push(item.path)}
-                                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${item.active
-                                        ? "bg-purple-600 text-white shadow-xl shadow-purple-600/30"
-                                        : "text-gray-500 hover:bg-gray-50 hover:text-purple-600"
-                                    }`}
-                            >
-                                <item.icon size={22} />
-                                {item.label}
-                            </button>
-                        ))}
-                    </nav>
-
-                    <button
-                        onClick={handleLogout}
-                        className="mt-auto flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
-                    >
-                        <LogOut size={22} />
-                        Logout
-                    </button>
-                </div>
-            </aside>
+            <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-h-screen max-w-full overflow-hidden">

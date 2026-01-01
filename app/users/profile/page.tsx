@@ -18,8 +18,6 @@ import {
     Ship,
     Award,
     DownloadCloud,
-    Briefcase,
-    Headset,
     FileText,
     Key,
     History,
@@ -275,8 +273,8 @@ export default function ProfilePage() {
                     {[
                         { label: "MY JEWELRY", icon: Award, color: "blue", iconColor: "text-blue-600", path: null, dark: false },
                         { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false },
-                        { label: "BANK", icon: Briefcase, color: "emerald", iconColor: "text-emerald-600", path: null, dark: false },
-                        { label: "SERVICE", icon: Headset, color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false },
+                        { label: "BANK", image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false },
+                        { label: "SERVICE", image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false },
                     ].map((item, i) => (
                         <button
                             key={i}

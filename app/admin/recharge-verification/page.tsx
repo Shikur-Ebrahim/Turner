@@ -25,13 +25,16 @@ import {
     Loader2,
     RefreshCcw,
     ArrowLeft,
-    ShieldCheck
+    ShieldCheck,
+    Menu
 } from "lucide-react";
+import AdminSidebar from "@/components/AdminSidebar";
 import { toast } from "sonner";
 
 export default function RechargeVerificationPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [verifying, setVerifying] = useState<string | null>(null);
     const [recharges, setRecharges] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -191,7 +194,7 @@ export default function RechargeVerificationPage() {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 overflow-x-hidden relative flex flex-col">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 overflow-x-hidden relative flex">
             {/* Confirmation Modal */}
             {confirmAction && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-6 transition-all">
@@ -230,14 +233,16 @@ export default function RechargeVerificationPage() {
                 </div>
             )}
 
-            <main className="flex-1 min-h-screen flex flex-col">
+            <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+            <div className="flex-1 flex flex-col min-h-screen max-w-full overflow-hidden">
                 <header className="sticky top-0 bg-white/80 backdrop-blur-xl px-4 lg:px-10 py-5 flex items-center justify-between z-50 border-b border-slate-100">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => router.push("/admin/dashboard")}
-                            className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90"
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="md:hidden w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all active:scale-90"
                         >
-                            <ArrowLeft size={20} />
+                            <Menu size={20} />
                         </button>
                         <div className="flex flex-col">
                             <h2 className="text-lg lg:text-xl font-black text-slate-900 tracking-tight leading-none">Transactions</h2>
@@ -413,7 +418,7 @@ export default function RechargeVerificationPage() {
                         )}
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

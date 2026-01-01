@@ -24,17 +24,29 @@ import {
     Bell,
     Banknote,
     ShieldCheck,
+    Building2,
     Percent,
     Send,
     MessageSquare,
-    BookOpen
+    BookOpen,
+    UserX
 } from "lucide-react";
+import AdminSidebar from "@/components/AdminSidebar";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminDashboard() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("home");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        const tab = searchParams.get("tab");
+        if (tab) {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
 
     // Banner State
     const [banners, setBanners] = useState<any[]>([]);
@@ -146,83 +158,10 @@ export default function AdminDashboard() {
         );
     }
 
-    const navigation = [
-        { id: "home", label: "Dashboard", icon: Home },
-        { id: "banners", label: "Banner Ads", icon: ImageIcon },
-        { id: "payment-methods", label: "Payment Methods", icon: Banknote },
-        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck },
-        { id: "notifications", label: "Withdrawal Alerts", icon: Bell },
-        { id: "referral", label: "Referral Rule", icon: Percent },
-        { id: "telegram", label: "Telegram Staff", icon: Send },
-        { id: "chats", label: "Live Support", icon: MessageSquare },
-        { id: "guidelines", label: "Chat Guidelines", icon: BookOpen },
-        { id: "settings", label: "Settings", icon: Settings },
-    ];
-
     return (
         <div className="min-h-screen bg-[#F8F9FD] flex">
-            {/* Sidebar Overlay */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`fixed md:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-100 z-50 transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-                <div className="p-8 h-full flex flex-col">
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-600/20">
-                            <LayoutDashboard size={20} />
-                        </div>
-                        <h1 className="text-xl font-black text-gray-900 tracking-tight">Turner Boss</h1>
-                    </div>
-
-                    <nav className="flex-1 space-y-2">
-                        {navigation.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    if (item.id === "notifications") {
-                                        router.push("/admin/notifications");
-                                    } else if (item.id === "payment-methods") {
-                                        router.push("/admin/payment-methods");
-                                    } else if (item.id === "recharge") {
-                                        router.push("/admin/recharge-verification");
-                                    } else if (item.id === "referral") {
-                                        router.push("/admin/referral-settings");
-                                    } else if (item.id === "telegram") {
-                                        router.push("/admin/telegram");
-                                    } else if (item.id === "chats") {
-                                        router.push("/admin/chats");
-                                    } else if (item.id === "guidelines") {
-                                        router.push("/admin/guidelines");
-                                    } else {
-                                        setActiveTab(item.id);
-                                    }
-                                    setIsSidebarOpen(false);
-                                }}
-                                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === item.id
-                                    ? "bg-purple-600 text-white shadow-xl shadow-purple-600/30"
-                                    : "text-gray-500 hover:bg-gray-50 hover:text-purple-600"
-                                    }`}
-                            >
-                                <item.icon size={22} />
-                                {item.label}
-                            </button>
-                        ))}
-                    </nav>
-
-                    <button
-                        onClick={handleLogout}
-                        className="mt-auto flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
-                    >
-                        <LogOut size={22} />
-                        Logout
-                    </button>
-                </div>
-            </aside>
+            {/* Replaced Sidebar with Component */}
+            <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-h-screen max-w-full overflow-hidden">
@@ -370,6 +309,6 @@ export default function AdminDashboard() {
                     )}
                 </main>
             </div>
-        </div>
+        </div >
     );
 }

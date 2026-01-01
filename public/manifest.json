@@ -1,0 +1,21 @@
+{
+  "name": "Turner Boss",
+  "short_name": "Turner",
+  "description": "Turner Boss Application",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/app logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
