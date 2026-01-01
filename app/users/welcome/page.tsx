@@ -361,6 +361,37 @@ export default function WelcomePage() {
                                                     </div>
                                                 </div>
                                             );
+                                        } else if (notif.type === 'password_change') {
+                                            const isUnread = notif.read === false;
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => handleMarkAsRead(notif)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                        ? "bg-blue-50 border-blue-100 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                        : "bg-slate-50 border-slate-100"
+                                                        }`}
+                                                >
+                                                    {isUnread && (
+                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)] z-20"></div>
+                                                    )}
+
+                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10">
+                                                        <Shield size={20} className="text-blue-600" />
+                                                    </div>
+                                                    <div className="flex flex-col relative z-10">
+                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? "text-blue-900" : "text-gray-900"}`}>
+                                                            Security Update
+                                                        </p>
+                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-blue-600" : "text-gray-700"}`}>
+                                                            {notif.message}
+                                                        </p>
+                                                    </div>
+                                                    <div className="absolute -right-2 -top-2 opacity-10 text-blue-600">
+                                                        <Shield size={40} />
+                                                    </div>
+                                                </div>
+                                            );
                                         } else {
                                             // Render Reward Style
                                             const levelMap: { [key: string]: string } = {

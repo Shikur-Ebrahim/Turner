@@ -24,7 +24,10 @@ import {
     Bell,
     Banknote,
     ShieldCheck,
-    Percent
+    Percent,
+    Send,
+    MessageSquare,
+    BookOpen
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -150,6 +153,9 @@ export default function AdminDashboard() {
         { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck },
         { id: "notifications", label: "Withdrawal Alerts", icon: Bell },
         { id: "referral", label: "Referral Rule", icon: Percent },
+        { id: "telegram", label: "Telegram Staff", icon: Send },
+        { id: "chats", label: "Live Support", icon: MessageSquare },
+        { id: "guidelines", label: "Chat Guidelines", icon: BookOpen },
         { id: "settings", label: "Settings", icon: Settings },
     ];
 
@@ -186,6 +192,12 @@ export default function AdminDashboard() {
                                         router.push("/admin/recharge-verification");
                                     } else if (item.id === "referral") {
                                         router.push("/admin/referral-settings");
+                                    } else if (item.id === "telegram") {
+                                        router.push("/admin/telegram");
+                                    } else if (item.id === "chats") {
+                                        router.push("/admin/chats");
+                                    } else if (item.id === "guidelines") {
+                                        router.push("/admin/guidelines");
                                     } else {
                                         setActiveTab(item.id);
                                     }

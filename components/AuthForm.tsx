@@ -65,14 +65,85 @@ export default function AuthForm() {
         { name: "United States", code: "US", prefix: "+1", flag: "/Flag_of_the_United_States.png" },
     ];
 
+    // Phone validation rules for each country
+    const phoneValidationRules: Record<string, {
+        length: number | [number, number];
+        startsWith?: string[];
+        errorMsg: string
+    }> = {
+        "Argentina": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "Australia": { length: 9, startsWith: ["2", "3", "4", "7", "8"], errorMsg: "Phone number must be 9 digits starting with 2, 3, 4, 7, or 8" },
+        "Belarus": { length: 9, startsWith: ["2", "3", "4"], errorMsg: "Phone number must be 9 digits starting with 2, 3, or 4" },
+        "Belgium": { length: [8, 9], errorMsg: "Phone number must be 8 or 9 digits" },
+        "Canada": { length: 10, startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10 digits starting with 2-9" },
+        "China": { length: [10, 11], startsWith: ["1", "2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10-11 digits" },
+        "Colombia": { length: 10, startsWith: ["1", "2", "3", "4", "5", "6", "7", "8"], errorMsg: "Phone number must be 10 digits" },
+        "Egypt": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "Eritrea": { length: 7, startsWith: ["1", "2", "7", "8"], errorMsg: "Phone number must be 7 digits starting with 1, 2, 7, or 8" },
+        "Ethiopia": { length: 9, startsWith: ["7", "9"], errorMsg: "Phone number must be 9 digits starting with 7 or 9" },
+        "France": { length: 9, errorMsg: "Phone number must be 9 digits" },
+        "Jordan": { length: 9, startsWith: ["2", "3", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2, 3, 5, 6, or 7" },
+        "Kazakhstan": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "Mexico": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "Morocco": { length: 9, startsWith: ["2", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2, 5, 6, or 7" },
+        "New Zealand": { length: [8, 10], startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 8-10 digits" },
+        "Russia": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "Saudi Arabia": { length: 9, startsWith: ["1", "5"], errorMsg: "Phone number must be 9 digits starting with 1 or 5" },
+        "Senegal": { length: 9, startsWith: ["3", "7"], errorMsg: "Phone number must be 9 digits starting with 3 or 7" },
+        "Singapore": { length: 8, startsWith: ["3", "6", "8", "9"], errorMsg: "Phone number must be 8 digits starting with 3, 6, 8, or 9" },
+        "Spain": { length: 9, startsWith: ["6", "7", "8", "9"], errorMsg: "Phone number must be 9 digits starting with 6, 7, 8, or 9" },
+        "Taiwan": { length: [8, 10], errorMsg: "Phone number must be 8-10 digits" },
+        "United Arab Emirates": { length: 9, startsWith: ["2", "3", "4", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2-7" },
+        "United Kingdom": { length: 10, errorMsg: "Phone number must be 10 digits" },
+        "United States": { length: 10, startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10 digits starting with 2-9" },
+    };
+
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
+        // Phone number validation for all countries
+        if (name === "phoneNumber") {
+            // Remove any non-numeric characters
+            const numericValue = value.replace(/\D/g, "");
+
+            // Get validation rules for the selected country
+            const rules = phoneValidationRules[formData.country];
+
+            if (!rules) {
+                // No specific rules, just allow numeric input
+                setFormData((prev) => ({ ...prev, [name]: numericValue }));
+                return;
+            }
+
+            // Allow empty value
+            if (numericValue.length === 0) {
+                setFormData((prev) => ({ ...prev, [name]: "" }));
+                return;
+            }
+
+            // Check if first digit matches allowed starting digits
+            if (rules.startsWith && !rules.startsWith.includes(numericValue[0])) {
+                // Don't update if first digit is invalid
+                return;
+            }
+
+            // Determine max length
+            const maxLength = Array.isArray(rules.length) ? rules.length[1] : rules.length;
+
+            // Limit to max length
+            if (numericValue.length <= maxLength) {
+                setFormData((prev) => ({ ...prev, [name]: numericValue }));
+            }
+            return;
+        }
+
         setFormData((prev) => ({ ...prev, [name]: value }));
 
         if (name === "country") {
             const selectedCountry = countries.find((c) => c.name === value);
             if (selectedCountry) {
-                setFormData((prev) => ({ ...prev, country: value, phonePrefix: selectedCountry.prefix }));
+                setFormData((prev) => ({ ...prev, country: value, phonePrefix: selectedCountry.prefix, phoneNumber: "" }));
             }
         }
     };
@@ -83,6 +154,31 @@ export default function AuthForm() {
         setLoading(true);
 
         try {
+            // Validate phone numbers for all countries
+            const phoneNumber = formData.phoneNumber.replace(/\D/g, "");
+            const rules = phoneValidationRules[formData.country];
+
+            if (rules) {
+                // Check length
+                if (Array.isArray(rules.length)) {
+                    // Range validation
+                    if (phoneNumber.length < rules.length[0] || phoneNumber.length > rules.length[1]) {
+                        throw new Error(rules.errorMsg);
+                    }
+                } else {
+                    // Exact length validation
+                    if (phoneNumber.length !== rules.length) {
+                        throw new Error(rules.errorMsg);
+                    }
+                }
+
+                // Check starting digit
+                if (rules.startsWith && !rules.startsWith.includes(phoneNumber[0])) {
+                    throw new Error(rules.errorMsg);
+                }
+            }
+
+
             const fullPhoneNumber = `${formData.phonePrefix}${formData.phoneNumber}`;
             const sanitizedPhone = fullPhoneNumber.replace(/\+/g, "").replace(/\s/g, "");
             const generatedEmail = `${sanitizedPhone}@turner.app`;
