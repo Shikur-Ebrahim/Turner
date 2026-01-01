@@ -273,18 +273,26 @@ export default function ProfilePage() {
                 {/* Advanced Core Services - Interaction Grid */}
                 <div className="grid grid-cols-4 gap-4 mb-12">
                     {[
-                        { label: "MY JEWELRY", icon: Award, color: "blue", iconColor: "text-blue-600" },
-                        { label: "DOWNLOAD", icon: DownloadCloud, color: "indigo", iconColor: "text-white", dark: true },
-                        { label: "BANK", icon: Briefcase, color: "emerald", iconColor: "text-emerald-600" },
-                        { label: "SERVICE", icon: Headset, color: "purple", iconColor: "text-purple-600" },
+                        { label: "MY JEWELRY", icon: Award, color: "blue", iconColor: "text-blue-600", path: null, dark: false },
+                        { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false },
+                        { label: "BANK", icon: Briefcase, color: "emerald", iconColor: "text-emerald-600", path: null, dark: false },
+                        { label: "SERVICE", icon: Headset, color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false },
                     ].map((item, i) => (
-                        <button key={i} className="flex flex-col items-center gap-2.5 group">
+                        <button
+                            key={i}
+                            onClick={() => item.path && router.push(item.path)}
+                            className="flex flex-col items-center gap-2.5 group"
+                        >
                             <div className={`w-16 h-16 rounded-[1.5rem] bg-white shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center relative overflow-hidden group-hover:scale-110 group-active:scale-95 transition-all duration-300`}>
                                 {/* Inner Gradient Accent */}
                                 <div className={`absolute inset-0 bg-gradient-to-br from-${item.color}-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`}></div>
 
-                                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center relative z-10 ${item.dark ? `bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/30` : `bg-${item.color}-50`}`}>
-                                    <item.icon size={22} className={item.dark ? "text-white" : item.iconColor} />
+                                <div className={`w-full h-full flex items-center justify-center relative z-10 ${item.image ? "" : `w-11 h-11 rounded-2xl ${item.dark ? `bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/30` : `bg-${item.color}-50`}`}`}>
+                                    {item.image ? (
+                                        <img src={item.image} alt={item.label} className="w-full h-full object-cover scale-110 group-hover:scale-125 transition-transform duration-500" />
+                                    ) : item.icon ? (
+                                        <item.icon size={22} className={item.dark ? "text-white" : item.iconColor} />
+                                    ) : null}
                                 </div>
                             </div>
                             <span className="text-[9px] font-black text-gray-500 tracking-widest uppercase text-center leading-none">{item.label}</span>
@@ -300,13 +308,17 @@ export default function ProfilePage() {
                     </div>
 
                     {[
-                        { title: "FUNDING DETAILS", sub: "TRANSACTION LOGS", icon: Wallet, color: "blue" },
-                        { title: "WITHDRAWAL RECORD", sub: "PAYMENT STATUS", icon: ArrowUpRight, color: "emerald" },
-                        { title: "LOGIN PASSWORD", sub: "SECURITY PROTOCOLS", icon: Key, color: "purple" },
-                        { title: "WITHDRAWAL PASSWORD", sub: "ASSET PROTECTION", icon: Lock, color: "indigo" },
-                        { title: "RECHARGE RECORD", sub: "CREDIT ANALYSIS", icon: History, color: "orange" },
+                        { title: "FUNDING DETAILS", sub: "TRANSACTION LOGS", icon: Wallet, color: "blue", path: null },
+                        { title: "WITHDRAWAL RECORD", sub: "PAYMENT STATUS", icon: ArrowUpRight, color: "emerald", path: null },
+                        { title: "LOGIN PASSWORD", sub: "SECURITY PROTOCOLS", icon: Key, color: "purple", path: "/users/change-password" },
+                        { title: "WITHDRAWAL PASSWORD", sub: "ASSET PROTECTION", icon: Lock, color: "indigo", path: null },
+                        { title: "RECHARGE RECORD", sub: "CREDIT ANALYSIS", icon: History, color: "orange", path: "/users/recharge-records" },
                     ].map((item, i) => (
-                        <button key={i} className="w-full relative group active:scale-[0.98] transition-all">
+                        <button
+                            key={i}
+                            onClick={() => item.path && router.push(item.path)}
+                            className="w-full relative group active:scale-[0.98] transition-all"
+                        >
                             <div className="absolute -inset-2 bg-gradient-to-r from-gray-100 to-transparent rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                             <div className="relative flex items-center justify-between p-5 bg-white rounded-[2rem] border border-gray-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-xl hover:shadow-gray-200/40 transition-all">
@@ -348,10 +360,10 @@ export default function ProfilePage() {
                         </button>
                     </div>
                 </div>
-            </main>
+            </main >
 
             {/* Elite Separate-Node Navigation - Pinned to Bottom */}
-            <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 bg-gradient-to-t from-white via-white/80 to-transparent pt-10">
+            < div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 bg-gradient-to-t from-white via-white/80 to-transparent pt-10" >
                 <div className="max-w-md mx-auto flex items-center justify-between gap-2">
                     {[
                         { id: "home", icon: Home, label: "HOME", path: "/users/welcome" },
@@ -384,7 +396,7 @@ export default function ProfilePage() {
                         </button>
                     ))}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
