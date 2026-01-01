@@ -48,7 +48,11 @@ export default function ServicePage() {
             title: "Official Company",
             description: "Direct line to our main corporate account",
             image: "/logo.png",
-            color: "emerald",
+            colorClass: "bg-emerald-600",
+            shadowClass: "shadow-emerald-500/30",
+            textClass: "text-emerald-600",
+            glowClass: "bg-emerald-500/5",
+            hoverGlowClass: "group-hover:bg-emerald-500/10",
             path: "/users/chat",
             label: "CHAT NOW"
         },
@@ -56,7 +60,11 @@ export default function ServicePage() {
             title: "Team Support",
             description: "Contact our dedicated team for assistance",
             image: "/telegram team.jpg",
-            color: "purple",
+            colorClass: "bg-purple-600",
+            shadowClass: "shadow-purple-500/30",
+            textClass: "text-purple-600",
+            glowClass: "bg-purple-500/5",
+            hoverGlowClass: "group-hover:bg-purple-500/10",
             link: formatTG(links.teamLink),
             label: "CONTACT TEAM"
         },
@@ -64,7 +72,11 @@ export default function ServicePage() {
             title: "Official Channel",
             description: "Stay updated with latest news and announcements",
             image: "/telegram.jpg",
-            color: "blue",
+            colorClass: "bg-blue-600",
+            shadowClass: "shadow-blue-500/30",
+            textClass: "text-blue-600",
+            glowClass: "bg-blue-500/5",
+            hoverGlowClass: "group-hover:bg-blue-500/10",
             link: formatTG(links.channelLink),
             label: "JOIN CHANNEL"
         }
@@ -113,16 +125,20 @@ export default function ServicePage() {
                         <button
                             key={idx}
                             onClick={() => {
-                                if (option.path) {
-                                    router.push(option.path);
-                                } else if (option.link) {
-                                    window.open(option.link, "_blank", "noopener,noreferrer");
+                                try {
+                                    if (option.path) {
+                                        router.push(option.path);
+                                    } else if (option.link) {
+                                        window.open(option.link, "_blank", "noopener,noreferrer");
+                                    }
+                                } catch (e) {
+                                    console.error("Navigation error:", e);
                                 }
                             }}
                             className="group relative block w-full bg-white rounded-[2.5rem] p-6 border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.05)] hover:shadow-2xl hover:shadow-gray-200 transition-all active:scale-[0.98] overflow-hidden"
                         >
                             {/* Accent Glow */}
-                            <div className={`absolute top-0 right-0 w-32 h-32 bg-${option.color}-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-${option.color}-500/10 transition-colors`}></div>
+                            <div className={`absolute top-0 right-0 w-32 h-32 ${option.glowClass} rounded-full blur-3xl -mr-16 -mt-16 ${option.hoverGlowClass} transition-colors`}></div>
 
                             <div className="flex items-center gap-5">
                                 <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-gray-100 shadow-sm relative overflow-hidden">
@@ -140,19 +156,19 @@ export default function ServicePage() {
                                         {option.description}
                                     </p>
                                 </div>
-                                <div className={`w-10 h-10 rounded-full bg-${option.color}-600 text-white flex items-center justify-center shadow-lg shadow-${option.color}-500/30 group-hover:translate-x-1 transition-transform`}>
+                                <div className={`w-10 h-10 rounded-full ${option.colorClass} text-white flex items-center justify-center shadow-lg ${option.shadowClass} group-hover:translate-x-1 transition-transform`}>
                                     <ExternalLink size={18} />
                                 </div>
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-center">
-                                <span className={`text-[10px] font-black text-${option.color}-600 uppercase tracking-[0.2em]`}>
+                                <span className={`text-[10px] font-black ${option.textClass} uppercase tracking-[0.2em]`}>
                                     {option.label}
                                 </span>
                                 <div className="flex -space-x-2">
                                     {[1, 2, 3].map((i) => (
                                         <div key={i} className="w-5 h-5 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
-                                            <div className={`w-full h-full bg-${option.color}-100 animate-pulse`}></div>
+                                            <div className="w-full h-full bg-gray-50 animate-pulse"></div>
                                         </div>
                                     ))}
                                 </div>

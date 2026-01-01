@@ -40,18 +40,26 @@ export default function UserChatPage() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const hasScrolledToUnread = useRef(false);
     const initialUnreadCount = useRef(0);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        // Real-time guidelines listener
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) return;
+        // Real-time guidelines listener with error handling
         const unsubscribeGuidelines = onSnapshot(collection(db, "guidelines"), (snapshot) => {
             const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
             const order = ["welcome", "goal", "recharge", "product", "invite"];
             const sorted = data.sort((a: any, b: any) => {
-                const indexA = order.indexOf(a.id);
-                const indexB = order.indexOf(b.id);
+                const indexA = order.indexOf(String(a.id));
+                const indexB = order.indexOf(String(b.id));
                 return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
             });
             setGuidelines(sorted);
+        }, (error) => {
+            console.error("Guidelines listener failed:", error);
         });
 
         let unsubscribeMessages: (() => void) | null = null;
@@ -110,8 +118,12 @@ export default function UserChatPage() {
                 }
 
                 // Clear unread count for user when they open the chat
-                updateUnreadCount(currentUser.uid);
+                updateUnreadCount(currentUser.uid).catch(console.error);
+            }, (error) => {
+                console.error("Messages listener failed:", error);
             });
+        }, (error) => {
+            console.error("Auth observer failed:", error);
         });
 
         return () => {
@@ -221,7 +233,7 @@ export default function UserChatPage() {
         }
     };
 
-    if (loading || !user) {
+    if (!mounted || loading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-zinc-50">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
