@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db, storage } from "@/lib/firebase";
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
@@ -34,7 +34,7 @@ import {
 import AdminSidebar from "@/components/AdminSidebar";
 import { useSearchParams } from "next/navigation";
 
-export default function AdminDashboard() {
+function AdminDashboard() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
@@ -310,5 +310,17 @@ export default function AdminDashboard() {
                 </main>
             </div>
         </div >
+    );
+}
+
+export default function AdminDashboardPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-white text-purple-600">
+                <Loader2 className="w-12 h-12 animate-spin" />
+            </div>
+        }>
+            <AdminDashboard />
+        </Suspense>
     );
 }
