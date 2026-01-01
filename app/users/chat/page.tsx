@@ -71,67 +71,77 @@ export default function UserChatPage() {
             }
             setUser(currentUser);
 
-            // Fetch user data for chat info
-            const userRef = doc(db, "users", currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-                setUserData(userSnap.data());
-            }
-
-            // Fetch initial unread count once
-            const chatSnap = await getDoc(doc(db, "chats", currentUser.uid));
-            if (chatSnap.exists()) {
-                initialUnreadCount.current = chatSnap.data().unreadCountUser || 0;
-            }
-
-            // Real-time messages listener
-            const messagesRef = collection(db, "chats", currentUser.uid, "messages");
-            const q = query(messagesRef, orderBy("timestamp", "asc"), limit(100));
-
-            unsubscribeMessages = onSnapshot(q, (snapshot) => {
-                const msgs = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
-                const shouldScrollToUnread = initialUnreadCount.current > 0 && !hasScrolledToUnread.current;
-
-                setMessages(msgs);
-                setLoading(false);
-
-                if (shouldScrollToUnread) {
-                    hasScrolledToUnread.current = true;
-                    setTimeout(() => {
-                        if (scrollRef.current) {
-                            const container = scrollRef.current;
-                            const bubbles = container.querySelectorAll('.message-bubble');
-                            const targetIdx = msgs.length - initialUnreadCount.current;
-                            if (bubbles[targetIdx]) {
-                                bubbles[targetIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            } else {
-                                scrollToBottom(true);
-                            }
-                        }
-                    }, 500); // More delay for guidelines/images
-                } else {
-                    scrollToBottom(true);
+            try {
+                // Fetch user data for chat info
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    setUserData(userSnap.data());
                 }
 
-                // Clear unread count for user when they open the chat
-                updateUnreadCount(currentUser.uid).catch(console.error);
-            }, (error) => {
-                console.error("Messages listener failed:", error);
-            });
+                // Fetch initial unread count once
+                const chatSnap = await getDoc(doc(db, "chats", currentUser.uid));
+                if (chatSnap.exists()) {
+                    initialUnreadCount.current = chatSnap.data().unreadCountUser || 0;
+                } else {
+                    // If no chat doc yet, it's not loading anymore
+                    setLoading(false);
+                }
+
+                // Real-time messages listener
+                const messagesRef = collection(db, "chats", currentUser.uid, "messages");
+                const q = query(messagesRef, orderBy("timestamp", "asc"), limit(100));
+
+                unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                    const msgs = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    const shouldScrollToUnread = initialUnreadCount.current > 0 && !hasScrolledToUnread.current;
+
+                    setMessages(msgs);
+                    setLoading(false);
+
+                    if (shouldScrollToUnread) {
+                        hasScrolledToUnread.current = true;
+                        setTimeout(() => {
+                            if (scrollRef.current) {
+                                const container = scrollRef.current;
+                                const bubbles = container.querySelectorAll('.message-bubble');
+                                const targetIdx = msgs.length - initialUnreadCount.current;
+                                if (bubbles[targetIdx]) {
+                                    bubbles[targetIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                } else {
+                                    scrollToBottom(true);
+                                }
+                            }
+                        }, 500); // More delay for guidelines/images
+                    } else {
+                        scrollToBottom(true);
+                    }
+
+                    // Clear unread count for user when they open the chat
+                    updateUnreadCount(currentUser.uid).catch(console.error);
+                }, (error) => {
+                    console.error("Messages listener failed:", error);
+                    setLoading(false);
+                });
+            } catch (error) {
+                console.error("Error initializing chat:", error);
+                setLoading(false);
+            }
         }, (error) => {
             console.error("Auth observer failed:", error);
+            setLoading(false);
         });
 
         return () => {
             unsubscribeAuth();
             unsubscribeGuidelines();
-            if (unsubscribeMessages) (unsubscribeMessages as () => void)();
+            if (unsubscribeMessages) unsubscribeMessages();
         };
-    }, [router]);
+    }, [router, mounted]);
 
     // Auto-scroll to bottom
     const scrollToBottom = (smooth = true) => {
