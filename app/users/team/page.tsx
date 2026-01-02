@@ -125,13 +125,22 @@ export default function TeamPage() {
             } catch (error) {
                 console.error("Error fetching team:", error);
                 toast.error("Failed to load team data");
+                setLoading(false);
             } finally {
                 setLoading(false);
             }
         });
 
-        return () => unsubscribe();
-    }, [router]);
+        // Safety timeout to prevent permanent loading state
+        const loadingTimeout = setTimeout(() => {
+            setLoading(false);
+        }, 5000);
+
+        return () => {
+            unsubscribe();
+            clearTimeout(loadingTimeout);
+        };
+    }, [router, mounted]);
 
     const tabs = [
         { id: 'A', label: 'Level 1', pct: `${rates.levelA}%` },
