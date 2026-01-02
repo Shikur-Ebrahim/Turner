@@ -150,32 +150,42 @@ function PendingContent() {
     useEffect(() => {
         if (!mounted || !user) return;
 
-        // Listen for the user's latest recharge status
+        const type = searchParams.get("type");
+        const collectionName = type === "withdrawal" ? "Withdrawals" : "RechargeReview";
+
+        // Listen for the user's latest transaction status
         const q = query(
-            collection(db, "RechargeReview"),
+            collection(db, collectionName),
             where("userId", "==", user.uid)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             if (!snapshot.empty) {
                 // Client-side sort to avoid index requirements
-                const recharges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
-                recharges.sort((a, b) => {
-                    const timeA = a.timestamp?.toMillis?.() || 0;
-                    const timeB = b.timestamp?.toMillis?.() || 0;
+                // For Withdrawals we might need 'createdAt', for Recharge 'timestamp'.
+                // Withdrawals has 'createdAt' (serverTimestamp). Recharge has 'timestamp'.
+                const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+                docs.sort((a, b) => {
+                    // Handle both field names safely
+                    const timeA = (a.timestamp || a.createdAt)?.toMillis?.() || 0;
+                    const timeB = (b.timestamp || b.createdAt)?.toMillis?.() || 0;
                     return timeB - timeA;
                 });
 
-                const latestRecharge = recharges[0];
-                if (latestRecharge?.status === 'verified') {
-                    // Redirect to welcome page with product tab active
-                    router.push("/users/welcome?tab=product");
+                const latestTx = docs[0];
+                if (latestTx?.status === 'verified' || latestTx?.status === 'approved' || latestTx?.status === 'success') {
+                    // Redirect based on type
+                    if (type === "withdrawal") {
+                        router.push("/users/profile"); // Go to profile to see updated balance/record
+                    } else {
+                        router.push("/users/welcome?tab=product");
+                    }
                 }
             }
         });
 
         return () => unsubscribe();
-    }, [user, router]);
+    }, [user, router, searchParams, mounted]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -281,7 +291,7 @@ function PendingContent() {
                                 <span className={`w-1.5 h-1.5 rounded-full bg-current animate-bounce delay-100 ${theme.accent}`}></span>
                                 <span className={`w-1.5 h-1.5 rounded-full bg-current animate-bounce delay-200 ${theme.accent}`}></span>
                             </div>
-                            <span className={`text-[12px] font-black uppercase tracking-[0.2em] ${theme.accent}`}>Status: Under Review</span>
+                            <span className={`text-[12px] font-black uppercase tracking-[0.2em] ${theme.accent}`}>Status: {searchParams.get('type') === 'withdrawal' ? 'Pending Approval' : 'Under Review'}</span>
                         </div>
 
                         <h1 className={`text-4xl sm:text-5xl font-black tracking-tighter leading-[0.9] mb-4 ${!isLight ? 'text-white' : 'text-slate-950'}`}>

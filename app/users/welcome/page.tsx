@@ -14,7 +14,8 @@ import {
     TrendingUp,
     Loader2,
     Shield,
-    Package
+    Package,
+    CheckCircle2
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -298,7 +299,7 @@ function WelcomeContent() {
                                     }
 
                                     return allNotifs.map((notif, idx) => {
-                                        if (notif.type === 'recharge' || notif.amount && !notif.level) {
+                                        if (notif.type === 'recharge' || (notif.amount && !notif.level && notif.type !== 'withdrawal' && notif.type !== 'withdrawal_verified')) {
                                             // Render Recharge Style
                                             return (
                                                 <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
@@ -370,6 +371,66 @@ function WelcomeContent() {
                                                     </div>
                                                     <div className="absolute -right-2 -top-2 opacity-10">
                                                         <Users size={40} className={isUnread ? "text-emerald-600" : "text-slate-400"} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        } else if (notif.type === 'withdrawal_verified') {
+                                            const isUnread = notif.read === false;
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => handleMarkAsRead(notif)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                        ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                        : "bg-slate-50 border-slate-100"
+                                                        }`}
+                                                >
+                                                    {isUnread && (
+                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></div>
+                                                    )}
+                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
+                                                        <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
+                                                    </div>
+                                                    <div className="flex flex-col relative z-10">
+                                                        <p className={`text-xs font-black leading-tight ${isUnread ? "text-emerald-900" : "text-gray-900"} uppercase tracking-tight`}>
+                                                            Payout Authorized
+                                                        </p>
+                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-emerald-600" : "text-gray-700"}`}>
+                                                            {Number(notif.amount).toLocaleString()} ETB Verified
+                                                        </p>
+                                                    </div>
+                                                    <div className="absolute -right-2 -top-2 opacity-10 text-emerald-600">
+                                                        <CheckCircle2 size={40} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        } else if (notif.type === 'withdrawal') {
+                                            const isUnread = notif.read === false;
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => handleMarkAsRead(notif)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                        ? "bg-indigo-50 border-indigo-100 shadow-[0_0_15px_rgba(79,70,229,0.1)]"
+                                                        : "bg-slate-50 border-slate-100"
+                                                        }`}
+                                                >
+                                                    {isUnread && (
+                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)] z-20"></div>
+                                                    )}
+                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
+                                                        <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
+                                                    </div>
+                                                    <div className="flex flex-col relative z-10">
+                                                        <p className={`text-xs font-black leading-tight ${isUnread ? "text-indigo-900" : "text-gray-900"} uppercase tracking-tight`}>
+                                                            Withdrawal Pending
+                                                        </p>
+                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-indigo-600" : "text-gray-700"}`}>
+                                                            {Number(notif.amount).toLocaleString()} ETB Payout
+                                                        </p>
+                                                    </div>
+                                                    <div className="absolute -right-2 -top-2 opacity-10 text-indigo-600">
+                                                        <Wallet size={40} />
                                                     </div>
                                                 </div>
                                             );

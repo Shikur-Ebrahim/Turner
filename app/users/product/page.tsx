@@ -50,7 +50,7 @@ export default function UserProductsPage() {
             }
         });
 
-        // Fetch Products
+        // Fetch Products - Original sorting
         const qProducts = query(collection(db, "Products"), orderBy("createdAt", "desc"));
         const unsubscribeProducts = onSnapshot(qProducts, (snapshot) => {
             const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

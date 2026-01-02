@@ -3,6 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Home, Ship, Users, Wallet, Shield } from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
+import { syncDailyIncome } from "@/lib/sync";
+import { auth } from "@/lib/firebase";
 
 function BottomNavContent() {
     const pathname = usePathname();
@@ -12,8 +14,19 @@ function BottomNavContent() {
     const [mounted, setMounted] = useState(false);
     const isChat = pathname === "/users/chat";
 
+    const [userId, setUserId] = useState<string | null>(null);
+
     useEffect(() => {
         setMounted(true);
+        // Clean up any potential auth listeners
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUserId(user.uid);
+                // Trigger sync when we have a user
+                syncDailyIncome(user.uid);
+            }
+        });
+        return () => unsubscribe();
     }, []);
 
     useEffect(() => {
@@ -30,7 +43,9 @@ function BottomNavContent() {
         }
     }, [pathname, searchParams, mounted]);
 
-    if (!mounted || isChat) return null;
+    const hideNav = pathname === "/users/chat" || pathname.startsWith("/users/withdraw") || pathname === "/users/change-withdrawal-password" || pathname.includes("-record") || pathname === "/users/funding-details";
+
+    if (!mounted || hideNav) return null;
 
     const navItems = [
         { id: "home", icon: Home, label: "HOME", path: "/users/welcome?tab=home" },

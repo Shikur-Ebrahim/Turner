@@ -306,10 +306,10 @@ export default function ProfilePage() {
                     </div>
 
                     {[
-                        { title: "FUNDING DETAILS", sub: "TRANSACTION LOGS", icon: Wallet, color: "blue", path: null },
-                        { title: "WITHDRAWAL RECORD", sub: "PAYMENT STATUS", icon: ArrowUpRight, color: "emerald", path: null },
+                        { title: "FUNDING DETAILS", sub: "TRANSACTION LOGS", icon: Wallet, color: "blue", path: "/users/funding-details" },
+                        { title: "WITHDRAWAL RECORD", sub: "PAYMENT STATUS", icon: ArrowUpRight, color: "emerald", path: "/users/withdrawal-record" },
                         { title: "LOGIN PASSWORD", sub: "SECURITY PROTOCOLS", icon: Key, color: "purple", path: "/users/change-password" },
-                        { title: "WITHDRAWAL PASSWORD", sub: "ASSET PROTECTION", icon: Lock, color: "indigo", path: null },
+                        { title: "WITHDRAWAL PASSWORD", sub: "ASSET PROTECTION", icon: Lock, color: "indigo", path: "/users/change-withdrawal-password" },
                         { title: "RECHARGE RECORD", sub: "CREDIT ANALYSIS", icon: History, color: "orange", path: "/users/recharge-records" },
                     ].map((item, i) => (
                         <button

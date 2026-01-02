@@ -10,6 +10,7 @@ import {
     runTransaction,
     collection,
     serverTimestamp,
+    increment,
     setDoc,
     query,
     where,
@@ -118,9 +119,10 @@ export default function UserProductDetailPage() {
                     lastSync: serverTimestamp()
                 });
 
-                // 5. Deduct Balance from "Recharge" field
+                // 5. Deduct Balance from "Recharge" field and Update Daily Income Rate
                 transaction.update(userRef, {
-                    Recharge: rechargeBalance - product.price
+                    Recharge: rechargeBalance - product.price,
+                    dailyIncome: increment(product.dailyIncome)
                 });
             });
 
