@@ -128,21 +128,27 @@ function PendingContent() {
     const router = useRouter();
     const themeKey = searchParams.get("theme") || "regular";
     const theme = THEMES[themeKey as keyof typeof THEMES] || THEMES.regular;
+    const [mounted, setMounted] = useState(false);
     const [currentLog, setCurrentLog] = useState(0);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const isLight = themeKey === 'regular' || themeKey === 'express';
 
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
+        if (!mounted) return;
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
         });
         return () => unsubscribeAuth();
-    }, []);
+    }, [mounted]);
 
     useEffect(() => {
-        if (!user) return;
+        if (!mounted || !user) return;
 
         // Listen for the user's latest recharge status
         const q = query(
@@ -179,6 +185,15 @@ function PendingContent() {
     }, []);
 
     const CurrentIcon = theme.icon;
+
+    if (!mounted) {
+        return (
+            <div className="min-h-screen bg-[#050810] flex flex-col items-center justify-center gap-4">
+                <Loader2 className="animate-spin text-blue-500 w-10 h-10" />
+                <span className="text-blue-500 font-mono text-xs animate-pulse">SYNCHRONIZING SECURE TUNNEL...</span>
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${theme.bg} ${theme.font} transition-colors duration-1000 relative overflow-hidden flex flex-col`}>
