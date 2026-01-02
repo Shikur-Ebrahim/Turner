@@ -35,7 +35,7 @@ function BottomNavContent() {
     const navItems = [
         { id: "home", icon: Home, label: "HOME", path: "/users/welcome?tab=home" },
         { id: "product", icon: Ship, label: "MARKET", path: "/users/product" },
-        { id: "team", icon: Users, label: "NODES", path: "/users/welcome?tab=team" },
+        { id: "team", icon: Users, label: "NODES", path: "/users/team" },
         { id: "wallet", icon: Wallet, label: "ASSETS", path: "/users/welcome?tab=wallet" },
         { id: "me", icon: Shield, label: "ME", path: "/users/profile" },
     ];
