@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 
 const PRESET_AMOUNTS = [
-    7500, 17000, 29000, 45000, 75000,
-    130000, 210000, 280000, 350000, 460000
+    700, 2500, 4000, 9000, 21000,
+    45000, 98000, 220000, 460000, 900000, 1400000
 ];
 
 export default function RechargePage() {
     const router = useRouter();
-    const [amount, setAmount] = useState<string>("7500");
+    const [amount, setAmount] = useState<string>("2500");
     const [customAmount, setCustomAmount] = useState<string>("");
 
     const handleAmountSelect = (val: number) => {
@@ -36,8 +36,8 @@ export default function RechargePage() {
 
     const handleNext = () => {
         const numAmount = parseInt(amount);
-        if (isNaN(numAmount) || numAmount < 1000) {
-            alert("Minimum recharge amount is 1000 ETB");
+        if (isNaN(numAmount) || numAmount < 500) {
+            alert("Minimum recharge amount is 500 ETB");
             return;
         }
         router.push(`/users/payment-method?amount=${amount}`);
@@ -99,7 +99,7 @@ export default function RechargePage() {
                 <section className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
                     <div className="flex items-center gap-2 px-1">
                         <div className="w-1 h-3 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. 1000)</h2>
+                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. 500)</h2>
                     </div>
 
                     <div className="relative group">
