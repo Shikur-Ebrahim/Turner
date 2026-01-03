@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    limit
+} from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
     ChevronLeft,
@@ -37,6 +45,7 @@ export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [userData, setUserData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [hasRuleUpdates, setHasRuleUpdates] = useState(false);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
@@ -60,6 +69,31 @@ export default function ProfilePage() {
 
         return () => unsubscribeAuth();
     }, [router]);
+
+    useEffect(() => {
+        if (!userData) return;
+
+        const q = query(collection(db, "rules"), orderBy("updatedAt", "desc"), limit(1));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                const latestRule = snapshot.docs[0].data();
+                const lastUpdate = latestRule.updatedAt?.toMillis() || 0;
+
+                // Track per-category updates if needed, but for profile badge, any update counts
+                const lastViewedAt = userData.lastRulesViewedAt?.toMillis() || 0;
+
+                if (lastUpdate > lastViewedAt) {
+                    setHasRuleUpdates(true);
+                } else {
+                    setHasRuleUpdates(false);
+                }
+            }
+        }, (error) => {
+            console.error("Error listening to rules updates:", error);
+        });
+
+        return () => unsubscribe();
+    }, [userData]);
 
 
     // Format phone number: 251***44444
@@ -271,11 +305,11 @@ export default function ProfilePage() {
                 {/* Advanced Core Services - Interaction Grid */}
                 <div className="grid grid-cols-4 gap-4 mb-12">
                     {[
-                        { label: "RULES", image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: null, dark: false },
-                        { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false },
-                        { label: "BANK", image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false },
-                        { label: "SERVICE", image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false },
-                    ].map((item, i) => (
+                        { label: "RULES", image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: "/users/rules", dark: false, icon: null },
+                        { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false, icon: null },
+                        { label: "BANK", image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false, icon: null },
+                        { label: "SERVICE", image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false, icon: null },
+                    ].map((item: any, i) => (
                         <button
                             key={i}
                             onClick={() => item.path && router.push(item.path)}
@@ -291,6 +325,11 @@ export default function ProfilePage() {
                                     ) : item.icon ? (
                                         <item.icon size={22} className={item.dark ? "text-white" : item.iconColor} />
                                     ) : null}
+
+                                    {/* Red Notification Dot for RULES */}
+                                    {item.label === "RULES" && hasRuleUpdates && (
+                                        <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse z-20"></div>
+                                    )}
                                 </div>
                             </div>
                             <span className="text-[9px] font-black text-gray-500 tracking-widest uppercase text-center leading-none">{item.label}</span>

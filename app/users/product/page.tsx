@@ -50,8 +50,8 @@ export default function UserProductsPage() {
             }
         });
 
-        // Fetch Products - Original sorting
-        const qProducts = query(collection(db, "Products"), orderBy("createdAt", "desc"));
+        // Fetch Products - Smaller price at the top
+        const qProducts = query(collection(db, "Products"), orderBy("price", "asc"));
         const unsubscribeProducts = onSnapshot(qProducts, (snapshot) => {
             const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setProducts(productsData);
