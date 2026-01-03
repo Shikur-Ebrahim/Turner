@@ -20,6 +20,8 @@ export default function RechargePage() {
     const router = useRouter();
     const [amount, setAmount] = useState<string>("2500");
     const [customAmount, setCustomAmount] = useState<string>("");
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
 
     const handleAmountSelect = (val: number) => {
         setAmount(val.toString());
@@ -37,14 +39,15 @@ export default function RechargePage() {
     const handleNext = () => {
         const numAmount = parseInt(amount);
         if (isNaN(numAmount) || numAmount < 500) {
-            alert("Minimum recharge amount is 500 ETB");
+            setErrorMsg("Minimum recharge amount is 500 ETB");
+            setShowErrorModal(true);
             return;
         }
         router.push(`/users/payment-method?amount=${amount}`);
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-40">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-40 relative">
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl z-50 px-6 py-5 flex items-center justify-between border-b border-slate-100">
                 <button
@@ -152,6 +155,36 @@ export default function RechargePage() {
                     </button>
                 </div>
             </main>
+
+            {/* Premium Error Modal */}
+            {showErrorModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Static light effect */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+
+                        <div className="flex flex-col items-center text-center gap-6 relative z-10">
+                            <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 animate-bounce">
+                                <AlertCircle size={40} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Access Restricted</h2>
+                                <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                                    {errorMsg}
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => setShowErrorModal(false)}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-red-500/30 active:scale-95 transition-all"
+                            >
+                                OK, Understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
