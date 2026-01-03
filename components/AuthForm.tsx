@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, increment, Timestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { Loader2, Eye, EyeOff, ChevronDown, AlertCircle, Globe } from "lucide-react";
+import { countries, phoneValidationRules } from "@/lib/constants";
 
 export default function AuthForm() {
     const router = useRouter();
@@ -37,70 +38,11 @@ export default function AuthForm() {
     const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 
-    const countries = [
-        { name: "Argentina", code: "AR", prefix: "+54", flag: "/Argentina.webp" },
-        { name: "Australia", code: "AU", prefix: "+61", flag: "/Australia.webp" },
-        { name: "Belarus", code: "BY", prefix: "+375", flag: "/Belarus.jpg" },
-        { name: "Belgium", code: "BE", prefix: "+32", flag: "/Belgium.png" },
-        { name: "Canada", code: "CA", prefix: "+1", flag: "/Canada.png" },
-        { name: "China", code: "CN", prefix: "+86", flag: "/China.png" },
-        { name: "Colombia", code: "CO", prefix: "+57", flag: "/Colombia.jpg" },
-        { name: "Egypt", code: "EG", prefix: "+20", flag: "/Egypt.png" },
-        { name: "Eritrea", code: "ER", prefix: "+291", flag: "/Eritrea.png" },
-        { name: "Ethiopia", code: "ET", prefix: "+251", flag: "/Ethiopia.png" },
-        { name: "France", code: "FR", prefix: "+33", flag: "/France.png" },
-        { name: "Jordan", code: "JO", prefix: "+962", flag: "/Jordan.webp" },
-        { name: "Kazakhstan", code: "KZ", prefix: "+7", flag: "/Kazakhstan.png" },
-        { name: "Mexico", code: "MX", prefix: "+52", flag: "/Mexico.png" },
-        { name: "Morocco", code: "MA", prefix: "+212", flag: "/Morocco.png" },
-        { name: "New Zealand", code: "NZ", prefix: "+64", flag: "/Flag_of_New_Zealand.svg.png" },
-        { name: "Russia", code: "RU", prefix: "+7", flag: "/Russia.png" },
-        { name: "Saudi Arabia", code: "SA", prefix: "+966", flag: "/Saudi Arabia.png" },
-        { name: "Senegal", code: "SN", prefix: "+221", flag: "/Senegal.webp" },
-        { name: "Singapore", code: "SG", prefix: "+65", flag: "/Singapore.webp" },
-        { name: "Spain", code: "ES", prefix: "+34", flag: "/Spain.png" },
-        { name: "Taiwan", code: "TW", prefix: "+886", flag: "/Taiwan.png" },
-        { name: "United Arab Emirates", code: "AE", prefix: "+971", flag: "/United Arab Emirates.png" },
-        { name: "United Kingdom", code: "GB", prefix: "+44", flag: "/United Kingdom.webp" },
-        { name: "United States", code: "US", prefix: "+1", flag: "/Flag_of_the_United_States.png" },
-    ];
-
-    // Phone validation rules for each country
-    const phoneValidationRules: Record<string, {
-        length: number | [number, number];
-        startsWith?: string[];
-        errorMsg: string
-    }> = {
-        "Argentina": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "Australia": { length: 9, startsWith: ["2", "3", "4", "7", "8"], errorMsg: "Phone number must be 9 digits starting with 2, 3, 4, 7, or 8" },
-        "Belarus": { length: 9, startsWith: ["2", "3", "4"], errorMsg: "Phone number must be 9 digits starting with 2, 3, or 4" },
-        "Belgium": { length: [8, 9], errorMsg: "Phone number must be 8 or 9 digits" },
-        "Canada": { length: 10, startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10 digits starting with 2-9" },
-        "China": { length: [10, 11], startsWith: ["1", "2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10-11 digits" },
-        "Colombia": { length: 10, startsWith: ["1", "2", "3", "4", "5", "6", "7", "8"], errorMsg: "Phone number must be 10 digits" },
-        "Egypt": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "Eritrea": { length: 7, startsWith: ["1", "2", "7", "8"], errorMsg: "Phone number must be 7 digits starting with 1, 2, 7, or 8" },
-        "Ethiopia": { length: 9, startsWith: ["7", "9"], errorMsg: "Phone number must be 9 digits starting with 7 or 9" },
-        "France": { length: 9, errorMsg: "Phone number must be 9 digits" },
-        "Jordan": { length: 9, startsWith: ["2", "3", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2, 3, 5, 6, or 7" },
-        "Kazakhstan": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "Mexico": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "Morocco": { length: 9, startsWith: ["2", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2, 5, 6, or 7" },
-        "New Zealand": { length: [8, 10], startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 8-10 digits" },
-        "Russia": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "Saudi Arabia": { length: 9, startsWith: ["1", "5"], errorMsg: "Phone number must be 9 digits starting with 1 or 5" },
-        "Senegal": { length: 9, startsWith: ["3", "7"], errorMsg: "Phone number must be 9 digits starting with 3 or 7" },
-        "Singapore": { length: 8, startsWith: ["3", "6", "8", "9"], errorMsg: "Phone number must be 8 digits starting with 3, 6, 8, or 9" },
-        "Spain": { length: 9, startsWith: ["6", "7", "8", "9"], errorMsg: "Phone number must be 9 digits starting with 6, 7, 8, or 9" },
-        "Taiwan": { length: [8, 10], errorMsg: "Phone number must be 8-10 digits" },
-        "United Arab Emirates": { length: 9, startsWith: ["2", "3", "4", "5", "6", "7"], errorMsg: "Phone number must be 9 digits starting with 2-7" },
-        "United Kingdom": { length: 10, errorMsg: "Phone number must be 10 digits" },
-        "United States": { length: 10, startsWith: ["2", "3", "4", "5", "6", "7", "8", "9"], errorMsg: "Phone number must be 10 digits starting with 2-9" },
-    };
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
 
         // Phone number validation for all countries
         if (name === "phoneNumber") {
@@ -249,6 +191,7 @@ export default function AuthForm() {
                     totalRecharge: 0,
                     totalWithdrawal: 0,
                     teamIncome: 0,
+                    taskIncome: 0,
                     teamSize: 0,
                     totalIncome: 0,
                     dailyIncome: 0,

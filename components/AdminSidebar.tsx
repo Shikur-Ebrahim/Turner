@@ -18,6 +18,7 @@ import {
     Settings,
     LogOut,
     UserX,
+    DollarSign,
     Package
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
         { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard?tab=banners" },
         { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
+        { id: "currency-rates", label: "Currency Rates", icon: DollarSign, path: "/admin/currency-rates" },
         { id: "withdrawal-banks", label: "Withdrawal Banks", icon: Building2, path: "/admin/withdrawal-banks" },
         { id: "unlink-account", label: "Unlink Account", icon: UserX, path: "/admin/unlink-account" },
         { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },

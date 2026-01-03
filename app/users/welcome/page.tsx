@@ -15,7 +15,9 @@ import {
     Loader2,
     Shield,
     Package,
-    CheckCircle2
+    CheckCircle2,
+    Coins,
+    Star
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -462,6 +464,46 @@ function WelcomeContent() {
                                                     </div>
                                                     <div className="absolute -right-2 -top-2 opacity-10 text-blue-600">
                                                         <Shield size={40} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        } else if (notif.type === 'rate_update') {
+                                            const isUnread = notif.read === false;
+                                            const isCoin = notif.asset === 'coin';
+
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => handleMarkAsRead(notif)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                        ? isCoin ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-amber-50 border-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                                                        : "bg-slate-50 border-slate-100"
+                                                        }`}
+                                                >
+                                                    {isUnread && (
+                                                        <div className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)] z-20 ${isCoin ? "bg-emerald-500" : "bg-amber-500"}`}></div>
+                                                    )}
+
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10 ${isCoin ? "bg-emerald-100" : "bg-amber-100"}`}>
+                                                        {isCoin ? (
+                                                            <Coins size={20} className={isUnread ? "text-emerald-600" : "text-emerald-500"} />
+                                                        ) : (
+                                                            <Star size={20} className={isUnread ? "text-amber-600" : "text-amber-500"} />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col relative z-10">
+                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? isCoin ? "text-emerald-900" : "text-amber-900" : "text-gray-900"}`}>
+                                                            {isCoin ? "Coin" : "Star"} Rate Updated
+                                                        </p>
+                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? isCoin ? "text-emerald-600" : "text-amber-600" : "text-gray-700"}`}>
+                                                            New Rate: {notif.newRate} ETB
+                                                        </p>
+                                                        <p className="text-[9px] text-gray-400 font-medium">
+                                                            Previous: {notif.oldRate} ETB
+                                                        </p>
+                                                    </div>
+                                                    <div className={`absolute -right-2 -top-2 opacity-10 ${isCoin ? "text-emerald-600" : "text-amber-600"}`}>
+                                                        <TrendingUp size={40} />
                                                     </div>
                                                 </div>
                                             );

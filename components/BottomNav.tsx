@@ -40,6 +40,8 @@ function BottomNavContent() {
             setActiveTab("me");
         } else if (pathname.includes("/users/team")) {
             setActiveTab("team");
+        } else if (pathname === "/users/wallet") {
+            setActiveTab("wallet");
         }
     }, [pathname, searchParams, mounted]);
 
@@ -51,7 +53,7 @@ function BottomNavContent() {
         { id: "home", icon: Home, label: "HOME", path: "/users/welcome?tab=home" },
         { id: "product", icon: Ship, label: "MARKET", path: "/users/product" },
         { id: "team", icon: Users, label: "TEAMS", path: "/users/team" },
-        { id: "wallet", icon: Wallet, label: "WALLETS", path: "/users/welcome?tab=wallet" },
+        { id: "wallet", icon: Wallet, label: "WALLETS", path: "/users/wallet" },
         { id: "me", icon: Shield, label: "ME", path: "/users/profile" },
     ];
 
