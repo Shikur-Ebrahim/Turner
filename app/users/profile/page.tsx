@@ -271,7 +271,7 @@ export default function ProfilePage() {
                 {/* Advanced Core Services - Interaction Grid */}
                 <div className="grid grid-cols-4 gap-4 mb-12">
                     {[
-                        { label: "MY JEWELRY", icon: Award, color: "blue", iconColor: "text-blue-600", path: null, dark: false },
+                        { label: "RULES", image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: null, dark: false },
                         { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false },
                         { label: "BANK", image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false },
                         { label: "SERVICE", image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false },
