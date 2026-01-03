@@ -1,5 +1,7 @@
 "use client";
 
+// Optimized build fix for service grid types
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
