@@ -48,4 +48,8 @@ body {
   .animate-horizontal-scroll {
     animation: marqueeMotion 25s linear infinite;
   }
+
+  .clip-path-triangle {
+    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+  }
 }

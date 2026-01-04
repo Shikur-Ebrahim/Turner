@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { ChevronLeft, Users, Trophy, Wallet, UserCircle, Search, Layers } from "lucide-react";
+import { ChevronLeft, Users, Trophy, Wallet, UserCircle, Search, Layers, Star, Coins } from "lucide-react";
 import { toast } from "sonner";
 
 interface TeamMember {
@@ -230,9 +230,14 @@ export default function TeamPage() {
                         <div className="flex-1 space-y-4">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Income</p>
-                                <p className="text-3xl font-black text-[#1E293B] tabular-nums leading-none">
-                                    {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                </p>
+                                <div className="flex items-center gap-3">
+                                    <p className="text-3xl font-black text-[#1E293B] tabular-nums leading-none">
+                                        {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                    </p>
+                                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center border border-amber-200">
+                                        <Coins size={18} className="text-amber-500 fill-amber-500 animate-pulse" />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="space-y-4">

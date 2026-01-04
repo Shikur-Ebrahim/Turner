@@ -87,7 +87,7 @@ export default function CurrencyRatesPage() {
         }
         if (selectedAsset === "STAR") {
             baseValueInETB = config.starRate;
-            holdingAmount = Number(userData?.taskIncome || 0);
+            holdingAmount = Number(userData?.stars || 0);
         }
 
         // If target is ETB, return direct value
@@ -145,8 +145,8 @@ export default function CurrencyRatesPage() {
                             }
                         }}
                         className={`relative rounded-[2rem] p-6 text-left transition-all duration-500 group overflow-hidden ${selectedAsset === "COIN"
-                                ? "bg-[#00C278] shadow-2xl shadow-emerald-500/30 scale-[1.02] ring-0"
-                                : "bg-[#1A1F2E] border border-white/5 hover:bg-[#1E2335]"
+                            ? "bg-[#00C278] shadow-2xl shadow-emerald-500/30 scale-[1.02] ring-0"
+                            : "bg-[#1A1F2E] border border-white/5 hover:bg-[#1E2335]"
                             }`}
                     >
                         {/* Notification Badge */}
@@ -197,8 +197,8 @@ export default function CurrencyRatesPage() {
                             }
                         }}
                         className={`relative rounded-[2rem] p-6 text-left transition-all duration-500 group overflow-hidden ${selectedAsset === "STAR"
-                                ? "bg-[#F5A623] shadow-2xl shadow-amber-500/30 scale-[1.02] ring-0"
-                                : "bg-[#1A1F2E] border border-white/5 hover:bg-[#1E2335]"
+                            ? "bg-[#F5A623] shadow-2xl shadow-amber-500/30 scale-[1.02] ring-0"
+                            : "bg-[#1A1F2E] border border-white/5 hover:bg-[#1E2335]"
                             }`}
                     >
                         {/* Notification Badge */}
@@ -226,7 +226,7 @@ export default function CurrencyRatesPage() {
                             <div>
                                 <h3 className={`font-bold text-sm tracking-wide mb-1 ${selectedAsset === "STAR" ? "text-amber-50" : "text-slate-400"}`}>Turner Star</h3>
                                 <span className={`text-3xl font-black tracking-tight ${selectedAsset === "STAR" ? "text-white" : "text-slate-200"}`}>
-                                    {Number(userData?.taskIncome || 0).toLocaleString()}
+                                    {Number(userData?.stars || 0).toLocaleString()}
                                 </span>
                             </div>
 
@@ -244,7 +244,7 @@ export default function CurrencyRatesPage() {
                         Total Asset Value
                     </h2>
                     <span className="text-[10px] text-slate-600 bg-slate-900 px-2 py-1 rounded border border-white/5">
-                        Amount: {Number(selectedAsset === "COIN" ? userData?.teamIncome : userData?.taskIncome).toLocaleString()}
+                        Amount: {Number(selectedAsset === "COIN" ? userData?.teamIncome : userData?.stars).toLocaleString()}
                     </span>
                 </div>
 

@@ -45,7 +45,7 @@ function BottomNavContent() {
         }
     }, [pathname, searchParams, mounted]);
 
-    const hideNav = pathname === "/users/chat" || pathname.startsWith("/users/withdraw") || pathname === "/users/change-withdrawal-password" || pathname.includes("-record") || pathname === "/users/funding-details";
+    const hideNav = pathname === "/users/chat" || pathname === "/users/tasks" || pathname.startsWith("/users/withdraw") || pathname === "/users/change-withdrawal-password" || pathname.includes("-record") || pathname === "/users/funding-details";
 
     if (!mounted || hideNav) return null;
 

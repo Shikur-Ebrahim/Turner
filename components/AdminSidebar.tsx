@@ -19,7 +19,8 @@ import {
     LogOut,
     UserX,
     DollarSign,
-    Package
+    Package,
+    Gamepad2
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -47,6 +48,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
         { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
+        { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },
         { id: "settings", label: "Settings", icon: Settings, path: "/admin/dashboard?tab=settings" },
     ];
 

@@ -244,19 +244,6 @@ export default function WalletPage() {
                                 </div>
                             </div>
 
-                            {/* Daily Income Display */}
-                            <div className="absolute bottom-0 right-0 p-6">
-                                <div className="flex flex-col items-end">
-                                    <span className={`text-[9px] font-bold uppercase tracking-widest mb-0.5 ${hasImages ? 'text-slate-600' : 'text-white/60'}`}>Daily Income</span>
-                                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${hasImages ? 'bg-white/80 backdrop-blur-md border-slate-200' : 'bg-white/10 backdrop-blur-md border-white/10'}`}>
-                                        <Coins size={14} className={hasImages ? "text-emerald-600" : "text-emerald-300"} />
-                                        <span className={`text-lg font-black tracking-tight ${hasImages ? 'text-slate-900' : 'text-white'}`}>
-                                            {Number(userData?.dailyIncome || 0).toLocaleString()}
-                                        </span>
-                                        <span className={`text-[9px] font-bold uppercase ${hasImages ? 'text-emerald-600' : 'text-emerald-300'}`}>ETB</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -360,10 +347,10 @@ export default function WalletPage() {
                                 <ClipboardList size={32} />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Daily Task</span>
+                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Turner Stars</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-2xl font-black text-slate-900">
-                                        {Number(userData?.taskIncome || 0).toLocaleString()}
+                                        {Number(userData?.stars || 0).toLocaleString()}
                                     </span>
                                     {/* Rotating Transparent Star */}
                                     <Star size={24} className="text-amber-400 fill-amber-400 animate-[spin_4s_linear_infinite]" />
