@@ -6,7 +6,7 @@ import Image from "next/image";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, increment, Timestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { Loader2, Eye, EyeOff, ChevronDown, AlertCircle, Globe, Send, UserX, ShieldAlert } from "lucide-react";
+import { Loader2, Eye, EyeOff, ChevronDown, AlertCircle, Send, UserX, ShieldAlert } from "lucide-react";
 import { countries, phoneValidationRules } from "@/lib/constants";
 
 export default function AuthForm() {
@@ -29,17 +29,6 @@ export default function AuthForm() {
     const [isAccountBlocked, setIsAccountBlocked] = useState(false);
 
     const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
-    const languages = [
-        { name: "English", label: "English" },
-        { name: "Arabic", label: "العربية" },
-        { name: "Amharic", label: "አማርኛ" },
-        { name: "Oromiffa", label: "Afaan Oromoo" },
-        { name: "Tigiriygna", label: "ትግርኛ" },
-        { name: "Dobub Sidama", label: "Sidaamu Afoo" }
-    ];
-
-    const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -251,52 +240,7 @@ export default function AuthForm() {
 
     return (
         <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden relative mx-auto">
-            {/* Language Selector */}
-            <div className="absolute top-10 right-4 z-50">
-                <div className="relative min-w-[120px]">
-                    {!isLanguageDropdownOpen && (
-                        <button
-                            type="button"
-                            onClick={() => setIsLanguageDropdownOpen(true)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-all text-sm font-medium text-gray-700 shadow-sm w-full"
-                        >
-                            <Globe size={18} className="text-gray-500" />
-                            <span>{selectedLanguage.label}</span>
-                            <ChevronDown size={14} className="text-gray-400" />
-                        </button>
-                    )}
 
-                    {isLanguageDropdownOpen && (
-                        <div className="absolute right-0 top-0 w-40 bg-white border border-gray-100 rounded-xl shadow-2xl py-1 animate-in fade-in zoom-in-95 duration-200">
-                            <button
-                                type="button"
-                                onClick={() => setIsLanguageDropdownOpen(false)}
-                                className="w-full px-3 py-1.5 border-b border-gray-50 flex items-center gap-2 text-sm font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors rounded-t-xl"
-                            >
-                                <Globe size={18} className="text-purple-600" />
-                                <span>{selectedLanguage.label}</span>
-                                <ChevronDown size={14} className="rotate-180 text-purple-600" />
-                            </button>
-
-                            <div className="py-1">
-                                {languages.filter(lang => lang.name !== selectedLanguage.name).map((lang) => (
-                                    <button
-                                        key={lang.name}
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedLanguage(lang);
-                                            setIsLanguageDropdownOpen(false);
-                                        }}
-                                        className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-purple-700 transition-colors"
-                                    >
-                                        {lang.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
 
             <div className="pt-8 pb-4 px-8 text-center relative z-10 bg-white">
                 <div
