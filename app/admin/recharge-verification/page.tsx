@@ -14,7 +14,8 @@ import {
     increment,
     runTransaction,
     Timestamp,
-    getDoc
+    getDoc,
+    getDocs
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
@@ -38,6 +39,7 @@ export default function RechargeVerificationPage() {
     const [verifying, setVerifying] = useState<string | null>(null);
     const [recharges, setRecharges] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [vipRules, setVipRules] = useState<any[]>([]);
     const [confirmAction, setConfirmAction] = useState<{ type: 'verify' | 'reject', data: any } | null>(null);
 
     useEffect(() => {
@@ -54,6 +56,13 @@ export default function RechargeVerificationPage() {
             collection(db, "RechargeReview"),
             where("status", "in", ["Under Review", "verified"])
         );
+
+        // Fetch VIP Rules once
+        const fetchVipRules = async () => {
+            const snap = await getDocs(collection(db, "VipRules"));
+            setVipRules(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        };
+        fetchVipRules();
 
         const unsubscribeRecharges = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -116,6 +125,9 @@ export default function RechargeVerificationPage() {
 
                 const inviterSnaps = await Promise.all(inviterRefs.map(i => transaction.get(i.ref)));
 
+                // Check if this is the user's FIRST verified recharge to update investedTeamSize
+                const isFirstRecharge = (userData.totalRecharge || 0) === 0;
+
                 // 2. EXECUTE ALL WRITES
 
                 // Update User
@@ -136,9 +148,41 @@ export default function RechargeVerificationPage() {
                     if (snap.exists()) {
                         const { ref, pct } = inviterRefs[index];
                         const bonus = amount * pct;
-                        transaction.update(ref, {
-                            teamIncome: increment(bonus)
+                        const inviterData = snap.data();
+
+                        const inviterUpdate: any = {
+                            teamIncome: increment(bonus),
+                            teamAssets: increment(amount)
+                        };
+
+                        // If it's the member's first recharge, increment inviter's investedTeamSize
+                        if (isFirstRecharge) {
+                            inviterUpdate.investedTeamSize = increment(1);
+                        }
+
+                        // Check for VIP Eligibility
+                        const currentInvestedSize = (inviterData.investedTeamSize || 0) + (isFirstRecharge ? 1 : 0);
+                        const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
+                        const currentVip = inviterData.vip ?? 0;
+                        const currentVipNum = typeof currentVip === 'number'
+                            ? currentVip
+                            : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
+                        const nextVipNum = currentVipNum + 1;
+
+                        const nextRule = vipRules.find(r => {
+                            const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
+                            return rNum === nextVipNum;
                         });
+
+                        if (nextRule) {
+                            const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
+                            const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
+                            if (sizeMet && assetsMet) {
+                                inviterUpdate.isVipEligible = true;
+                            }
+                        }
+
+                        transaction.update(ref, inviterUpdate);
 
                         // 3. Create Reward Notification
                         const levelLabels = ["Level A", "Level B", "Level C", "Level D"];

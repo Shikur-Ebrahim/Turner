@@ -17,9 +17,11 @@ import {
     Package,
     CheckCircle2,
     Coins,
-    Star
+    Star,
+    PartyPopper
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import VipCelebrationCard from "@/components/VipCelebrationCard";
 
 import { Suspense } from "react";
 
@@ -41,6 +43,10 @@ function WelcomeContent() {
     const [latestRecharge, setLatestRecharge] = useState<any>(null);
     const [showNotifPanel, setShowNotifPanel] = useState(false);
     const [hasUnread, setHasUnread] = useState(false);
+
+    // VIP Celebration State
+    const [showVipCeleb, setShowVipCeleb] = useState(false);
+    const [vipCelebData, setVipCelebData] = useState<any>(null);
 
     const searchParams = useSearchParams();
 
@@ -158,7 +164,21 @@ function WelcomeContent() {
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    setUserData(docSnap.data());
+                    const data = docSnap.data();
+                    setUserData(data);
+
+                    // --- VIP Celebration Logic ---
+                    const currentVip = data.vip || 0;
+                    const vipViews = data.vipViews || {};
+                    const currentViews = vipViews[`level_${currentVip}`] || 0;
+
+                    if (currentVip > 0 && currentViews < 3) {
+                        const notifDoc = await getDoc(doc(db, "VipNotifications", `vip_${currentVip}`));
+                        if (notifDoc.exists()) {
+                            setVipCelebData({ ...notifDoc.data(), currentViews });
+                            setShowVipCeleb(true);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -647,6 +667,25 @@ function WelcomeContent() {
                                 <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">Main Operations</h3>
                             </div>
 
+                            {/* Premium Invite Banner */}
+                            <div
+                                onClick={() => router.push("/users/invite")}
+                                className="relative w-full h-32 rounded-[2.5rem] overflow-hidden cursor-pointer group shadow-2xl shadow-indigo-500/10 active:scale-95 transition-all duration-500 border border-white"
+                            >
+                                <img
+                                    src="/invite_banner.png"
+                                    alt="Invite Banner"
+                                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 to-transparent flex flex-col justify-center px-8">
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">Invite Friends</span>
+                                        <span className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">Earn Multi-Level Rewards</span>
+                                    </div>
+                                </div>
+                                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            </div>
+
                             {/* Top Row: 2 Premium Cards */}
                             <div className="grid grid-cols-2 gap-5">
                                 <button
@@ -675,7 +714,7 @@ function WelcomeContent() {
                             {/* Bottom Row: 3 Elite Mini Nodes */}
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { label: "INVITE", img: "/assets/invite_avatar.png", color: "blue", action: () => router.push("/users/invite") },
+                                    { label: "VIP RULES", img: "/vip_rule_3d.png", color: "blue", action: () => router.push("/users/vip-rules") },
                                     { label: "WITHDRAW", img: "/assets/withdrawal.png", color: "indigo", action: () => router.push("/users/withdraw") },
                                     { label: "TASKS", icon: TrendingUp, color: "amber", special: true, action: () => router.push("/users/tasks") }
                                 ].map((item: any, i: number) => (
@@ -710,6 +749,29 @@ function WelcomeContent() {
                 )}
             </main>
 
+            {/* VIP Celebration Overlay */}
+            {showVipCeleb && vipCelebData && (
+                <VipCelebrationCard
+                    vipLevel={vipCelebData.vipLevel}
+                    text={vipCelebData.text}
+                    imageUrl={vipCelebData.imageUrl}
+                    onClose={async () => {
+                        setShowVipCeleb(false);
+                        // Increment view count for this VIP level
+                        if (user) {
+                            try {
+                                const userRef = doc(db, "users", user.uid);
+                                const currentViews = vipCelebData.currentViews || 0;
+                                await updateDoc(userRef, {
+                                    [`vipViews.level_${vipCelebData.vipLevel}`]: currentViews + 1
+                                });
+                            } catch (err) {
+                                console.error("Error updating achievement status:", err);
+                            }
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 }

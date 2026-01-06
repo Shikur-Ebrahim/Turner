@@ -113,31 +113,33 @@ export default function InvitePage() {
                 </div>
 
                 {/* Central Premium Animation */}
-                <div className="relative w-[18rem] h-[18rem] flex items-center justify-center mb-8">
+                <div className="relative w-[22rem] h-[22rem] flex items-center justify-center mb-8">
                     {/* Glowing Backdrop */}
-                    <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-[60px] animate-pulse"></div>
+                    <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-[80px] animate-pulse"></div>
 
-                    {/* Rotating Rings */}
-                    <div className="absolute inset-0 border-[1.5px] border-dashed border-blue-200/60 rounded-full animate-[spin_12s_linear_infinite]"></div>
-                    <div className="absolute inset-4 border border-indigo-100 rounded-full animate-[spin_8s_linear_infinite_reverse]"></div>
+                    {/* Rotating Premium Rings */}
+                    <div className="absolute inset-0 border-[2px] border-dashed border-blue-200/40 rounded-full animate-[spin_20s_linear_infinite]"></div>
+                    <div className="absolute inset-8 border border-indigo-100/50 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+                    <div className="absolute inset-16 border-[0.5px] border-blue-500/10 rounded-full"></div>
 
                     {/* Floating Particles */}
-                    <div className="absolute top-0 left-1/2 w-2 h-2 bg-yellow-400 rounded-full blur-[1px] shadow-[0_0_10px_rgba(250,204,21,0.6)] animate-bounce delay-75"></div>
-                    <div className="absolute bottom-10 right-10 w-1.5 h-1.5 bg-blue-500 rounded-full blur-[1px] animate-pulse"></div>
+                    <div className="absolute top-10 left-10 w-3 h-3 bg-blue-400 rounded-full blur-[1px] opacity-20 animate-bounce"></div>
+                    <div className="absolute bottom-10 right-10 w-2 h-2 bg-indigo-400 rounded-full blur-[1px] opacity-20 animate-pulse"></div>
 
-                    {/* Central Image Container */}
-                    <div className="relative w-48 h-48 group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-[0_20px_50px_-10px_rgba(37,99,235,0.15)] flex items-center justify-center border border-white/60 animate-[float_4s_ease-in-out_infinite]">
+                    {/* Central Image Container - Modern 3D Style */}
+                    <div className="relative w-64 h-64 group flex items-center justify-center">
+                        <div className="absolute inset-0 bg-white rounded-full shadow-[0_30px_70px_-15px_rgba(37,99,235,0.25)] flex items-center justify-center border border-white/60 animate-[float_6s_ease-in-out_infinite]">
                             <img
-                                src="/assets/invite_reward.png"
-                                alt="Gift"
-                                className="w-[110%] h-[110%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.15)] transition-transform duration-700 group-hover:scale-110"
+                                src="/invite_icon_premium.png"
+                                alt="Premium Invitation"
+                                className="w-[120%] h-[120%] object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.2)] transition-all duration-700 group-hover:scale-110 group-hover:drop-shadow-[0_35px_50px_rgba(0,0,0,0.3)]"
                             />
                         </div>
-                        {/* 3D Floating Badge */}
-                        <div className="absolute -bottom-2 -right-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl shadow-lg shadow-orange-500/30 flex items-center gap-1.5 animate-[float_5s_ease-in-out_infinite_reverse]">
-                            <Sparkles size={14} className="text-white fill-white/20" />
-                            <span className="text-xs font-black text-white uppercase tracking-wider">Bonus</span>
+
+                        {/* Interactive Floating Badge */}
+                        <div className="absolute top-4 -right-2 px-5 py-2.5 bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] rounded-[1.2rem] shadow-xl shadow-amber-500/40 flex items-center gap-2 border border-white/40 animate-[float_4s_ease-in-out_infinite_reverse]">
+                            <Sparkles size={16} className="text-white fill-white/20" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">VIP Reward</span>
                         </div>
                     </div>
                 </div>

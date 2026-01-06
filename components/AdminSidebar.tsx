@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import {
     LayoutDashboard,
@@ -20,7 +22,9 @@ import {
     UserX,
     DollarSign,
     Package,
-    Gamepad2
+    Gamepad2,
+    Crown,
+    PartyPopper
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -31,19 +35,60 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const [pendingRechargeCount, setPendingRechargeCount] = useState(0);
+    const [pendingWithdrawalCount, setPendingWithdrawalCount] = useState(0);
+    const [vipUpgradeCount, setVipUpgradeCount] = useState(0);
+
+    useEffect(() => {
+        // Recharge Listener
+        const qRecharge = query(
+            collection(db, "RechargeReview"),
+            where("status", "==", "Under Review")
+        );
+        const unsubscribeRecharge = onSnapshot(qRecharge, (snapshot) => {
+            setPendingRechargeCount(snapshot.size);
+        });
+
+        // Withdrawal Listener
+        const qWithdrawal = query(
+            collection(db, "Withdrawals"),
+            where("status", "==", "pending")
+        );
+        const unsubscribeWithdrawal = onSnapshot(qWithdrawal, (snapshot) => {
+            setPendingWithdrawalCount(snapshot.size);
+        });
+
+        // VIP Upgrade Listener
+        const qVip = query(
+            collection(db, "users"),
+            where("isVipEligible", "==", true)
+        );
+        const unsubscribeVip = onSnapshot(qVip, (snapshot) => {
+            setVipUpgradeCount(snapshot.size);
+        });
+
+        return () => {
+            unsubscribeRecharge();
+            unsubscribeWithdrawal();
+            unsubscribeVip();
+        };
+    }, []);
 
     const navigation = [
+        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
+        { id: "withdrawal-wallet", label: "Withdrawal Wallet", icon: Banknote, path: "/admin/withdrawal-wallet" },
+        { id: "vip-upgrade", label: "VIP Upgrade", icon: ShieldCheck, path: "/admin/vip-upgrade" },
         { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
         { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard?tab=banners" },
         { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
         { id: "currency-rates", label: "Currency Rates", icon: DollarSign, path: "/admin/currency-rates" },
         { id: "withdrawal-banks", label: "Withdrawal Banks", icon: Building2, path: "/admin/withdrawal-banks" },
         { id: "unlink-account", label: "Unlink Account", icon: UserX, path: "/admin/unlink-account" },
-        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
-        { id: "withdrawal-wallet", label: "Withdrawal Wallet", icon: Banknote, path: "/admin/withdrawal-wallet" },
         { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
         { id: "products", label: "Products", icon: Package, path: "/admin/product" },
         { id: "referral", label: "Referral Rule", icon: Percent, path: "/admin/referral-settings" },
+        { id: "vip-rules", label: "VIP Rules", icon: Crown, path: "/admin/vip-rules" },
+        { id: "vip-notifications", label: "VIP Celebration", icon: PartyPopper, path: "/admin/vip-notifications" },
         { id: "telegram", label: "Telegram Staff", icon: Send, path: "/admin/telegram" },
         { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
         { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
@@ -135,7 +180,22 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
                                         }`}
                                 >
                                     <item.icon size={22} />
-                                    {item.label}
+                                    <span>{item.label}</span>
+                                    {item.id === "recharge" && pendingRechargeCount > 0 && (
+                                        <span className="ml-auto bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-full animate-bounce shadow-lg shadow-red-500/40">
+                                            {pendingRechargeCount}
+                                        </span>
+                                    )}
+                                    {item.id === "withdrawal-wallet" && pendingWithdrawalCount > 0 && (
+                                        <span className="ml-auto bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-full animate-bounce shadow-lg shadow-red-500/40">
+                                            {pendingWithdrawalCount}
+                                        </span>
+                                    )}
+                                    {item.id === "vip-upgrade" && vipUpgradeCount > 0 && (
+                                        <span className="ml-auto bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-full animate-bounce shadow-lg shadow-emerald-500/40">
+                                            {vipUpgradeCount}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}

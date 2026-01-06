@@ -258,6 +258,26 @@ export default function TeamPage() {
                     </div>
                 </div>
 
+                {/* Premium Invite Banner */}
+                <div
+                    onClick={() => router.push("/users/invite")}
+                    className="relative w-full h-32 rounded-[2.2rem] overflow-hidden mb-8 cursor-pointer group shadow-2xl shadow-indigo-500/10 active:scale-95 transition-all duration-500 border border-white/50"
+                >
+                    <img
+                        src="/invite_banner.png"
+                        alt="Invite Friends"
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/60 to-transparent flex flex-col justify-center px-8">
+                        <div className="flex flex-col">
+                            <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">Invite Friends</span>
+                            <span className="text-white/90 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">Get Extra Rewards</span>
+                        </div>
+                    </div>
+                    {/* Glossy overlay effect */}
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </div>
+
                 {/* Level Tabs Navigation */}
                 <div className="bg-white rounded-[1.8rem] p-1.5 shadow-sm border border-slate-100 flex gap-1 mb-8">
                     {tabs.map((tab) => (
@@ -319,7 +339,7 @@ export default function TeamPage() {
                                     <div className="text-right flex flex-col items-end">
                                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">REWARD</span>
                                         <span className="text-[16px] font-black text-[#10B981] tracking-tight">
-                                            +{member.rewardEarned.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                            +{member.rewardEarned.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                         </span>
                                     </div>
                                 </div>

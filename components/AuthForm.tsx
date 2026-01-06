@@ -193,6 +193,8 @@ export default function AuthForm() {
                     teamIncome: 0,
                     taskIncome: 0,
                     teamSize: 0,
+                    investedTeamSize: 0,
+                    teamAssets: 0,
                     totalIncome: 0,
                     dailyIncome: 0,
                     inviterA: inviterData.inviterA,
