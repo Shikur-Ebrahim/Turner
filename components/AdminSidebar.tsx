@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
@@ -24,7 +25,8 @@ import {
     Package,
     Gamepad2,
     Crown,
-    PartyPopper
+    PartyPopper,
+    BarChart3
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -77,6 +79,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     const navigation = [
         { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
         { id: "withdrawal-wallet", label: "Withdrawal Wallet", icon: Banknote, path: "/admin/withdrawal-wallet" },
+        { id: "financials", label: "Financial Stats", icon: BarChart3, path: "/admin/financials" },
         { id: "vip-upgrade", label: "VIP Upgrade", icon: ShieldCheck, path: "/admin/vip-upgrade" },
         { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
         { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard?tab=banners" },
@@ -94,7 +97,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
         { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },
-        { id: "settings", label: "Settings", icon: Settings, path: "/admin/dashboard?tab=settings" },
+        { id: "settings", label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
 
     const handleLogout = async () => {
@@ -153,27 +156,16 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
                             let active = false;
                             if (item.path.includes("?")) {
                                 // It's a query param route (Dashboard tabs)
-                                // Check if current pathname is dashboard
-                                // Note: This sidebar is dumb, it just highlights based on basic path matching mainly.
-                                // If we want detailed tab highlighting, we need useSearchParams. 
-                                // But simplistically:
                                 if (pathname === "/admin/dashboard" && item.id === "home") active = true;
-                                // Banners and Settings share dashboard path, so 'home' might steal focus.
-                                // Let's just highlight based on exact path match for non-dashboard pages, and 'home' for dashboard.
                             } else {
                                 active = pathname === item.path || pathname.startsWith(item.path);
                             }
 
-                            // Specific override for dashboard tabs if needed, but for now let's keep it simple.
-                            // 'Banner Ads' links to dashboard?tab=banners. 
-
                             return (
-                                <button
+                                <Link
                                     key={item.id}
-                                    onClick={() => {
-                                        router.push(item.path);
-                                        setIsOpen(false);
-                                    }}
+                                    href={item.path}
+                                    onClick={() => setIsOpen(false)}
                                     className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${active
                                         ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30"
                                         : "text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
@@ -196,7 +188,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
                                             {vipUpgradeCount}
                                         </span>
                                     )}
-                                </button>
+                                </Link>
                             );
                         })}
                     </nav>

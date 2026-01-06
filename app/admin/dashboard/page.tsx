@@ -44,6 +44,10 @@ function AdminDashboard() {
     useEffect(() => {
         const tab = searchParams.get("tab");
         if (tab) {
+            if (tab === "settings") {
+                router.push("/admin/settings");
+                return;
+            }
             setActiveTab(tab);
         }
     }, [searchParams]);
@@ -301,12 +305,6 @@ function AdminDashboard() {
                         </div>
                     )}
 
-                    {activeTab === "settings" && (
-                        <div className="flex flex-col items-center justify-center py-40 text-gray-400 animate-in fade-in duration-500">
-                            <Settings size={64} className="mb-6 opacity-10 animate-spin-slow" />
-                            <p className="font-bold uppercase tracking-widest text-xs">System settings coming soon</p>
-                        </div>
-                    )}
                 </main>
             </div>
         </div >

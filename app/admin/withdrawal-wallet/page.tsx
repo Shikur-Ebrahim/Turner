@@ -11,7 +11,10 @@ import {
     runTransaction,
     Timestamp,
     increment,
-    orderBy
+    orderBy,
+    getDocs,
+    getDoc,
+    where
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -45,6 +48,11 @@ export default function WithdrawalWalletPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [confirmAction, setConfirmAction] = useState<{ type: 'verify', data: any } | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    // Financial Check States
+    const [checkSearchTerm, setCheckSearchTerm] = useState("");
+    const [checkLoading, setCheckLoading] = useState(false);
+    const [checkResult, setCheckResult] = useState<any>(null);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -117,11 +125,101 @@ export default function WithdrawalWalletPage() {
         }
     };
 
-    const copyToClipboard = (text: string, id: string) => {
+    const copyToClipboard = (text: string, id: string, message: string = "Copied to clipboard") => {
         navigator.clipboard.writeText(text);
         setCopiedId(id);
         setTimeout(() => setCopiedId(null), 2000);
-        toast.info("Account Number Copied");
+        toast.info(message);
+    };
+
+    const handleFinancialCheck = async () => {
+        if (!checkSearchTerm.trim()) {
+            toast.error("Enter phone number");
+            return;
+        }
+
+        setCheckLoading(true);
+        setCheckResult(null);
+
+        try {
+            // 1. Find User by Phone
+            const userQ = query(collection(db, "users"), where("phoneNumber", "==", checkSearchTerm.trim()));
+            const userSnap = await getDocs(userQ);
+
+            if (userSnap.empty) {
+                toast.error("User not found");
+                return;
+            }
+
+            const userData = userSnap.docs[0].data();
+            const userId = userSnap.docs[0].id;
+
+            // 2. Fetch User Orders
+            const ordersQ = query(
+                collection(db, "UserOrders"),
+                where("userId", "==", userId),
+                where("status", "==", "active")
+            );
+            const ordersSnap = await getDocs(ordersQ);
+            const orders = ordersSnap.docs.map(doc => doc.data());
+
+            // 3. Calculate Product Income
+            const now = new Date();
+            let totalProductEarnings = 0;
+            orders.forEach(order => {
+                const purchaseDate = order.purchaseDate?.toDate?.() || new Date(order.purchaseDate);
+                const daysDiff = Math.floor((now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24));
+                const productEarnings = (order.dailyIncome || 0) * Math.max(0, daysDiff);
+                totalProductEarnings += productEarnings;
+            });
+
+            // 4. Fetch Referral Rates
+            const referralSnap = await getDoc(doc(db, "settings", "referral"));
+            const rates = referralSnap.exists() ? referralSnap.data() : { levelA: 12, levelB: 7, levelC: 4, levelD: 2 };
+
+            // 5. Calculate Team Income (Fetch all levels)
+            const levels = [
+                { key: 'inviterA', pct: (rates.levelA || 12) / 100 },
+                { key: 'inviterB', pct: (rates.levelB || 7) / 100 },
+                { key: 'inviterC', pct: (rates.levelC || 4) / 100 },
+                { key: 'inviterD', pct: (rates.levelD || 2) / 100 }
+            ];
+
+            let rawTeamIncome = 0;
+            for (const level of levels) {
+                const levelQ = query(collection(db, "users"), where(level.key, "==", userId));
+                const levelSnap = await getDocs(levelQ);
+                levelSnap.docs.forEach(doc => {
+                    rawTeamIncome += (doc.data().totalRecharge || 0) * level.pct;
+                });
+            }
+
+            const teamEarnings90 = rawTeamIncome * 0.9;
+            const totalAllowance = totalProductEarnings + teamEarnings90;
+            const currentLiability = (userData.balance || 0) + (userData.totalWithdrawal || 0);
+            const isLegal = currentLiability <= totalAllowance;
+            const maxLegalWithdrawal = Math.max(0, totalAllowance - (userData.totalWithdrawal || 0));
+
+            setCheckResult({
+                phone: checkSearchTerm,
+                balance: userData.balance || 0,
+                totalWithdrawals: userData.totalWithdrawal || 0,
+                productIncome: totalProductEarnings,
+                teamIncomeRaw: rawTeamIncome,
+                teamIncome90: teamEarnings90,
+                allowance: totalAllowance,
+                liability: currentLiability,
+                isLegal,
+                maxLegalWithdrawal,
+                orders // Pass orders for display
+            });
+
+        } catch (error) {
+            console.error("Check error:", error);
+            toast.error("Failed to perform check");
+        } finally {
+            setCheckLoading(false);
+        }
     };
 
     // Organized Data
@@ -226,15 +324,110 @@ export default function WithdrawalWalletPage() {
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="w-14 h-14 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 active:rotate-180 transition-all duration-700 shadow-sm"
-                    >
-                        <RefreshCcw size={22} strokeWidth={2.5} />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 active:rotate-180 transition-all duration-700 shadow-sm"
+                        >
+                            <RefreshCcw size={22} strokeWidth={2.5} />
+                        </button>
+                    </div>
                 </header>
 
                 <div className="p-4 sm:p-8 space-y-10 max-w-lg mx-auto w-full">
+                    {/* Financial Guard Section - Always Visible */}
+                    <div className="bg-white rounded-[2.5rem] p-6 border-2 border-indigo-100 shadow-2xl shadow-indigo-500/10 space-y-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                                <ShieldCheck size={20} />
+                            </div>
+                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Legality Verification</h3>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <input
+                                type="text"
+                                placeholder="USER PHONE..."
+                                value={checkSearchTerm}
+                                onChange={(e) => setCheckSearchTerm(e.target.value)}
+                                className="flex-1 h-14 px-6 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 text-sm font-bold tracking-widest"
+                            />
+                            <button
+                                onClick={handleFinancialCheck}
+                                disabled={checkLoading}
+                                className="px-6 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50"
+                            >
+                                {checkLoading ? <Loader2 className="animate-spin" size={20} /> : 'Check'}
+                            </button>
+                        </div>
+
+                        {checkResult && (
+                            <div className="space-y-4 pt-4 border-t border-slate-100">
+                                <div className={`p-6 rounded-[2rem] flex flex-col items-center gap-2 ${checkResult.isLegal ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                    <div className="flex items-center gap-2">
+                                        {checkResult.isLegal ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                                        <span className="text-xl font-black uppercase tracking-widest">{checkResult.isLegal ? 'Legal Account' : 'Illegal Activity'}</span>
+                                    </div>
+                                    <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Verification Status for {checkResult.phone}</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Max Legal Withdrawal</p>
+                                        <p className="text-lg font-black text-slate-900 tracking-tighter">{Math.floor(checkResult.maxLegalWithdrawal).toLocaleString()} <span className="text-[10px] text-slate-300">ETB</span></p>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Balance</p>
+                                        <p className="text-lg font-black text-slate-900 tracking-tighter">{checkResult.balance.toLocaleString()} <span className="text-[10px] text-slate-300">ETB</span></p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-indigo-50/50 p-4 rounded-2xl space-y-2">
+                                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                                        <span>Product Earnings</span>
+                                        <span className="text-slate-900">{checkResult.productIncome.toLocaleString()} ETB</span>
+                                    </div>
+                                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                                        <span>Team Rewards (90%)</span>
+                                        <span className="text-slate-900">{checkResult.teamIncome90.toLocaleString()} ETB</span>
+                                    </div>
+                                    <div className="pt-2 border-t border-indigo-100 flex justify-between text-[10px] font-black text-rose-500 uppercase">
+                                        <span>Total Claimed + Balance</span>
+                                        <span>{checkResult.liability.toLocaleString()} ETB</span>
+                                    </div>
+                                </div>
+
+                                {/* Active Products List */}
+                                {checkResult.orders?.length > 0 && (
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Active Portfolio</p>
+                                        <div className="space-y-2">
+                                            {checkResult.orders.map((order: any, idx: number) => {
+                                                const purchaseDate = order.purchaseDate?.toDate?.() || new Date(order.purchaseDate);
+                                                const daysPassed = Math.floor((new Date().getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24));
+                                                return (
+                                                    <div key={idx} className="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex justify-between items-center group hover:border-indigo-200 transition-all">
+                                                        <div className="space-y-1">
+                                                            <p className="text-xs font-black text-slate-900">{order.productName || 'Product'}</p>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[9px] font-bold text-slate-400">Day {daysPassed}/{order.contractPeriod}</span>
+                                                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                                <span className="text-[9px] font-black text-indigo-600">{order.dailyIncome} ETB/Day</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="text-[9px] font-black text-slate-300 uppercase leading-none mb-1">Total Yield</p>
+                                                            <p className="text-sm font-black text-emerald-600 tracking-tighter">{(order.dailyIncome * Math.max(0, daysPassed)).toLocaleString()} ETB</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                     {/* Visual Stats Block */}
                     <div className="flex gap-4">
                         <div className="flex-1 bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col justify-between h-36">
@@ -262,19 +455,7 @@ export default function WithdrawalWalletPage() {
                         </div>
                     </div>
 
-                    {/* Elite Universal Search */}
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-7 flex items-center pointer-events-none">
-                            <Search size={22} className="text-slate-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="SEARCH BY PHONE OR KEY..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-18 pl-16 pr-6 bg-white border-2 border-slate-100 rounded-[2.2rem] focus:outline-none focus:border-indigo-500/30 focus:ring-[12px] focus:ring-indigo-500/5 transition-all text-sm font-black tracking-widest uppercase placeholder:text-slate-200 shadow-sm"
-                        />
-                    </div>
+
 
                     <div className="space-y-12 pb-24">
                         {/* PENDING SECTION */}
@@ -373,13 +554,21 @@ function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToCl
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/60 backdrop-blur-xl rounded-[1.8rem] p-5 border border-white/80 shadow-sm transition-all hover:bg-white">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Phone size={12} className="text-indigo-400" />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mobile</span>
+                    <button
+                        onClick={() => copyToClipboard(item.userPhone, item.id + '_phone', "Phone Number Copied")}
+                        className="bg-white/60 backdrop-blur-xl rounded-[1.8rem] p-5 border border-white/80 shadow-sm transition-all hover:bg-white text-left group/phone active:scale-95"
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <Phone size={12} className="text-indigo-400" />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mobile</span>
+                            </div>
+                            <div className={`transition-all ${copiedId === item.id + '_phone' ? 'text-emerald-500' : 'text-slate-300 opacity-0 group-hover/phone:opacity-100'}`}>
+                                {copiedId === item.id + '_phone' ? <Check size={14} strokeWidth={3} /> : <Copy size={12} />}
+                            </div>
                         </div>
                         <p className="text-sm font-black text-slate-900 leading-none">{item.userPhone}</p>
-                    </div>
+                    </button>
                     <div className="bg-white/60 backdrop-blur-xl rounded-[1.8rem] p-5 border border-white/80 shadow-sm transition-all hover:bg-white">
                         <div className="flex items-center gap-2 mb-2">
                             <User size={12} className="text-indigo-400" />

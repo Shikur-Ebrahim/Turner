@@ -124,20 +124,6 @@ export default function AdminUnlinkAccount() {
         bank.accountNumber?.includes(searchTerm)
     );
 
-    const navigation = [
-        { id: "home", label: "Dashboard", icon: Home, path: "/admin/dashboard" },
-        { id: "banners", label: "Banner Ads", icon: ImageIcon, path: "/admin/dashboard" },
-        { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
-        { id: "withdrawal-banks", label: "Withdrawal Banks", icon: Building2, path: "/admin/withdrawal-banks" },
-        { id: "unlink-account", label: "Unlink Account", icon: UserX, path: "/admin/unlink-account" },
-        { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
-        { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
-        { id: "referral", label: "Referral Rule", icon: Percent, path: "/admin/referral-settings" },
-        { id: "telegram", label: "Telegram Staff", icon: Send, path: "/admin/telegram" },
-        { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
-        { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
-        { id: "settings", label: "Settings", icon: Settings, path: "/admin/dashboard" },
-    ];
 
     if (loading) {
         return (
