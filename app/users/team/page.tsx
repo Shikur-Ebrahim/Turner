@@ -262,8 +262,9 @@ export default function TeamPage() {
                                     <p className="text-4xl sm:text-3xl font-black text-slate-800 tabular-nums leading-none tracking-tight">
                                         {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                     </p>
-                                    <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center border border-amber-200 shadow-lg shadow-amber-500/20 animate-pulse">
-                                        <Coins size={22} className="text-amber-500 fill-amber-500" />
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-amber-400 blur-md opacity-40 animate-pulse"></div>
+                                        <Coins size={36} className="text-amber-500 fill-amber-300 drop-shadow-[0_4px_4px_rgba(245,158,11,0.5)] animate-[bounce_3s_infinite]" strokeWidth={2.5} />
                                     </div>
                                 </div>
                             </div>
