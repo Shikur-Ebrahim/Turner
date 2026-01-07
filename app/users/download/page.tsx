@@ -27,6 +27,8 @@ export default function DownloadAppPage() {
 
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [showInstruction, setShowInstruction] = useState(false);
+    const [installStatus, setInstallStatus] = useState<'idle' | 'installing' | 'installed'>('idle');
+    const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         const handler = (e: any) => {
@@ -43,9 +45,30 @@ export default function DownloadAppPage() {
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
                 setDeferredPrompt(null);
+                setInstallStatus('installing');
+
+                // Simulate download/install progress
+                let currentProgress = 0;
+                const interval = setInterval(() => {
+                    currentProgress += Math.floor(Math.random() * 5) + 2; // Random increment
+                    if (currentProgress > 100) {
+                        currentProgress = 100;
+                        clearInterval(interval);
+                        setTimeout(() => setInstallStatus('installed'), 500);
+                    }
+                    setProgress(currentProgress);
+                }, 150); // Updates every 150ms
             }
         } else {
-            setShowInstruction(true);
+            // Fallback for when PWA is already installed or not supported
+            // simulate install anyway for better UX if they click it (or show instruction)
+            // Check if already installed (standalone mode)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            if (isStandalone) {
+                setInstallStatus('installed');
+            } else {
+                setShowInstruction(true);
+            }
         }
     };
 
@@ -109,13 +132,40 @@ export default function DownloadAppPage() {
 
                 {/* Primary Action Section */}
                 <section className="px-6 py-8">
-                    <button
-                        onClick={handleDownload}
-                        className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-emerald-200/60"
-                    >
-                        <Download size={22} className="text-white" />
-                        <span className="text-lg font-black text-white tracking-widest uppercase">Install App</span>
-                    </button>
+                    {installStatus === 'idle' && (
+                        <button
+                            onClick={handleDownload}
+                            className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-emerald-200/60"
+                        >
+                            <Download size={22} className="text-white" />
+                            <span className="text-lg font-black text-white tracking-widest uppercase">Download App</span>
+                        </button>
+                    )}
+
+                    {installStatus === 'installing' && (
+                        <div className="w-full py-5 bg-gray-50 rounded-[1.5rem] border border-gray-200 relative overflow-hidden flex items-center justify-center shadow-inner">
+                            <div
+                                className="absolute inset-y-0 left-0 bg-emerald-100/50 transition-all duration-300 ease-linear"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                            <div className="relative flex items-center gap-3 z-10">
+                                <Loader2 size={22} className="text-emerald-600 animate-spin" />
+                                <span className="text-lg font-black text-emerald-700 tracking-widest uppercase">
+                                    {progress < 40 ? "Verifying..." : progress < 80 ? "Installing..." : "Finalizing..."}
+                                </span>
+                                <span className="text-sm font-bold text-emerald-600/80 w-10 text-right">{progress}%</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {installStatus === 'installed' && (
+                        <button
+                            onClick={() => router.push('/users/welcome')}
+                            className="w-full py-5 bg-white border-2 border-emerald-600 hover:bg-emerald-50 active:scale-[0.97] transition-all rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-emerald-100/50"
+                        >
+                            <span className="text-lg font-black text-emerald-700 tracking-widest uppercase">Open App</span>
+                        </button>
+                    )}
 
                     <div className="flex items-center gap-3 mt-6 px-3 py-3 bg-gray-50 rounded-2xl border border-gray-100">
                         <ShieldCheck size={16} className="text-emerald-600" />
