@@ -190,68 +190,98 @@ export default function TeamPage() {
                 {/* Overview Cards */}
                 {/* Advanced Dashboard Card */}
                 {/* Advanced Dashboard Card */}
-                <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-50 mb-8 relative overflow-hidden">
-                    <div className="flex items-center gap-8 relative z-10">
-                        {/* Circular Gauge */}
-                        <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
-                            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <div className="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-50 mb-8 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-8 sm:gap-10 relative z-10">
+                        {/* 3D Circular Asset Gauge */}
+                        <div className="relative w-40 h-40 shrink-0 flex items-center justify-center transform hover:scale-105 transition-transform duration-500 perspective-1000">
+                            {/* Rotating Ring */}
+                            <div className="absolute inset-0 rounded-full border-[6px] border-slate-50 border-t-indigo-500/30 border-l-indigo-500/30 animate-[spin_8s_linear_infinite]"></div>
+                            <div className="absolute inset-2 rounded-full border-[2px] border-dashed border-slate-200 animate-[spin_12s_linear_infinite_reverse]"></div>
+
+                            <svg className="w-full h-full -rotate-90 drop-shadow-xl transform preserve-3d" viewBox="0 0 100 100">
+                                <defs>
+                                    <linearGradient id="assetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#6366f1" />
+                                        <stop offset="100%" stopColor="#8b5cf6" />
+                                    </linearGradient>
+                                    <filter id="glow">
+                                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur" />
+                                            <feMergeNode in="SourceGraphic" />
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                {/* Track */}
                                 <circle
                                     cx="50"
                                     cy="50"
-                                    r="42"
+                                    r="40"
                                     fill="transparent"
-                                    stroke="#F1F5F9"
-                                    strokeWidth="10"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="42"
-                                    fill="transparent"
-                                    stroke="#818CF8"
-                                    strokeWidth="10"
+                                    stroke="#ecf0f5"
+                                    strokeWidth="8"
                                     strokeLinecap="round"
-                                    strokeDasharray="263.89"
+                                />
+                                {/* Progress Indicator */}
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="40"
+                                    fill="transparent"
+                                    stroke="url(#assetGradient)"
+                                    strokeWidth="8"
+                                    strokeLinecap="round"
+                                    strokeDasharray="251.2"
                                     strokeDashoffset="60"
-                                    className="transition-all duration-1000"
+                                    filter="url(#glow)"
+                                    className="animate-[dash_1.5s_ease-out_forwards]"
                                 />
                             </svg>
 
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-                                <Trophy size={18} className="text-[#FBBF24] mb-0.5 fill-[#FBBF24]" />
-                                <span className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-[0.1em] leading-tight">Team Assets</span>
-                                <span className="font-extrabold text-[#1E293B] text-base tabular-nums leading-none">
-                                    {stats.totalTeamRecharge.toLocaleString()}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-2 animate-in fade-in zoom-in duration-700">
+                                <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mb-1 shadow-inner animate-bounce-slow">
+                                    <Trophy size={16} className="text-indigo-500 fill-indigo-500" />
+                                </div>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-0.5">Assets</span>
+                                <span className="font-black text-slate-800 text-sm tabular-nums leading-none tracking-tight">
+                                    {stats.totalTeamRecharge >= 1000000 ? (stats.totalTeamRecharge / 1000000).toFixed(1) + "M" : stats.totalTeamRecharge.toLocaleString()}
                                 </span>
                             </div>
                         </div>
 
                         {/* List Stats */}
-                        <div className="flex-1 space-y-4">
-                            <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Income</p>
-                                <div className="flex items-center gap-3">
-                                    <p className="text-3xl font-black text-[#1E293B] tabular-nums leading-none">
+                        <div className="flex-1 w-full space-y-5">
+                            <div className="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/80">
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    Total Income <div className="h-[1px] flex-1 bg-slate-200"></div>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-4xl sm:text-3xl font-black text-slate-800 tabular-nums leading-none tracking-tight">
                                         {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                     </p>
-                                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center border border-amber-200">
-                                        <Coins size={18} className="text-amber-500 fill-amber-500 animate-pulse" />
+                                    <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center border border-amber-200 shadow-lg shadow-amber-500/20 animate-pulse">
+                                        <Coins size={22} className="text-amber-500 fill-amber-500" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-slate-400 font-bold">Members Today</span>
-                                    <span className="font-bold bg-[#F1F5F9] text-[#94A3B8] px-4 py-1.5 rounded-full text-[10px] shadow-sm">
-                                        + {stats.todayJoined}
-                                    </span>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">New Today</span>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <Users size={14} className="text-emerald-500" />
+                                        <span className="font-black text-slate-800 text-sm">+{stats.todayJoined}</span>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center pr-2">
-                                    <span className="text-sm text-slate-400 font-bold">Total Size</span>
-                                    <span className="font-black text-[#1E293B] text-base">
-                                        {stats.totalMembers}
-                                    </span>
+                                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Team Size</span>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <Layers size={14} className="text-blue-500" />
+                                        <span className="font-black text-slate-800 text-sm">{stats.totalMembers}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

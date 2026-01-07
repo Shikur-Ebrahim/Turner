@@ -205,7 +205,7 @@ export default function AdminSettings() {
                         </div>
 
                         <div className="bg-white rounded-[2.5rem] p-8 border-2 border-slate-100 shadow-2xl shadow-slate-900/5 space-y-8">
-                            <div className="flex gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1 relative">
                                     <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                                         <Phone size={20} className="text-slate-300" />
@@ -222,7 +222,7 @@ export default function AdminSettings() {
                                 <button
                                     onClick={handleSearch}
                                     disabled={isSearching}
-                                    className="px-10 h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center"
+                                    className="w-full sm:w-auto px-10 h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center"
                                 >
                                     {isSearching ? <Loader2 className="animate-spin" size={20} /> : "Search Account"}
                                 </button>

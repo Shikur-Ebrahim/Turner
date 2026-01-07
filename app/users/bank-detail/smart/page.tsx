@@ -96,7 +96,7 @@ function SmartContent() {
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0f172a]"><Loader2 className="animate-spin text-purple-500" /></div>;
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-white pb-32 font-sans selection:bg-purple-500/30 overflow-x-hidden relative">
+        <div className="min-h-screen bg-[#0f172a] text-white pb-48 font-sans selection:bg-purple-500/30 overflow-x-hidden relative">
             {/* Background Atmosphere */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse"></div>
@@ -256,7 +256,7 @@ function SmartContent() {
             </main>
 
             {/* Floating Action Button */}
-            <div className="fixed bottom-6 left-6 right-6 z-50 max-w-md mx-auto">
+            <div className="fixed bottom-24 left-6 right-6 z-[100] max-w-md mx-auto">
                 <button
                     onClick={handleSubmit}
                     disabled={!smsContent.trim()}

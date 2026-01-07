@@ -263,8 +263,8 @@ export default function AdminProductsPage() {
                                     key={cat}
                                     onClick={() => setActiveFilter(cat)}
                                     className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeFilter === cat
-                                            ? "bg-white text-indigo-600 shadow-md ring-1 ring-slate-100"
-                                            : "text-slate-400 hover:text-slate-600"
+                                        ? "bg-white text-indigo-600 shadow-md ring-1 ring-slate-100"
+                                        : "text-slate-400 hover:text-slate-600"
                                         }`}
                                 >
                                     {cat}
@@ -544,8 +544,8 @@ export default function AdminProductsPage() {
                                                         accept="image/*"
                                                     />
                                                     <div className={`w-full px-6 py-4 rounded-2xl border-2 border-dashed flex items-center justify-center gap-3 transition-all ${isUploading
-                                                            ? "bg-slate-50 border-slate-200"
-                                                            : "bg-white border-slate-200 group-hover/upload:border-indigo-600 group-hover/upload:bg-indigo-50/50"
+                                                        ? "bg-slate-50 border-slate-200"
+                                                        : "bg-white border-slate-200 group-hover/upload:border-indigo-600 group-hover/upload:bg-indigo-50/50"
                                                         }`}>
                                                         {isUploading ? (
                                                             <Loader2 size={24} className="animate-spin text-indigo-600" />
@@ -566,17 +566,7 @@ export default function AdminProductsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-700 uppercase tracking-widest px-1">Product Description</label>
-                                        <textarea
-                                            name="description"
-                                            value={formData.description}
-                                            onChange={handleInputChange}
-                                            rows={4}
-                                            placeholder="Detailed description of the investment opportunity..."
-                                            className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-600/20 focus:bg-white outline-none transition-all font-medium text-slate-700 no-scrollbar resize-none"
-                                        />
-                                    </div>
+
                                 </div>
                                 <button type="submit" className="hidden">Submit</button>
                             </form>
@@ -605,8 +595,8 @@ export default function AdminProductsPage() {
                                     onClick={handleSubmit}
                                     disabled={isSubmitting || isUploading}
                                     className={`flex-1 md:flex-none px-12 py-4 rounded-2xl font-black text-white shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 ${isSubmitting || isUploading
-                                            ? "bg-slate-400 shadow-none cursor-not-allowed"
-                                            : "bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-700"
+                                        ? "bg-slate-400 shadow-none cursor-not-allowed"
+                                        : "bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-700"
                                         }`}
                                 >
                                     {isSubmitting ? (

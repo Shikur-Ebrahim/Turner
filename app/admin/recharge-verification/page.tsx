@@ -67,6 +67,11 @@ export default function RechargeVerificationPage() {
         const unsubscribeRecharges = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const sortedData = data.sort((a: any, b: any) => {
+                // Primary Sort: Status "Under Review" comes first
+                if (a.status === 'Under Review' && b.status !== 'Under Review') return -1;
+                if (a.status !== 'Under Review' && b.status === 'Under Review') return 1;
+
+                // Secondary Sort: Newest timestamp first
                 const timeA = a.timestamp?.toMillis?.() || 0;
                 const timeB = b.timestamp?.toMillis?.() || 0;
                 return timeB - timeA;
