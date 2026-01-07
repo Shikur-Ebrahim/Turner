@@ -172,7 +172,7 @@ export default function InvitePage() {
                                 <Wallet size={20} />
                             </div>
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Earned</span>
-                            <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.earned} ETB</span>
+                            <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.earned} Star</span>
                         </div>
                     </div>
                 </div>
