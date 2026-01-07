@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { ChevronLeft, Copy, CheckCircle2, Share2, Sparkles, Gift, Users, Wallet, Star } from "lucide-react";
+import { ChevronLeft, Copy, CheckCircle2, Share2, Sparkles, Gift, Users, Wallet, Coins } from "lucide-react";
 import { toast } from "sonner";
 
 export default function InvitePage() {
@@ -176,9 +176,9 @@ export default function InvitePage() {
                                 <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.earned}</span>
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-yellow-400 blur-md opacity-40 animate-pulse"></div>
-                                    <Star
+                                    <Coins
                                         size={24}
-                                        className="text-yellow-500 fill-yellow-300 drop-shadow-[0_4px_4px_rgba(234,179,8,0.5)] animate-[spin_6s_linear_infinite]"
+                                        className="text-yellow-500 fill-yellow-300 drop-shadow-[0_4px_4px_rgba(234,179,8,0.5)] animate-[bounce_3s_infinite]"
                                         strokeWidth={2.5}
                                     />
                                 </div>
