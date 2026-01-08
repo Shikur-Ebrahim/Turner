@@ -34,6 +34,13 @@ export default function AuthForm() {
         const { name, value } = e.target;
 
         if (name === "phoneNumber") {
+            // LOGIN MODE: Allow any input (Email or Phone)
+            if (activeTab === "login") {
+                setFormData((prev) => ({ ...prev, [name]: value }));
+                return;
+            }
+
+            // REGISTER MODE: Strict Phone Validation
             const numericValue = value.replace(/\D/g, "");
             const rules = phoneValidationRules[formData.country];
 
@@ -75,30 +82,32 @@ export default function AuthForm() {
         setLoading(true);
 
         try {
-            const phoneNumber = formData.phoneNumber.replace(/\D/g, "");
-            const rules = phoneValidationRules[formData.country];
-
-            if (rules) {
-                if (Array.isArray(rules.length)) {
-                    if (phoneNumber.length < rules.length[0] || phoneNumber.length > rules.length[1]) {
-                        throw new Error(rules.errorMsg);
-                    }
-                } else {
-                    if (phoneNumber.length !== rules.length) {
-                        throw new Error(rules.errorMsg);
-                    }
-                }
-
-                if (rules.startsWith && !rules.startsWith.includes(phoneNumber[0])) {
-                    throw new Error(rules.errorMsg);
-                }
-            }
-
-            const fullPhoneNumber = `${formData.phonePrefix}${formData.phoneNumber}`;
-            const sanitizedPhone = fullPhoneNumber.replace(/\+/g, "").replace(/\s/g, "");
-            const generatedEmail = `${sanitizedPhone}@turner.app`;
-
             if (activeTab === "register") {
+                // ... (Keep existing registration logic separate or mostly unchanged, but since we are replacing the whole block, I need to include it or be careful with lines)
+                // RE-IMPLEMENTING REGISTER LOGIC TO ENSURE INTEGRITY
+                const phoneNumber = formData.phoneNumber.replace(/\D/g, "");
+                const rules = phoneValidationRules[formData.country];
+
+                if (rules) {
+                    if (Array.isArray(rules.length)) {
+                        if (phoneNumber.length < rules.length[0] || phoneNumber.length > rules.length[1]) {
+                            throw new Error(rules.errorMsg);
+                        }
+                    } else {
+                        if (phoneNumber.length !== rules.length) {
+                            throw new Error(rules.errorMsg);
+                        }
+                    }
+
+                    if (rules.startsWith && !rules.startsWith.includes(phoneNumber[0])) {
+                        throw new Error(rules.errorMsg);
+                    }
+                }
+
+                const fullPhoneNumber = `${formData.phonePrefix}${formData.phoneNumber}`;
+                const sanitizedPhone = fullPhoneNumber.replace(/\+/g, "").replace(/\s/g, "");
+                const generatedEmail = `${sanitizedPhone}@turner.app`;
+
                 if (formData.password !== formData.confirmPassword) {
                     throw new Error("Passwords do not match");
                 }
@@ -200,38 +209,92 @@ export default function AuthForm() {
 
                 setActiveTab("login");
                 setFormData({ ...formData, password: "", confirmPassword: "" });
+
             } else {
-                const userCredential = await signInWithEmailAndPassword(auth, generatedEmail, formData.password);
+                // =============== UNIFIED LOGIN LOGIC ===============
+                const input = formData.phoneNumber.trim();
+                let userCredential;
+
+                if (input.includes("@")) {
+                    // EMAIL LOGIN (ADMIN)
+                    userCredential = await signInWithEmailAndPassword(auth, input, formData.password);
+                } else {
+                    // PHONE LOGIN (USER)
+                    const fullPhoneNumber = `${formData.phonePrefix}${input}`;
+                    const sanitizedPhone = fullPhoneNumber.replace(/\+/g, "").replace(/\s/g, "");
+                    const generatedEmail = `${sanitizedPhone}@turner.app`;
+
+                    userCredential = await signInWithEmailAndPassword(auth, generatedEmail, formData.password);
+                }
+
                 const user = userCredential.user;
 
+                // CHECK FOR ADMIN CLAIM
+                const idTokenResult = await user.getIdTokenResult(true);
+                const isAdmin = !!idTokenResult.claims.admin;
+
+                // LOGIC: Email login MUST be admin OR normal user? Prompt says: "If an email-login user does not have admin claim: Immediately sign them out"
+                if (input.includes("@") && !isAdmin) {
+                    await auth.signOut();
+                    throw new Error("Unauthorized access.");
+                }
+
+                if (isAdmin) {
+                    // Set a simple cookie for middleware to see (optional but helpful for route protection)
+                    document.cookie = "is_admin=true; path=/; max-age=86400; SameSite=Strict";
+                    router.push("/admin");
+                    return;
+                }
+
+                // Normal User Checks
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists() && userDoc.data().isBlocked) {
                     await auth.signOut();
-
                     const tgSnap = await getDoc(doc(db, "telegram_links", "active"));
                     if (tgSnap.exists()) {
                         setSupportLink(tgSnap.data().teamLink || null);
                     }
-
                     setIsAccountBlocked(true);
                     setError("Your account has been restricted. Please contact support.");
                     setLoading(false);
                     return;
                 }
 
+                document.cookie = "is_admin=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"; // Clear admin cookie if normal user
                 router.push("/users/welcome");
             }
         } catch (err: any) {
             console.error(err);
+
+            // 1. Network / Connection Errors
+            if (err.code === 'auth/network-request-failed' || err.message?.includes('network')) {
+                setError("Connection lost. Please check your internet.");
+                return;
+            }
+
+            // 2. Account Restriction (Custom Logic)
             if (!err.message?.includes("restricted") && !error?.includes("restricted")) {
                 setSupportLink(null);
             }
-            if (err.code === 'auth/email-already-in-use') {
+
+            // 3. Credential Errors (Unified for security)
+            if (
+                err.code === 'auth/invalid-credential' ||
+                err.code === 'auth/user-not-found' ||
+                err.code === 'auth/wrong-password' ||
+                err.code === 'auth/invalid-email'
+            ) {
+                setError("Incorrect email or password.");
+            }
+            // 4. Registration Errors
+            else if (err.code === 'auth/email-already-in-use') {
                 setError("This phone number is already registered.");
-            } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found') {
-                setError("Invalid phone number or password.");
-            } else {
-                setError(err.message || "Something went wrong.");
+            } else if (err.code === 'auth/weak-password') {
+                setError("Password should be at least 6 characters.");
+            }
+            // 5. Fallback
+            else {
+                setError(err.message || "An unexpected error occurred. Please try again.");
             }
         } finally {
             setLoading(false);
@@ -244,8 +307,7 @@ export default function AuthForm() {
 
             <div className="pt-8 pb-4 px-8 text-center relative z-10 bg-white">
                 <div
-                    className="flex justify-center -ml-12 mb-4 cursor-pointer"
-                    onDoubleClick={() => router.push("/admin")}
+                    className="flex justify-center -ml-12 mb-4"
                 >
                     <div className="w-32 h-32 md:w-40 md:h-40">
                         <img src="/logo.png" alt="Turner Logo" className="w-full h-full object-contain" />
@@ -401,7 +463,7 @@ export default function AuthForm() {
                                             {formData.phonePrefix}
                                         </span>
                                         <input
-                                            type="tel"
+                                            type="text"
                                             name="phoneNumber"
                                             required
                                             value={formData.phoneNumber}
