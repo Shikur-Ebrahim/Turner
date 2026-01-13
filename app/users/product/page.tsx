@@ -174,6 +174,20 @@ export default function UserProductsPage() {
                                                 </div>
                                             </div>
 
+                                            {/* Sales Tracking Progress Bar */}
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Sales Tracked</span>
+                                                    <span className="text-sm font-black text-orange-400">{product.salesTracked || 0}%</span>
+                                                </div>
+                                                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-1000 ease-out"
+                                                        style={{ width: `${product.salesTracked || 0}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+
                                             <button className="w-full py-5 bg-white text-[#0f172a] text-[11px] font-black uppercase tracking-[0.3em] rounded-[1.8rem] shadow-xl shadow-white/5 active:scale-95 transition-all mt-2">
                                                 Buy
                                             </button>
