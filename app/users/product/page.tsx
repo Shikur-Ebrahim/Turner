@@ -174,17 +174,36 @@ export default function UserProductsPage() {
                                                 </div>
                                             </div>
 
-                                            {/* Sales Tracking Progress Bar */}
-                                            <div className="space-y-2">
+                                            {/* Sales Tracking Progress Bar - Enhanced */}
+                                            <div className="space-y-3 mt-6">
                                                 <div className="flex justify-between items-center">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Sales Tracked</span>
-                                                    <span className="text-sm font-black text-orange-400">{product.salesTracked || 0}%</span>
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></span>
+                                                        Sales Tracked
+                                                    </span>
+                                                    <span className="text-base font-black bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                                                        {product.salesTracked || 0}%
+                                                    </span>
                                                 </div>
-                                                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all duration-1000 ease-out"
-                                                        style={{ width: `${product.salesTracked || 0}%` }}
-                                                    ></div>
+                                                <div className="relative">
+                                                    {/* Background track with glow */}
+                                                    <div className="w-full h-3 bg-slate-800/50 rounded-full overflow-hidden border border-white/10 backdrop-blur-sm relative">
+                                                        {/* Animated gradient fill */}
+                                                        <div
+                                                            className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                                                            style={{ width: `${product.salesTracked || 0}%` }}
+                                                        >
+                                                            {/* Shimmer effect */}
+                                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                                        </div>
+                                                    </div>
+                                                    {/* Glow effect */}
+                                                    {(product.salesTracked || 0) > 0 && (
+                                                        <div
+                                                            className="absolute top-0 left-0 h-3 bg-gradient-to-r from-purple-500/40 via-pink-500/40 to-purple-600/40 rounded-full blur-md transition-all duration-1000 ease-out"
+                                                            style={{ width: `${product.salesTracked || 0}%` }}
+                                                        ></div>
+                                                    )}
                                                 </div>
                                             </div>
 

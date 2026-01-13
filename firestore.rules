@@ -1,0 +1,144 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    
+    // Check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Check if user has the admin custom claim
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+    
+    // Check if the document belongs to the authenticated user
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Rules for Collections ---
+
+    // 1. User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin() || 
+                  (isSignedIn() && (
+                    resource.data.inviterA == request.auth.uid || 
+                    resource.data.inviterB == request.auth.uid || 
+                    resource.data.inviterC == request.auth.uid || 
+                    resource.data.inviterD == request.auth.uid
+                  ));
+      allow create: if isSignedIn(); // Allow registration
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 2. Orders, Withdrawals, and Recharge Requests
+    match /UserOrders/{docId} {
+      allow read, create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+      
+      // Allow user to see their own orders (query filter check)
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /Withdrawals/{docId} {
+      allow read, create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /RechargeReview/{docId} {
+      allow read, create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 3. Notifications (User-specific)
+    match /UserNotifications/{docId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn(); // Users/System can create notifications
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 4. Chat System
+    match /chats/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+      
+      match /messages/{messageId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // 5. Personal Data (Bank Details)
+    match /Bank/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // 6. Public/Reference Data (Read-only for users, Write for Admin)
+    match /Products/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /VipRules/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /rules/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /banners/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /notifications/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /Settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /telegram_links/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /paymentMethods/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /withdrawalBanks/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /guidelines/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 7. Global Settings (Lowercase settings collection check)
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Default: Deny everything else
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

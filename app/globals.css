@@ -45,8 +45,21 @@ body {
     }
   }
 
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   .animate-horizontal-scroll {
     animation: marqueeMotion 25s linear infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
   }
 
   .clip-path-triangle {

@@ -152,56 +152,78 @@ export default function RechargeVerificationPage() {
                 inviterSnaps.forEach((snap, index) => {
                     if (snap.exists()) {
                         const { ref, pct } = inviterRefs[index];
-                        const bonus = amount * pct;
                         const inviterData = snap.data();
 
                         const inviterUpdate: any = {
-                            teamIncome: increment(bonus),
-                            teamAssets: increment(amount)
+                            teamAssets: increment(amount) // Always track team assets
                         };
 
-                        // If it's the member's first recharge, increment inviter's investedTeamSize
+                        // Only give invitation rewards on FIRST recharge
                         if (isFirstRecharge) {
+                            const bonus = amount * pct;
+                            inviterUpdate.teamIncome = increment(bonus);
                             inviterUpdate.investedTeamSize = increment(1);
-                        }
 
-                        // Check for VIP Eligibility
-                        const currentInvestedSize = (inviterData.investedTeamSize || 0) + (isFirstRecharge ? 1 : 0);
-                        const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
-                        const currentVip = inviterData.vip ?? 0;
-                        const currentVipNum = typeof currentVip === 'number'
-                            ? currentVip
-                            : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
-                        const nextVipNum = currentVipNum + 1;
+                            // Check for VIP Eligibility
+                            const currentInvestedSize = (inviterData.investedTeamSize || 0) + 1;
+                            const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
+                            const currentVip = inviterData.vip ?? 0;
+                            const currentVipNum = typeof currentVip === 'number'
+                                ? currentVip
+                                : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
+                            const nextVipNum = currentVipNum + 1;
 
-                        const nextRule = vipRules.find(r => {
-                            const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
-                            return rNum === nextVipNum;
-                        });
+                            const nextRule = vipRules.find(r => {
+                                const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
+                                return rNum === nextVipNum;
+                            });
 
-                        if (nextRule) {
-                            const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
-                            const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
-                            if (sizeMet && assetsMet) {
-                                inviterUpdate.isVipEligible = true;
+                            if (nextRule) {
+                                const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
+                                const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
+                                if (sizeMet && assetsMet) {
+                                    inviterUpdate.isVipEligible = true;
+                                }
+                            }
+
+                            // Create Reward Notification (only on first recharge)
+                            const levelLabels = ["Level A", "Level B", "Level C", "Level D"];
+                            const notifRef = doc(collection(db, "UserNotifications"));
+                            transaction.set(notifRef, {
+                                userId: snap.id,
+                                type: "reward",
+                                amount: bonus.toFixed(2),
+                                level: levelLabels[index],
+                                message: `Reward received: ${bonus.toFixed(2)} ETB from ${levelLabels[index]}.`,
+                                fromUser: userData.phoneNumber || "A team member",
+                                createdAt: Timestamp.now(),
+                                read: false
+                            });
+                        } else {
+                            // For subsequent recharges, still check VIP eligibility based on updated teamAssets
+                            const currentInvestedSize = inviterData.investedTeamSize || 0;
+                            const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
+                            const currentVip = inviterData.vip ?? 0;
+                            const currentVipNum = typeof currentVip === 'number'
+                                ? currentVip
+                                : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
+                            const nextVipNum = currentVipNum + 1;
+
+                            const nextRule = vipRules.find(r => {
+                                const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
+                                return rNum === nextVipNum;
+                            });
+
+                            if (nextRule) {
+                                const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
+                                const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
+                                if (sizeMet && assetsMet) {
+                                    inviterUpdate.isVipEligible = true;
+                                }
                             }
                         }
 
                         transaction.update(ref, inviterUpdate);
-
-                        // 3. Create Reward Notification
-                        const levelLabels = ["Level A", "Level B", "Level C", "Level D"];
-                        const notifRef = doc(collection(db, "UserNotifications"));
-                        transaction.set(notifRef, {
-                            userId: snap.id,
-                            type: "reward",
-                            amount: bonus.toFixed(2),
-                            level: levelLabels[index],
-                            message: `Reward received: ${bonus.toFixed(2)} ETB from ${levelLabels[index]}.`,
-                            fromUser: userData.phoneNumber || "A team member",
-                            createdAt: Timestamp.now(),
-                            read: false
-                        });
                     }
                 });
             });
