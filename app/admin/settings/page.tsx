@@ -53,7 +53,8 @@ export default function AdminSettings() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             const isMaster = localStorage.getItem("admin_session") === "true";
-            if (!isMaster) {
+            // Allow if user is logged in (firebase) OR if they have the master localstorage key
+            if (!user && !isMaster) {
                 router.push("/admin");
             } else {
                 setLoading(false);

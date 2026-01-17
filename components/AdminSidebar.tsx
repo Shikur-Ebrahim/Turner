@@ -26,7 +26,8 @@ import {
     Gamepad2,
     Crown,
     PartyPopper,
-    BarChart3
+    BarChart3,
+    TrendingUp
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -78,6 +79,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
 
     const navigation = [
         { id: "recharge", label: "Recharge Wallet", icon: ShieldCheck, path: "/admin/recharge-verification" },
+        { id: "recharge-tracking", label: "Recharge Users", icon: TrendingUp, path: "/admin/recharge-tracking" },
         { id: "withdrawal-wallet", label: "Withdrawal Wallet", icon: Banknote, path: "/admin/withdrawal-wallet" },
         { id: "financials", label: "Financial Stats", icon: BarChart3, path: "/admin/financials" },
         { id: "vip-upgrade", label: "VIP Upgrade", icon: ShieldCheck, path: "/admin/vip-upgrade" },
@@ -103,7 +105,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     const handleLogout = async () => {
         localStorage.removeItem("admin_session");
         await signOut(auth);
-        router.push("/admin");
+        router.replace("/admin");
     };
 
     // Helper to determine active state

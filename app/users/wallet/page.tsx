@@ -305,7 +305,10 @@ export default function WalletPage() {
 
                     {/* Team Revenue */}
                     {/* Team Revenue - Advanced Card */}
-                    <div className="bg-white rounded-[2rem] p-5 shadow-xl shadow-orange-500/10 border border-orange-50 flex items-center justify-between relative overflow-hidden group">
+                    <div
+                        onClick={() => router.push("/users/team")}
+                        className="bg-white rounded-[2rem] p-5 shadow-xl shadow-orange-500/10 border border-orange-50 flex items-center justify-between relative overflow-hidden group cursor-pointer active:scale-95 transition-all"
+                    >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -mr-10 -mt-10 transition-colors group-hover:bg-orange-500/10"></div>
 
                         <div className="flex items-center gap-4 relative z-10">
@@ -339,7 +342,10 @@ export default function WalletPage() {
                     </div>
 
                     {/* Task Revenue - Advanced Card (Fixed Icons) */}
-                    <div className="bg-white rounded-[2rem] p-5 shadow-xl shadow-emerald-500/10 border border-emerald-50 flex items-center justify-between relative overflow-hidden group">
+                    <div
+                        onClick={() => router.push("/users/tasks")}
+                        className="bg-white rounded-[2rem] p-5 shadow-xl shadow-emerald-500/10 border border-emerald-50 flex items-center justify-between relative overflow-hidden group cursor-pointer active:scale-95 transition-all"
+                    >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10 transition-colors group-hover:bg-emerald-500/10"></div>
 
                         <div className="flex items-center gap-4 relative z-10">

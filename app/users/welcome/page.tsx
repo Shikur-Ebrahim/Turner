@@ -282,13 +282,19 @@ function WelcomeContent() {
                     <button
                         onClick={() => {
                             setShowNotifPanel(!showNotifPanel);
-                            setHasUnread(false);
+                            // We don't verify all on click anymore, user must click specific items or we could add a "mark all read" later. 
+                            // But per standard UX, opening usually clears the "new" badge or we keep it until read.
+                            // For this specific request, the user wants to "track" them. 
+                            // Reviewing the prompt: "just unsee notiifcation just only red icon... justn number just just diplsyed the number"
+                            // I will keep the badge showing the count of unread items.
                         }}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 relative hover:bg-gray-200 transition-colors"
                     >
                         <Bell size={20} className="text-gray-600" />
-                        {hasUnread && (
-                            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-pulse"></span>
+                        {userNotifs.filter(n => !n.read).length > 0 && (
+                            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-in zoom-in px-1">
+                                {userNotifs.filter(n => !n.read).length > 9 ? '9+' : userNotifs.filter(n => !n.read).length}
+                            </span>
                         )}
                     </button>
 
@@ -326,8 +332,8 @@ function WelcomeContent() {
                                             return (
                                                 <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
                                                     {notif.status === 'verified' ? (
-                                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                                                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"></div>
+                                                        <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
+                                                            <img src="/logo.png" alt="Turner" className="w-full h-full object-contain" />
                                                         </div>
                                                     ) : (
                                                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">

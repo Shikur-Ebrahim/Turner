@@ -49,13 +49,14 @@ body {
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
   }
 
   .animate-horizontal-scroll {
-    animation: marqueeMotion 25s linear infinite;
+    animation: marqueeMotion 90s linear infinite;
   }
 
   .animate-shimmer {
