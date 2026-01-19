@@ -204,26 +204,41 @@ export default function InvitePage() {
                         )}
                     </div>
 
-                    <button
-                        onClick={handleCopy}
-                        className={`w-full h-14 rounded-2xl text-white font-bold text-sm tracking-wide shadow-lg transition-all flex items-center justify-center gap-2.5 active:scale-[0.98]
-                            ${copied
-                                ? "bg-emerald-500 shadow-emerald-500/25 hover:shadow-emerald-500/40 scale-100"
-                                : "bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.02]"
-                            }`}
-                    >
-                        {copied ? (
-                            <>
-                                <CheckCircle2 size={18} />
-                                COPIED
-                            </>
-                        ) : (
-                            <>
-                                <Copy size={18} />
-                                COPY INVITATION LINK
-                            </>
-                        )}
-                    </button>
+                    {/* Action Buttons - Side by Side */}
+                    <div className="flex items-center gap-3 w-full">
+                        {/* Copy Button - Takes more space */}
+                        <button
+                            onClick={handleCopy}
+                            className={`flex-1 h-14 rounded-2xl text-white font-bold text-sm tracking-wide shadow-lg transition-all flex items-center justify-center gap-2 active:scale-[0.98]
+                                ${copied
+                                    ? "bg-emerald-500 shadow-emerald-500/25 hover:shadow-emerald-500/40"
+                                    : "bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.02]"
+                                }`}
+                        >
+                            {copied ? (
+                                <>
+                                    <CheckCircle2 size={18} />
+                                    <span className="hidden sm:inline">COPIED</span>
+                                    <span className="sm:hidden">COPIED</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Copy size={18} />
+                                    <span className="hidden sm:inline">COPY LINK</span>
+                                    <span className="sm:hidden">COPY</span>
+                                </>
+                            )}
+                        </button>
+
+                        {/* Share Button - Icon Only with Black/Dark Style */}
+                        <button
+                            onClick={handleShare}
+                            className="w-14 h-14 rounded-2xl bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/30 hover:shadow-slate-900/50 transition-all flex items-center justify-center active:scale-[0.98] hover:scale-[1.05] group"
+                            aria-label="Share link"
+                        >
+                            <Share2 size={22} className="group-hover:rotate-12 transition-transform duration-300" strokeWidth={2.5} />
+                        </button>
+                    </div>
 
                     <p className="text-center mt-4 text-[10px] font-medium text-slate-400">
                         Terms and conditions apply to all rewards.
