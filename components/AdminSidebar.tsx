@@ -21,6 +21,7 @@ import {
     Settings,
     LogOut,
     UserX,
+    Users,
     DollarSign,
     Package,
     Gamepad2,
@@ -99,6 +100,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
         { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },
+        { id: "users", label: "Users", icon: Users, path: "/admin/users" },
         { id: "settings", label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
 
