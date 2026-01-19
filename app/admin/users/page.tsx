@@ -15,7 +15,8 @@ import {
     Clock,
     Menu,
     Calendar,
-    CreditCard
+    CreditCard,
+    Loader2 as Loader
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 
@@ -63,7 +64,7 @@ function UsersManagement() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-indigo-600">
-                <Loader2 className="w-12 h-12 animate-spin" />
+                <Loader className="w-12 h-12 animate-spin" />
             </div>
         );
     }
@@ -214,7 +215,7 @@ export default function UsersPage() {
     return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center bg-white text-indigo-600">
-                <Loader2 className="w-12 h-12 animate-spin" />
+                <Loader className="w-12 h-12 animate-spin" />
             </div>
         }>
             <UsersManagement />
