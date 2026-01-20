@@ -1,27 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 import {
     ChevronLeft,
     AlertCircle,
     CheckCircle2,
     CreditCard,
     Info,
-    ArrowRight
+    ArrowRight,
+    Loader2
 } from "lucide-react";
 
-const PRESET_AMOUNTS = [
-    700, 2500, 4000, 9000, 21000,
-    45000, 98000, 220000, 460000, 900000, 1400000
+// Default fallback in case Firestore fetch fails
+const DEFAULT_PRESETS = [
+    4500, 12550, 35500, 65550, 135550,
+    250500, 450500, 600550, 850500, 1500000, 3550050
 ];
 
-export default function RechargePage() {
+function RechargeContent() {
     const router = useRouter();
-    const [amount, setAmount] = useState<string>("2500");
+    const searchParams = useSearchParams();
+    const initialAmount = searchParams.get("amount") || "4500";
+    const [amount, setAmount] = useState<string>(initialAmount);
     const [customAmount, setCustomAmount] = useState<string>("");
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [presetAmounts, setPresetAmounts] = useState<number[]>(DEFAULT_PRESETS);
+    const [fetchingPresets, setFetchingPresets] = useState(true);
+
+    useEffect(() => {
+        const fetchProductPrices = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "Products"));
+                const prices: number[] = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.price) prices.push(Number(data.price));
+                });
+
+                // Filter unique values and sort ascending
+                const uniquePrices = Array.from(new Set(prices)).sort((a, b) => a - b);
+
+                if (uniquePrices.length > 0) {
+                    setPresetAmounts(uniquePrices);
+                }
+            } catch (error) {
+                console.error("Error fetching product prices:", error);
+            } finally {
+                setFetchingPresets(false);
+            }
+        };
+        fetchProductPrices();
+    }, []);
 
     const handleAmountSelect = (val: number) => {
         setAmount(val.toString());
@@ -38,8 +71,8 @@ export default function RechargePage() {
 
     const handleNext = () => {
         const numAmount = parseInt(amount);
-        if (isNaN(numAmount) || numAmount < 500) {
-            setErrorMsg("Minimum recharge amount is 500 ETB");
+        if (isNaN(numAmount) || numAmount < 4500) {
+            setErrorMsg("Minimum recharge amount is 4500 ETB");
             setShowErrorModal(true);
             return;
         }
@@ -82,27 +115,34 @@ export default function RechargePage() {
 
                 {/* Preset Grid */}
                 <section className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {PRESET_AMOUNTS.map((val) => (
-                            <button
-                                key={val}
-                                onClick={() => handleAmountSelect(val)}
-                                className={`py-5 rounded-3xl font-black text-sm transition-all active:scale-95 ${amount === val.toString() && !customAmount
-                                    ? "bg-white text-indigo-600 shadow-xl shadow-indigo-600/10 border-2 border-indigo-600"
-                                    : "bg-white text-slate-400 border border-slate-100 hover:border-slate-200"
-                                    }`}
-                            >
-                                {val.toLocaleString()}
-                            </button>
-                        ))}
-                    </div>
+                    {fetchingPresets ? (
+                        <div className="flex flex-col items-center justify-center py-10 gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 opacity-20" />
+                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Loading Presets...</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {presetAmounts.map((val) => (
+                                <button
+                                    key={val}
+                                    onClick={() => handleAmountSelect(val)}
+                                    className={`py-5 rounded-3xl font-black text-sm transition-all active:scale-95 ${amount === val.toString() && !customAmount
+                                        ? "bg-white text-indigo-600 shadow-xl shadow-indigo-600/10 border-2 border-indigo-600"
+                                        : "bg-white text-slate-400 border border-slate-100 hover:border-slate-200"
+                                        }`}
+                                >
+                                    {val.toLocaleString()}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </section>
 
                 {/* Custom Amount */}
                 <section className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
                     <div className="flex items-center gap-2 px-1">
                         <div className="w-1 h-3 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. 500)</h2>
+                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. 4500)</h2>
                     </div>
 
                     <div className="relative group">
@@ -158,7 +198,7 @@ export default function RechargePage() {
 
             {/* Premium Error Modal */}
             {showErrorModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
                         {/* Static light effect */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
@@ -186,5 +226,17 @@ export default function RechargePage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function RechargePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
+            </div>
+        }>
+            <RechargeContent />
+        </Suspense>
     );
 }

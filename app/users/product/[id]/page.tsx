@@ -144,11 +144,13 @@ export default function UserProductDetailPage() {
                         where("status", "==", "Under Review")
                     );
                     const snap = await getDocs(q);
-                    const targetPath = !snap.empty ? "/users/transaction-pending" : "/users/recharge";
+                    const targetPath = !snap.empty
+                        ? "/users/transaction-pending"
+                        : `/users/recharge?amount=${product.price}`;
                     setTimeout(() => router.push(targetPath), 3000);
                 } catch (queryError) {
                     console.error("Redirection query failed:", queryError);
-                    setTimeout(() => router.push("/users/recharge"), 3000);
+                    setTimeout(() => router.push(`/users/recharge?amount=${product.price}`), 3000);
                 }
                 return;
             }
