@@ -3,8 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, Zap, Wifi } from "lucide-react";
+import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { ChevronLeft, Copy, Loader2, Zap, Wifi, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 function DigitalContent() {
@@ -19,6 +19,8 @@ function DigitalContent() {
     const [smsContent, setSmsContent] = useState("");
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchMethod = async () => {
@@ -66,6 +68,7 @@ function DigitalContent() {
                 toast.error("Please login first");
                 return;
             }
+            setSubmitting(true);
 
             // Fetch phone number from users collection
             const userDocRef = doc(db, "users", user.uid);
@@ -82,14 +85,25 @@ function DigitalContent() {
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
                 userId: user.uid,
-                timestamp: new Date()
+                timestamp: serverTimestamp()
             });
 
-            toast.success("Submitted successfully! Under review.");
-            router.push("/users/transaction-pending?theme=digital");
+            // ADD NOTIFICATION
+            await addDoc(collection(db, "UserNotifications"), {
+                userId: user.uid,
+                type: "recharge",
+                amount: Number(amount),
+                status: "Under Review",
+                read: false,
+                createdAt: serverTimestamp()
+            });
+
+            setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
             toast.error("Failed to submit. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -97,6 +111,42 @@ function DigitalContent() {
 
     return (
         <div className="min-h-screen bg-black text-cyan-50 font-mono pb-44 selection:bg-cyan-500/30">
+            {/* Premium Golden Success Modal Overlay */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+                    <div className="bg-[#1a1a1a] w-full max-w-sm rounded-[3rem] p-10 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-amber-500/10 text-center">
+                        {/* Premium Golden Glows */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+                        <div className="relative z-10 flex flex-col items-center gap-8">
+                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-amber-400 via-amber-200 to-amber-600 p-[1px] shadow-2xl shadow-amber-500/20">
+                                <div className="w-full h-full rounded-[1.95rem] bg-[#1a1a1a] flex items-center justify-center text-amber-500 relative">
+                                    <div className="absolute inset-0 bg-amber-500/10 rounded-[1.95rem] animate-ping"></div>
+                                    <CheckCircle2 size={48} strokeWidth={1.5} className="relative z-10" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
+                                    Your digital deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                </p>
+                            </div>
+
+                            <div className="w-full pt-4">
+                                <button
+                                    onClick={() => router.push("/users/welcome")}
+                                    className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
+                                >
+                                    Proceed to Home
+                                </button>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Grid Background */}
             <div className="fixed inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
 
@@ -218,14 +268,14 @@ function DigitalContent() {
             <footer className="p-4 bg-black border-t border-cyan-500/30 backdrop-blur-sm">
                 <button
                     onClick={handleSubmit}
-                    disabled={!smsContent.trim()}
-                    className={`w-full font-bold h-12 uppercase tracking-widest clip-path-polygon transition-all flex items-center justify-center gap-3 ${!smsContent.trim()
+                    disabled={!smsContent.trim() || submitting}
+                    className={`w-full font-bold h-12 uppercase tracking-widest clip-path-polygon transition-all flex items-center justify-center gap-3 ${!smsContent.trim() || submitting
                         ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-50'
                         : 'bg-cyan-600 hover:bg-cyan-500 text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]'
                         }`}
                 >
-                    <Zap size={18} fill="currentColor" />
-                    Initialize Transfer
+                    {submitting ? <Loader2 className="animate-spin" /> : <Zap size={18} fill="currentColor" />}
+                    {submitting ? "Initializing..." : "Initialize Transfer"}
                 </button>
             </footer>
 

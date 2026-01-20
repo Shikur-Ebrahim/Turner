@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import {
     ChevronLeft,
@@ -51,6 +51,8 @@ export default function WithdrawalPage() {
                 setLoading(false);
             });
 
+
+
             return () => {
                 unsubscribeUser();
                 unsubscribeBank();
@@ -63,6 +65,8 @@ export default function WithdrawalPage() {
     const handleWithdrawClick = () => {
         const numAmount = Number(amount);
         const balance = userData?.balance || 0;
+
+
 
         if (!linkedBank) {
             setErrorModal({ show: true, message: "Please connect a bank account first." });
@@ -108,6 +112,8 @@ export default function WithdrawalPage() {
 
     return (
         <div className="min-h-screen bg-[#F8F9FB] text-slate-900 font-sans pb-10 relative">
+
+
 
             {/* Advanced Error Modal */}
             {errorModal?.show && (

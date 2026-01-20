@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, increment, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, increment, query, where, getDocs, limit } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import {
     Lock,
@@ -12,7 +12,8 @@ import {
     AlertCircle,
     CheckCircle2,
     Delete,
-    Clock
+    Clock,
+    Rocket
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,8 +32,9 @@ function SecurityContent() {
     const [step, setStep] = useState<"check" | "set" | "confirm" | "enter">("check");
     const [shake, setShake] = useState(false);
 
-    // Restriction State
-    const [isRestricted, setIsRestricted] = useState(false);
+    // Restriction States
+    const [isRestricted, setIsRestricted] = useState(false); // 24h Cap
+    const [isPartnerRestricted, setIsPartnerRestricted] = useState(false); // Verified Recharge
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
@@ -101,9 +103,24 @@ function SecurityContent() {
                     });
                     toast.success("Security PIN Set Successfully");
                     setUserData({ ...userData, withdrawalPassword: input });
-                    setStep("enter");
-                    setInput("");
-                    setVerifying(false);
+
+                    // AUTO EXECUTE WITHDRAWAL after setting password
+                    const isRecruited = await checkPartnerStatus();
+                    if (!isRecruited) {
+                        setIsPartnerRestricted(true);
+                        setVerifying(false);
+                        return;
+                    }
+
+                    const dailyRestricted = await checkRestriction();
+                    if (dailyRestricted) {
+                        setIsRestricted(true);
+                        setStep("enter");
+                        setInput("");
+                        setVerifying(false);
+                        return;
+                    }
+                    await executeWithdrawal();
                 } else {
                     toast.error("PINs do not match. Try again.");
                     setInput("");
@@ -114,9 +131,17 @@ function SecurityContent() {
             } else if (step === "enter") {
                 // Check Password
                 if (input === userData.withdrawalPassword) {
-                    // CHECK 24H RESTRICTION FIRST (Collection-based)
-                    const restricted = await checkRestriction();
-                    if (restricted) {
+                    // 1. CHECK PARTNER STATUS FIRST
+                    const isRecruited = await checkPartnerStatus();
+                    if (!isRecruited) {
+                        setIsPartnerRestricted(true);
+                        setVerifying(false);
+                        return;
+                    }
+
+                    // 2. CHECK 24H RESTRICTION 
+                    const dailyRestricted = await checkRestriction();
+                    if (dailyRestricted) {
                         setIsRestricted(true);
                         setVerifying(false);
                         return;
@@ -160,6 +185,23 @@ function SecurityContent() {
         });
 
         return hasTodayWithdrawal;
+    };
+
+    const checkPartnerStatus = async () => {
+        if (!user) return false;
+        try {
+            const q = query(
+                collection(db, "RechargeReview"),
+                where("userId", "==", user.uid),
+                where("status", "==", "verified"),
+                limit(1)
+            );
+            const snap = await getDocs(q);
+            return !snap.empty;
+        } catch (error) {
+            console.error("Error checking partner status:", error);
+            return false;
+        }
     };
 
     useEffect(() => {
@@ -253,8 +295,60 @@ function SecurityContent() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
-            {/* Custom Error Overlay Card - REMOVED, moving inline */}
+            {/* 🚀 Partner Recruitment Modal (Unlock Withdrawals) */}
+            {isPartnerRestricted && (
+                <div className="absolute inset-0 z-[120] bg-slate-950/80 backdrop-blur-2xl flex items-center justify-center p-6 animate-in fade-in duration-700">
+                    <div className="bg-[#111111] w-full max-w-sm rounded-[3.5rem] p-10 border border-amber-500/20 shadow-[0_0_80px_rgba(245,158,11,0.1)] relative overflow-hidden animate-in zoom-in-90 duration-500">
+                        {/* Advanced Sci-Fi Glows */}
+                        <div className="absolute -top-32 -right-32 w-80 h-80 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+                        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-amber-600/5 rounded-full blur-[100px] pointer-events-none"></div>
 
+                        <div className="relative z-10 flex flex-col items-center text-center gap-10">
+                            {/* Animated Rocket Icon */}
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-amber-500/20 rounded-[2.5rem] blur-2xl animate-pulse group-hover:bg-amber-500/40 transition-all"></div>
+                                <div className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-amber-400 via-amber-200 to-amber-600 p-[1px] shadow-2xl relative">
+                                    <div className="w-full h-full rounded-[2.45rem] bg-[#0a0a0a] flex items-center justify-center text-amber-500 overflow-hidden">
+                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.1),transparent)] flex items-center justify-center">
+                                            <div className="w-20 h-20 border border-amber-500/10 rounded-full animate-[spin_10s_linear_infinite]"></div>
+                                        </div>
+                                        <Rocket size={54} strokeWidth={1.2} className="relative z-10 animate-bounce" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-100 via-amber-400 to-amber-600 uppercase tracking-tighter leading-none italic">
+                                        Unlock<br />Withdrawals
+                                    </h3>
+                                    <div className="h-1 w-12 bg-amber-500/50 mx-auto rounded-full"></div>
+                                </div>
+                                <p className="text-amber-100/50 text-xs font-bold leading-relaxed px-2 uppercase tracking-wider">
+                                    Withdrawals are available only for <span className="text-amber-400 font-black">Turner Partners</span>.
+                                    Recharge your wallet, activate funding, and join the Turner Partnership to start withdrawing.
+                                </p>
+                            </div>
+
+                            <div className="w-full space-y-4 pt-2">
+                                <button
+                                    onClick={() => router.push("/users/recharge?amount=4500")}
+                                    className="w-full py-6 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2.2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_40px_-10px_rgba(245,158,11,0.3)] active:scale-95 transition-all relative overflow-hidden group"
+                                >
+                                    <span className="relative z-10">Recharge & Join Now</span>
+                                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 slant-glow"></div>
+                                </button>
+                                <button
+                                    onClick={() => setIsPartnerRestricted(false)}
+                                    className="text-amber-100/20 text-[9px] font-black uppercase tracking-[0.4em] hover:text-amber-400 transition-all hover:tracking-[0.5em]"
+                                >
+                                    Return to Secure Area
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 24-Hour Restriction Overlay */}
             {isRestricted && (
@@ -310,30 +404,39 @@ function SecurityContent() {
                 </div>
             )}
 
-            {/* Success Modal Overlay */}
+            {/* Premium Golden Success Modal Overlay */}
             {showSuccessModal && (
-                <div className="absolute inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <div className="absolute inset-0 z-[100] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+                    <div className="bg-[#1a1a1a] w-full max-w-sm rounded-[3rem] p-10 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-amber-500/10">
+                        {/* Premium Golden Glows */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/10 rounded-full blur-[80px] pointer-events-none"></div>
 
-                        <div className="relative z-10 flex flex-col items-center text-center gap-6">
-                            <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center shadow-inner mb-2">
-                                <CheckCircle2 size={40} className="text-emerald-600" />
+                        <div className="relative z-10 flex flex-col items-center text-center gap-8">
+                            {/* Success Icon Container */}
+                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-amber-400 via-amber-200 to-amber-600 p-[1px] shadow-2xl shadow-amber-500/20">
+                                <div className="w-full h-full rounded-[1.95rem] bg-[#1a1a1a] flex items-center justify-center text-amber-500 relative">
+                                    <div className="absolute inset-0 bg-amber-500/10 rounded-[1.95rem] animate-ping"></div>
+                                    <CheckCircle2 size={48} strokeWidth={1.5} className="relative z-10" />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Withdrawal Successful</h3>
-                                <p className="text-xs font-bold text-slate-500 leading-relaxed px-4">
-                                    Your request has been verified. Withdrawal will arrive in your account in <span className="text-slate-900">2-72 hours</span>.
+                            <div className="space-y-3">
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Withdrawal Successful</h3>
+                                <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-4">
+                                    Your request has been verified and submitted for processing. Funds will arrive in your account in <span className="text-amber-400 font-black">2-72 hours</span>.
                                 </p>
                             </div>
 
-                            <button
-                                onClick={() => router.push('/users/welcome')}
-                                className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-600/20 active:scale-95 transition-all"
-                            >
-                                OK
-                            </button>
+                            <div className="w-full pt-4">
+                                <button
+                                    onClick={() => router.push('/users/welcome')}
+                                    className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
+                                >
+                                    Proceed to Home
+                                </button>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -3,8 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, Crown, ShieldCheck, Clock } from "lucide-react";
+import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { ChevronLeft, Copy, Loader2, Crown, ShieldCheck, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 function PremiumContent() {
@@ -19,6 +19,8 @@ function PremiumContent() {
     const [smsContent, setSmsContent] = useState("");
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchMethod = async () => {
@@ -72,6 +74,7 @@ function PremiumContent() {
                 toast.error("Please login first");
                 return;
             }
+            setSubmitting(true);
 
             // Fetch phone number from users collection
             const userDocRef = doc(db, "users", user.uid);
@@ -88,14 +91,25 @@ function PremiumContent() {
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
                 userId: user.uid,
-                timestamp: new Date()
+                timestamp: serverTimestamp()
             });
 
-            toast.success("Submitted successfully! Under review.");
-            router.push("/users/transaction-pending?theme=premium");
+            // ADD NOTIFICATION
+            await addDoc(collection(db, "UserNotifications"), {
+                userId: user.uid,
+                type: "recharge",
+                amount: Number(amount),
+                status: "Under Review",
+                read: false,
+                createdAt: serverTimestamp()
+            });
+
+            setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
             toast.error("Failed to submit. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -109,6 +123,43 @@ function PremiumContent() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-44">
+            {/* Premium Golden Success Modal Overlay */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+                    <div className="bg-[#1a1a1a] w-full max-w-sm rounded-[3rem] p-10 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-amber-500/10">
+                        {/* Premium Golden Glows */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+                        <div className="relative z-10 flex flex-col items-center text-center gap-8">
+                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-amber-400 via-amber-200 to-amber-600 p-[1px] shadow-2xl shadow-amber-500/20">
+                                <div className="w-full h-full rounded-[1.95rem] bg-[#1a1a1a] flex items-center justify-center text-amber-500 relative">
+                                    <div className="absolute inset-0 bg-amber-500/10 rounded-[1.95rem] animate-ping"></div>
+                                    <CheckCircle2 size={48} strokeWidth={1.5} className="relative z-10" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
+                                    Your premium deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                </p>
+                            </div>
+
+                            <div className="w-full pt-4">
+                                <button
+                                    onClick={() => router.push("/users/welcome")}
+                                    className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
+                                >
+                                    Proceed to Home
+                                </button>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Elegant Header */}
             <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-amber-500/20">
                 <header className="flex items-center justify-between px-6 py-6 max-w-lg mx-auto">
@@ -238,13 +289,13 @@ function PremiumContent() {
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}
-                        disabled={!smsContent.trim()}
-                        className={`w-full h-14 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${!smsContent.trim()
+                        disabled={!smsContent.trim() || submitting}
+                        className={`w-full h-14 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${!smsContent.trim() || submitting
                             ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
                             : 'bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-950 shadow-lg shadow-amber-900/20 hover:shadow-amber-500/20 active:scale-[0.98]'
                             }`}
                     >
-                        <span>Confirm Payment</span>
+                        {submitting ? <Loader2 className="animate-spin" /> : <span>Confirm Payment</span>}
                     </button>
                 </div>
             </div>
