@@ -109,7 +109,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     const handleLogout = async () => {
         localStorage.removeItem("admin_session");
         await signOut(auth);
-        router.replace("/admin");
+        router.replace("/");
     };
 
     // Helper to determine active state

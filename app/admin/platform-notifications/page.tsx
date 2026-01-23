@@ -56,7 +56,7 @@ export default function PlatformNotificationsAdmin() {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             const isMaster = localStorage.getItem("admin_session") === "true";
             if (!user && !isMaster) {
-                router.push("/admin");
+                router.push("/");
                 return;
             }
             setLoading(false);
@@ -285,8 +285,8 @@ export default function PlatformNotificationsAdmin() {
                                             <div className="flex-1 space-y-2">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${notif.type === 'welcome' ? 'bg-indigo-50 text-indigo-600' :
-                                                            notif.type === 'product' ? 'bg-emerald-50 text-emerald-600' :
-                                                                'bg-slate-50 text-slate-500'
+                                                        notif.type === 'product' ? 'bg-emerald-50 text-emerald-600' :
+                                                            'bg-slate-50 text-slate-500'
                                                         }`}>
                                                         {notif.type}
                                                     </span>

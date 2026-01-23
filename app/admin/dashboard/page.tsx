@@ -63,7 +63,7 @@ function AdminDashboard() {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             const isMaster = localStorage.getItem("admin_session") === "true";
             if (!user && !isMaster) {
-                router.push("/admin");
+                router.push("/");
                 return;
             }
             setLoading(false);
@@ -151,7 +151,7 @@ function AdminDashboard() {
     const handleLogout = async () => {
         localStorage.removeItem("admin_session");
         await signOut(auth);
-        router.push("/admin");
+        router.push("/");
     };
 
     if (loading) {

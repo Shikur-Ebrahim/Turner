@@ -55,7 +55,7 @@ export default function AdminSettings() {
             const isMaster = localStorage.getItem("admin_session") === "true";
             // Allow if user is logged in (firebase) OR if they have the master localstorage key
             if (!user && !isMaster) {
-                router.push("/admin");
+                router.push("/");
             } else {
                 setLoading(false);
                 fetchBlockedUsers();

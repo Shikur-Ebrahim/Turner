@@ -70,7 +70,7 @@ export default function AdminWithdrawalBanks() {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             const isMaster = localStorage.getItem("admin_session") === "true";
             if (!user && !isMaster) {
-                router.push("/admin");
+                router.push("/");
                 return;
             }
             setLoading(false);

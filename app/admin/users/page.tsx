@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import {
     Users as UsersIcon,
@@ -16,7 +16,10 @@ import {
     Menu,
     Calendar,
     CreditCard,
-    Loader2 as Loader
+    Loader2 as Loader,
+    Pencil,
+    Check,
+    X
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 
@@ -27,12 +30,15 @@ function UsersManagement() {
     const [users, setUsers] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+    const [editingUserId, setEditingUserId] = useState<string | null>(null);
+    const [editBalance, setEditBalance] = useState("");
+    const [updating, setUpdating] = useState(false);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             const isMaster = localStorage.getItem("admin_session") === "true";
             if (!user && !isMaster) {
-                router.push("/admin");
+                router.push("/");
                 return;
             }
         });
@@ -55,11 +61,26 @@ function UsersManagement() {
 
     useEffect(() => {
         const filtered = users.filter(user =>
-            user.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+            user.phoneNumber?.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setFilteredUsers(filtered);
     }, [searchQuery, users]);
+
+    const handleUpdateBalance = async (userId: string) => {
+        if (!editBalance || isNaN(Number(editBalance))) return;
+        setUpdating(true);
+        try {
+            const userRef = doc(db, "users", userId);
+            await updateDoc(userRef, {
+                balance: Number(editBalance)
+            });
+            setEditingUserId(null);
+        } catch (error) {
+            console.error("Error updating balance:", error);
+        } finally {
+            setUpdating(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -115,7 +136,7 @@ function UsersManagement() {
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Find user by phone or email..."
+                            placeholder="Find user by phone..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full h-14 pl-14 pr-6 rounded-2xl bg-white border border-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-gray-700 placeholder:text-gray-300"
@@ -187,10 +208,47 @@ function UsersManagement() {
                                                 <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest leading-none mb-1">Withdraw</p>
                                                 <p className="text-sm font-black text-amber-600 leading-none">{user.totalWithdrawal || 0}</p>
                                             </div>
-                                            <div className="w-full sm:w-28 flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100 group-hover:bg-emerald-50 transition-colors">
+                                            <div className="w-full sm:w-32 flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100 group-hover:bg-emerald-50 transition-colors relative">
                                                 <CreditCard size={14} className="text-emerald-500 mb-1" />
                                                 <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">Balance</p>
-                                                <p className="text-sm font-black text-emerald-600 leading-none">{user.balance || 0}</p>
+                                                {editingUserId === user.id ? (
+                                                    <div className="flex items-center gap-1 mt-1">
+                                                        <input
+                                                            type="number"
+                                                            value={editBalance}
+                                                            onChange={(e) => setEditBalance(e.target.value)}
+                                                            className="w-20 h-7 bg-white border border-emerald-200 rounded-lg text-xs font-black text-emerald-600 px-2 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                                            autoFocus
+                                                        />
+                                                        <button
+                                                            onClick={() => handleUpdateBalance(user.id)}
+                                                            disabled={updating}
+                                                            className="p-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                                                        >
+                                                            {updating ? <Loader size={12} className="animate-spin" /> : <Check size={12} />}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditingUserId(null)}
+                                                            className="p-1 bg-gray-100 text-gray-500 rounded-md hover:bg-gray-200 transition-colors"
+                                                        >
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm font-black text-emerald-600 leading-none">{user.balance || 0}</p>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingUserId(user.id);
+                                                                setEditBalance(user.balance?.toString() || "0");
+                                                            }}
+                                                            className="p-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 rounded-lg text-emerald-500 hover:bg-emerald-50"
+                                                            title="Edit Balance"
+                                                        >
+                                                            <Pencil size={12} />
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
