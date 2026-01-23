@@ -13,6 +13,7 @@ import {
     ArrowRight,
     Loader2
 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
 
 // Default fallback in case Firestore fetch fails
 const DEFAULT_PRESETS = [
@@ -23,14 +24,13 @@ const DEFAULT_PRESETS = [
 function RechargeContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const initialAmount = searchParams.get("amount") || "4500";
-    const [amount, setAmount] = useState<string>(initialAmount);
+    const [amount, setAmount] = useState<string>("0");
     const [customAmount, setCustomAmount] = useState<string>("");
+    const [minRecharge, setMinRecharge] = useState<number>(4500);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [presetAmounts, setPresetAmounts] = useState<number[]>(DEFAULT_PRESETS);
     const [fetchingPresets, setFetchingPresets] = useState(true);
-
     useEffect(() => {
         const fetchProductPrices = async () => {
             try {
@@ -53,8 +53,36 @@ function RechargeContent() {
                 setFetchingPresets(false);
             }
         };
+
+        const fetchSettings = async () => {
+            try {
+                const docRef = doc(db, "GlobalSettings", "recharge");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    if (settings.minAmount) {
+                        const min = Number(settings.minAmount);
+                        setMinRecharge(min);
+                        // If no amount in searchParams, use min
+                        if (!searchParams.get("amount")) {
+                            setAmount(min.toString());
+                        } else {
+                            setAmount(searchParams.get("amount")!);
+                        }
+                    }
+                } else {
+                    // Fallback to initial amount if no doc
+                    setAmount(searchParams.get("amount") || "4500");
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
+                setAmount(searchParams.get("amount") || "4500");
+            }
+        };
+
         fetchProductPrices();
-    }, []);
+        fetchSettings();
+    }, [searchParams]);
 
     const handleAmountSelect = (val: number) => {
         setAmount(val.toString());
@@ -71,8 +99,8 @@ function RechargeContent() {
 
     const handleNext = () => {
         const numAmount = parseInt(amount);
-        if (isNaN(numAmount) || numAmount < 4500) {
-            setErrorMsg("Minimum recharge amount is 4500 ETB");
+        if (isNaN(numAmount) || numAmount < minRecharge) {
+            setErrorMsg(`Minimum recharge amount is ${minRecharge.toLocaleString()} ETB`);
             setShowErrorModal(true);
             return;
         }
@@ -142,7 +170,7 @@ function RechargeContent() {
                 <section className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
                     <div className="flex items-center gap-2 px-1">
                         <div className="w-1 h-3 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. 4500)</h2>
+                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Custom Amount (Min. {minRecharge.toLocaleString()})</h2>
                     </div>
 
                     <div className="relative group">

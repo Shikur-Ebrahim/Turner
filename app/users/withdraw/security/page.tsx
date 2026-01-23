@@ -36,6 +36,7 @@ function SecurityContent() {
     const [isRestricted, setIsRestricted] = useState(false); // 24h Cap
     const [isPartnerRestricted, setIsPartnerRestricted] = useState(false); // Verified Recharge
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const [minRecharge, setMinRecharge] = useState<number>(4500);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
@@ -58,6 +59,22 @@ function SecurityContent() {
             setLoading(false);
         });
 
+        const fetchSettings = async () => {
+            try {
+                const docRef = doc(db, "GlobalSettings", "recharge");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    if (settings.minAmount) {
+                        setMinRecharge(Number(settings.minAmount));
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
+            }
+        };
+
+        fetchSettings();
         return () => unsubscribeAuth();
     }, [router]);
 
@@ -332,7 +349,7 @@ function SecurityContent() {
 
                             <div className="w-full space-y-4 pt-2">
                                 <button
-                                    onClick={() => router.push("/users/recharge?amount=4500")}
+                                    onClick={() => router.push(`/users/recharge?amount=${minRecharge}`)}
                                     className="w-full py-6 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2.2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_40px_-10px_rgba(245,158,11,0.3)] active:scale-95 transition-all relative overflow-hidden group"
                                 >
                                     <span className="relative z-10">Recharge & Join Now</span>
