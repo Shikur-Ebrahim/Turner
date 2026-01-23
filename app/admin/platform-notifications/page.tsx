@@ -41,6 +41,7 @@ export default function PlatformNotificationsAdmin() {
     const [loading, setLoading] = useState(true);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     // Upload State
     const [isUploading, setIsUploading] = useState(false);
@@ -113,7 +114,7 @@ export default function PlatformNotificationsAdmin() {
         }
     };
 
-    const handleAdd = async (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.title || !formData.content) {
             toast.error("Please fill in title and content");
@@ -122,10 +123,23 @@ export default function PlatformNotificationsAdmin() {
 
         setIsSaving(true);
         try {
-            await addDoc(collection(db, "PlatformNotifications"), {
+            const data = {
                 ...formData,
-                createdAt: serverTimestamp()
-            });
+                updatedAt: serverTimestamp()
+            };
+
+            if (editingId) {
+                await updateDoc(doc(db, "PlatformNotifications", editingId), data);
+                toast.success("Notification updated successfully!");
+                setEditingId(null);
+            } else {
+                await addDoc(collection(db, "PlatformNotifications"), {
+                    ...data,
+                    createdAt: serverTimestamp()
+                });
+                toast.success("Notification published successfully!");
+            }
+
             setFormData({
                 title: "",
                 content: "",
@@ -134,10 +148,9 @@ export default function PlatformNotificationsAdmin() {
                 maxDisplays: 1,
                 isActive: true
             });
-            toast.success("Notification published successfully!");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to publish notification");
+            toast.error(editingId ? "Failed to update" : "Failed to publish");
         } finally {
             setIsSaving(false);
         }
@@ -164,6 +177,31 @@ export default function PlatformNotificationsAdmin() {
             console.error(error);
             toast.error("Update failed");
         }
+    };
+
+    const startEditing = (notif: any) => {
+        setFormData({
+            title: notif.title,
+            content: notif.content,
+            imageUrl: notif.imageUrl || "",
+            type: notif.type || "general",
+            maxDisplays: notif.maxDisplays || 1,
+            isActive: notif.isActive
+        });
+        setEditingId(notif.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setFormData({
+            title: "",
+            content: "",
+            imageUrl: "",
+            type: "general",
+            maxDisplays: 1,
+            isActive: true
+        });
     };
 
     if (loading) {
@@ -198,14 +236,26 @@ export default function PlatformNotificationsAdmin() {
                 <main className="p-4 sm:p-8 max-w-5xl mx-auto w-full grid grid-cols-1 xl:grid-cols-2 gap-10">
                     {/* Management Column */}
                     <section className="space-y-8">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                                <Plus size={20} />
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                                    {editingId ? <Settings size={20} className="animate-spin-slow" /> : <Plus size={20} />}
+                                </div>
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
+                                    {editingId ? "Update Alert" : "Create Announcement"}
+                                </h3>
                             </div>
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Create Announcement</h3>
+                            {editingId && (
+                                <button
+                                    onClick={cancelEdit}
+                                    className="px-4 py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                >
+                                    Cancel Edit
+                                </button>
+                            )}
                         </div>
 
-                        <form onSubmit={handleAdd} className="bg-white rounded-[2.5rem] p-8 sm:p-10 border-2 border-slate-100 shadow-2xl shadow-slate-900/5 space-y-6">
+                        <form onSubmit={handleSave} className="bg-white rounded-[2.5rem] p-8 sm:p-10 border-2 border-slate-100 shadow-2xl shadow-slate-900/5 space-y-6">
                             <div className="space-y-4">
                                 <div className="relative group">
                                     <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors">
@@ -298,10 +348,13 @@ export default function PlatformNotificationsAdmin() {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-black active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                className={`w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.2em] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl ${editingId
+                                        ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20"
+                                        : "bg-slate-900 text-white hover:bg-black"
+                                    }`}
                             >
-                                {isSaving ? <Loader2 className="animate-spin" /> : <Bell size={18} />}
-                                <span>Publish to Users</span>
+                                {isSaving ? <Loader2 className="animate-spin" /> : (editingId ? <RefreshCcw size={18} /> : <Bell size={18} />)}
+                                <span>{editingId ? "Update Notification" : "Publish to Users"}</span>
                             </button>
                         </form>
                     </section>
@@ -355,6 +408,12 @@ export default function PlatformNotificationsAdmin() {
                                         </div>
 
                                         <div className="flex items-center justify-end gap-2 mt-6 pt-6 border-t border-slate-50">
+                                            <button
+                                                onClick={() => startEditing(notif)}
+                                                className="p-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all shadow-sm"
+                                            >
+                                                <Settings size={18} />
+                                            </button>
                                             <button
                                                 onClick={() => toggleStatus(notif)}
                                                 className={`p-3 rounded-xl transition-all ${notif.isActive ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "bg-slate-100 text-slate-400 hover:bg-slate-200"}`}

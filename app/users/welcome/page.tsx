@@ -212,14 +212,13 @@ function WelcomeContent() {
             if (!snapshot.empty) {
                 const notif = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as any;
 
-                // Frequency Logic
-                const viewedData = JSON.parse(localStorage.getItem(`platform_notif_v2_${notif.id}`) || '{"count": 0}');
-                if (viewedData.count < (notif.maxDisplays || 1)) {
+                // Frequency Logic (Using v3 key for advanced features)
+                const viewedData = JSON.parse(localStorage.getItem(`p_notif_v3_${notif.id}`) || '{"count": 0}');
+
+                // Show if count is less than target OR it's a "Show Always" notification
+                if (viewedData.count < (notif.maxDisplays || 1) || notif.maxDisplays === 999) {
                     setPlatformNotif(notif);
                     setShowPlatformNotif(true);
-
-                    // Update count in localStorage
-                    localStorage.setItem(`platform_notif_v2_${notif.id}`, JSON.stringify({ count: viewedData.count + 1 }));
                 }
             }
         });
