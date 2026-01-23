@@ -49,45 +49,40 @@ export default function PlatformNotificationModal({ notif, onClose }: PlatformNo
 
                 {/* Image Section */}
                 {notif.imageUrl ? (
-                    <div className="w-full aspect-[4/5] relative">
+                    <div className="w-full aspect-[16/10] relative">
                         <img src={notif.imageUrl} alt={notif.title} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent"></div>
                     </div>
                 ) : (
-                    <div className="pt-24 pb-12 flex flex-col items-center bg-slate-50">
-                        <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center text-indigo-600 relative shadow-2xl shadow-indigo-600/10 border border-slate-100">
-                            <div className="absolute inset-0 bg-indigo-500/20 rounded-[2.5rem] animate-ping opacity-25"></div>
-                            <Bell size={48} className="relative z-10" />
+                    <div className="pt-20 pb-10 flex flex-col items-center bg-slate-50/50">
+                        <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-indigo-600 relative shadow-xl shadow-indigo-600/10 border border-slate-100">
+                            <div className="absolute inset-0 bg-indigo-500/10 rounded-[2rem] animate-ping opacity-20"></div>
+                            <Bell size={40} className="relative z-10" />
                         </div>
                     </div>
                 )}
 
-                <div className={`px-10 pb-10 space-y-8 text-center relative z-10 ${notif.imageUrl ? "-mt-24" : "mt-0"}`}>
+                <div className={`px-8 pb-8 space-y-6 text-center relative z-10 ${notif.imageUrl ? "-mt-16" : "mt-0"}`}>
                     <div className="space-y-4">
                         <div className="flex justify-center">
-                            <span className="px-5 py-2 bg-indigo-600/10 text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full flex items-center gap-2 border border-indigo-600/10">
-                                <Zap size={12} className="fill-indigo-600" />
+                            <span className="px-4 py-1.5 bg-indigo-600/10 text-indigo-600 text-[9px] font-black uppercase tracking-[0.2em] rounded-full flex items-center gap-2 border border-indigo-600/10 backdrop-blur-sm">
+                                <Zap size={10} className="fill-indigo-600" />
                                 {notif.type || 'Platform Update'}
                             </span>
                         </div>
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-[0.9]">{notif.title}</h2>
-                        <p className="text-slate-500 text-sm font-medium leading-relaxed line-clamp-4">
-                            {notif.content}
-                        </p>
+
+                        <div className="max-h-[35vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tighter leading-tight mb-3">{notif.title}</h2>
+                            <p className="text-slate-500 text-[13px] font-medium leading-relaxed text-justify">
+                                {notif.content}
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="w-full space-y-4 pt-2">
-                        <button
-                            onClick={handleClose}
-                            className="w-full h-16 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-[0_20px_40px_-12px_rgba(15,23,42,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3 group"
-                        >
-                            <span>Dismiss Notification</span>
-                            <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
-
+                    <div className="w-full pt-2">
                         <div className="flex flex-col items-center gap-1 group/brand">
-                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.4em] group-hover/brand:text-indigo-600 transition-colors">Turner Enterprise</p>
-                            <div className="w-4 h-0.5 bg-slate-100 rounded-full group-hover/brand:w-8 transition-all group-hover/brand:bg-indigo-600"></div>
+                            <p className="text-[7px] font-black text-slate-300 uppercase tracking-[0.5em] group-hover/brand:text-indigo-600 transition-colors">Turner Enterprise Protocol</p>
+                            <div className="w-8 h-0.5 bg-slate-100 rounded-full group-hover/brand:w-12 transition-all group-hover/brand:bg-indigo-600"></div>
                         </div>
                     </div>
                 </div>
