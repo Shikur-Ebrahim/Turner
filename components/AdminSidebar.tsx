@@ -89,6 +89,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "payment-methods", label: "Payment Methods", icon: Banknote, path: "/admin/payment-methods" },
         { id: "currency-rates", label: "Currency Rates", icon: DollarSign, path: "/admin/currency-rates" },
         { id: "withdrawal-banks", label: "Withdrawal Banks", icon: Building2, path: "/admin/withdrawal-banks" },
+        { id: "withdrawal-rules", label: "Withdrawal Rules", icon: BookOpen, path: "/admin/withdrawal-rules" },
         { id: "unlink-account", label: "Unlink Account", icon: UserX, path: "/admin/unlink-account" },
         { id: "notifications", label: "Withdrawal Alerts", icon: Bell, path: "/admin/notifications" },
         { id: "products", label: "Products", icon: Package, path: "/admin/product" },

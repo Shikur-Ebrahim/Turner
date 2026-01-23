@@ -51,11 +51,26 @@ export default function WithdrawalPage() {
                 setLoading(false);
             });
 
-
+            // Fetch Withdrawal Rules for this user
+            const qRules = query(
+                collection(db, "withdrawal_rules"),
+                where("active", "==", true),
+                where("targetUsers", "array-contains", currentUser.uid)
+            );
+            const unsubscribeRules = onSnapshot(qRules, (snapshot) => {
+                if (!snapshot.empty) {
+                    const ruleData = snapshot.docs[0].data();
+                    setErrorModal({
+                        show: true,
+                        message: ruleData.message || "Please read the withdrawal rules before proceeding."
+                    });
+                }
+            });
 
             return () => {
                 unsubscribeUser();
                 unsubscribeBank();
+                unsubscribeRules();
             };
         });
 
