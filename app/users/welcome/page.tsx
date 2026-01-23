@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import VipCelebrationCard from "@/components/VipCelebrationCard";
+import PlatformNotificationModal from "@/components/PlatformNotificationModal";
 
 import { Suspense } from "react";
 
@@ -47,6 +48,10 @@ function WelcomeContent() {
     // VIP Celebration State
     const [showVipCeleb, setShowVipCeleb] = useState(false);
     const [vipCelebData, setVipCelebData] = useState<any>(null);
+
+    // Platform Notification State
+    const [platformNotif, setPlatformNotif] = useState<any>(null);
+    const [showPlatformNotif, setShowPlatformNotif] = useState(false);
 
     const searchParams = useSearchParams();
 
@@ -201,10 +206,29 @@ function WelcomeContent() {
         });
 
 
+        // Fetch platform notifications
+        const qPlatform = query(collection(db, "PlatformNotifications"), where("isActive", "==", true), orderBy("createdAt", "desc"), limit(1));
+        const unsubscribePlatform = onSnapshot(qPlatform, (snapshot) => {
+            if (!snapshot.empty) {
+                const notif = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as any;
+
+                // Frequency Logic
+                const viewedData = JSON.parse(localStorage.getItem(`platform_notif_v2_${notif.id}`) || '{"count": 0}');
+                if (viewedData.count < (notif.maxDisplays || 1)) {
+                    setPlatformNotif(notif);
+                    setShowPlatformNotif(true);
+
+                    // Update count in localStorage
+                    localStorage.setItem(`platform_notif_v2_${notif.id}`, JSON.stringify({ count: viewedData.count + 1 }));
+                }
+            }
+        });
+
         return () => {
             unsubscribeAuth();
             unsubscribeBanners();
             unsubscribeNotifs();
+            unsubscribePlatform();
         };
     }, [router]);
 
@@ -776,6 +800,13 @@ function WelcomeContent() {
                             }
                         }
                     }}
+                />
+            )}
+            {/* Platform Notification Overlay */}
+            {showPlatformNotif && platformNotif && (
+                <PlatformNotificationModal
+                    notif={platformNotif}
+                    onClose={() => setShowPlatformNotif(false)}
                 />
             )}
         </div>
