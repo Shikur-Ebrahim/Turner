@@ -42,6 +42,10 @@ export default function PlatformNotificationsAdmin() {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Upload State
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
     // Form State
     const [formData, setFormData] = useState({
         title: "",
@@ -76,6 +80,38 @@ export default function PlatformNotificationsAdmin() {
             unsubscribeNotifs();
         };
     }, [router]);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus("Uploading...");
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setFormData(prev => ({ ...prev, imageUrl: data.secure_url }));
+                setUploadStatus("Success!");
+            } else {
+                setUploadStatus("Failed. Check Config.");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error occurred.");
+        } finally {
+            setIsUploading(false);
+            setTimeout(() => setUploadStatus(null), 3000);
+        }
+    };
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -193,17 +229,36 @@ export default function PlatformNotificationsAdmin() {
                                     />
                                 </div>
 
-                                <div className="relative group">
-                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors">
-                                        <ImageIcon size={20} />
+                                <div className="space-y-4">
+                                    <label className="text-xs font-bold text-slate-700 uppercase tracking-widest px-1">Visual Announcement (Image)</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative group/upload w-full">
+                                            <input
+                                                type="file"
+                                                onChange={handleImageUpload}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                accept="image/*"
+                                            />
+                                            <div className={`w-full h-16 px-10 rounded-2xl border-2 border-dashed flex items-center justify-center gap-3 transition-all ${isUploading
+                                                ? "bg-slate-50 border-slate-200"
+                                                : "bg-white border-slate-200 group-hover/upload:border-indigo-600 group-hover/upload:bg-indigo-50/50"
+                                                }`}>
+                                                {isUploading ? (
+                                                    <Loader2 className="animate-spin text-indigo-600" size={20} />
+                                                ) : (
+                                                    <ImageIcon size={20} className="text-slate-400 group-hover/upload:text-indigo-600" />
+                                                )}
+                                                <span className={`text-sm font-bold ${isUploading ? "text-indigo-600" : "text-slate-500"}`}>
+                                                    {uploadStatus || (formData.imageUrl ? "Change Announcement Image" : "Select Announcement Image")}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {formData.imageUrl && (
+                                            <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-white shrink-0 shadow-sm p-1">
+                                                <img src={formData.imageUrl} className="w-full h-full object-cover rounded-xl" />
+                                            </div>
+                                        )}
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Image URL (Optional)"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                        className="w-full h-16 pl-14 pr-6 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:outline-none focus:border-indigo-400 focus:bg-white transition-all text-sm font-bold tracking-tight"
-                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
