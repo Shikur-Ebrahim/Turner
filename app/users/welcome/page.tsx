@@ -345,7 +345,7 @@ function WelcomeContent() {
                                 {(() => {
                                     // Combine and Sort All Notifications
                                     const allNotifs: any[] = [...userNotifs];
-                                    if (latestRecharge) {
+                                    if (latestRecharge && latestRecharge.status === 'verified') {
                                         allNotifs.push({ ...latestRecharge, type: 'recharge' });
                                     }
 
