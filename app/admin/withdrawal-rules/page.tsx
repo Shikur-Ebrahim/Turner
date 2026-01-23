@@ -34,6 +34,7 @@ import {
     Menu
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
+import { toast } from "sonner";
 
 function WithdrawalRulesManagement() {
     const router = useRouter();
@@ -50,6 +51,7 @@ function WithdrawalRulesManagement() {
         title: "",
         message: "",
         active: true,
+        targetAll: false,
         targetUsers: [] as string[]
     });
 
@@ -167,11 +169,19 @@ function WithdrawalRulesManagement() {
         }));
     };
 
+    const handleSelectAllFound = () => {
+        const resultIds = searchResults.map(u => u.id);
+        const newTargetUsers = Array.from(new Set([...formData.targetUsers, ...resultIds]));
+        setFormData(prev => ({ ...prev, targetUsers: newTargetUsers }));
+        toast.success(`Added ${resultIds.length} users to targeting`);
+    };
+
     const resetForm = () => {
         setFormData({
             title: "",
             message: "",
             active: true,
+            targetAll: false,
             targetUsers: []
         });
         setEditingRuleId(null);
@@ -185,6 +195,7 @@ function WithdrawalRulesManagement() {
             title: rule.title,
             message: rule.message,
             active: rule.active,
+            targetAll: rule.targetAll || false,
             targetUsers: rule.targetUsers || []
         });
         setEditingRuleId(rule.id);
@@ -223,8 +234,8 @@ function WithdrawalRulesManagement() {
                             else setIsAdding(true);
                         }}
                         className={`px-6 py-2.5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center gap-2 ${isAdding
-                                ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:scale-105"
+                            ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:scale-105"
                             }`}
                     >
                         {isAdding ? <X size={18} /> : <Plus size={18} />}
@@ -273,83 +284,113 @@ function WithdrawalRulesManagement() {
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-4 py-4 px-4 bg-gray-50 rounded-2xl">
-                                    <label className="flex-1 text-sm font-black text-gray-700 uppercase tracking-widest">Active Status</label>
-                                    <button
-                                        onClick={() => setFormData(prev => ({ ...prev, active: !prev.active }))}
-                                        className={`w-14 h-8 rounded-full transition-colors relative ${formData.active ? "bg-indigo-600" : "bg-gray-300"}`}
-                                    >
-                                        <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${formData.active ? "left-7" : "left-1"}`}></div>
-                                    </button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="flex items-center gap-4 py-4 px-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:border-indigo-200">
+                                        <div className="flex-1">
+                                            <label className="text-sm font-black text-slate-800 uppercase tracking-widest">Active Status</label>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Enable this rule platform-wide</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setFormData(prev => ({ ...prev, active: !prev.active }))}
+                                            className={`w-14 h-8 rounded-full transition-all relative shadow-inner ${formData.active ? "bg-emerald-500" : "bg-slate-300"}`}
+                                        >
+                                            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all ${formData.active ? "left-7" : "left-1"}`}></div>
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 py-4 px-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:border-indigo-200">
+                                        <div className="flex-1">
+                                            <label className="text-sm font-black text-slate-800 uppercase tracking-widest">Target All Users</label>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Broadcast to every member</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setFormData(prev => ({ ...prev, targetAll: !prev.targetAll }))}
+                                            className={`w-14 h-8 rounded-full transition-all relative shadow-inner ${formData.targetAll ? "bg-indigo-600" : "bg-slate-300"}`}
+                                        >
+                                            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all ${formData.targetAll ? "left-7" : "left-1"}`}></div>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Target User Selection */}
-                                <div className="space-y-6 border-t border-gray-100 pt-8">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Target Users ({formData.targetUsers.length})</h4>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase">Search by phone to add users</p>
-                                    </div>
+                                {!formData.targetAll && (
+                                    <div className="space-y-6 border-t border-slate-100 pt-8 animate-in fade-in slide-in-from-top-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Target Specific Users ({formData.targetUsers.length})</h4>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Search and select individual accounts</p>
+                                            </div>
+                                            {searchResults.length > 0 && (
+                                                <button
+                                                    onClick={handleSelectAllFound}
+                                                    className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all border border-indigo-100"
+                                                >
+                                                    Add All Results
+                                                </button>
+                                            )}
+                                        </div>
 
-                                    <div className="relative">
-                                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                        <input
-                                            type="text"
-                                            value={userSearchQuery}
-                                            onChange={(e) => setUserSearchQuery(e.target.value)}
-                                            placeholder="Find user by phone (min 3 digits)..."
-                                            className="w-full h-12 pl-14 pr-6 rounded-xl bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500 font-bold transition-all"
-                                        />
-                                        {searchingUsers && <Loader className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-indigo-600" />}
-                                    </div>
+                                        <div className="relative group">
+                                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                                            <input
+                                                type="text"
+                                                value={userSearchQuery}
+                                                onChange={(e) => setUserSearchQuery(e.target.value)}
+                                                placeholder="Search by phone number (e.g. 09...)"
+                                                className="w-full h-14 pl-14 pr-6 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white font-bold transition-all shadow-inner placeholder:text-slate-300"
+                                            />
+                                            {searchingUsers && <Loader className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-indigo-600" />}
+                                        </div>
 
-                                    {/* Search Results */}
-                                    {searchResults.length > 0 && (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                                            {searchResults.map(user => {
-                                                const isSelected = formData.targetUsers.includes(user.id);
-                                                return (
-                                                    <button
-                                                        key={user.id}
-                                                        onClick={() => toggleUserSelection(user.id)}
-                                                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${isSelected
+                                        {/* Search Results */}
+                                        {searchResults.length > 0 && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                                {searchResults.map(user => {
+                                                    const isSelected = formData.targetUsers.includes(user.id);
+                                                    return (
+                                                        <button
+                                                            key={user.id}
+                                                            onClick={() => toggleUserSelection(user.id)}
+                                                            className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${isSelected
                                                                 ? "bg-indigo-50 border-indigo-200"
                                                                 : "bg-white border-gray-100 hover:border-gray-200"
-                                                            }`}
-                                                    >
-                                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSelected ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-400"}`}>
-                                                            <Phone size={18} />
-                                                        </div>
-                                                        <div className="text-left flex-1 min-w-0">
-                                                            <p className="text-sm font-black text-gray-900 truncate">{user.phoneNumber}</p>
-                                                            <p className="text-[10px] text-gray-400 font-bold uppercase truncate">VIP {user.vip || 0}</p>
-                                                        </div>
-                                                        {isSelected && <CheckCircle2 size={18} className="text-indigo-600" />}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-
-                                    {/* Selected Users Summary */}
-                                    {formData.targetUsers.length > 0 && (
-                                        <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100">
-                                            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">Selected User IDs</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {formData.targetUsers.map(id => (
-                                                    <div key={id} className="bg-white px-3 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-2">
-                                                        <span className="text-[10px] font-black text-gray-600 font-mono">{id.slice(0, 8)}...</span>
-                                                        <button
-                                                            onClick={() => toggleUserSelection(id)}
-                                                            className="text-gray-400 hover:text-red-500 transition-colors"
+                                                                }`}
                                                         >
-                                                            <X size={12} />
+                                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSelected ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-400"}`}>
+                                                                <Phone size={18} />
+                                                            </div>
+                                                            <div className="text-left flex-1 min-w-0">
+                                                                <p className="text-sm font-black text-gray-900 truncate">{user.phoneNumber}</p>
+                                                                <p className="text-[10px] text-gray-400 font-bold uppercase truncate">VIP {user.vip || 0}</p>
+                                                            </div>
+                                                            {isSelected && <CheckCircle2 size={18} className="text-indigo-600" />}
                                                         </button>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
+                                        )}
+
+                                        {/* Selected Users Summary */}
+                                        {formData.targetUsers.length > 0 && (
+                                            <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100">
+                                                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">Selected User IDs</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {formData.targetUsers.map(id => (
+                                                        <div key={id} className="bg-white px-3 py-1.5 rounded-lg border border-indigo-100 flex items-center gap-2">
+                                                            <span className="text-[10px] font-black text-gray-600 font-mono">{id.slice(0, 8)}...</span>
+                                                            <button
+                                                                onClick={() => toggleUserSelection(id)}
+                                                                className="text-gray-400 hover:text-red-500 transition-colors"
+                                                            >
+                                                                <X size={12} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <button
                                     onClick={handleSaveRule}
@@ -389,12 +430,19 @@ function WithdrawalRulesManagement() {
                                                     "{rule.message}"
                                                 </p>
                                                 <div className="flex items-center gap-4 pt-2">
-                                                    <div className="flex items-center gap-1.5 text-indigo-600 text-[10px] font-black uppercase tracking-widest">
-                                                        <UsersIcon size={14} />
-                                                        {rule.targetUsers?.length || 0} Target Users
-                                                    </div>
-                                                    <div className="text-gray-300 text-[10px] font-black uppercase tracking-widest">
-                                                        Created {rule.createdAt?.toDate().toLocaleDateString()}
+                                                    {rule.targetAll ? (
+                                                        <div className="flex items-center gap-1.5 text-indigo-600 text-[10px] font-black uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded-lg">
+                                                            <UsersIcon size={12} />
+                                                            Global Rule
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-1.5 text-blue-600 text-[10px] font-black uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-lg">
+                                                            <UsersIcon size={12} />
+                                                            {rule.targetUsers?.length || 0} Segmented Users
+                                                        </div>
+                                                    )}
+                                                    <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest border-l border-slate-200 pl-4">
+                                                        Updated {rule.updatedAt?.toDate().toLocaleDateString()}
                                                     </div>
                                                 </div>
                                             </div>

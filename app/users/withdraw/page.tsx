@@ -54,16 +54,23 @@ export default function WithdrawalPage() {
             // Fetch Withdrawal Rules for this user
             const qRules = query(
                 collection(db, "withdrawal_rules"),
-                where("active", "==", true),
-                where("targetUsers", "array-contains", currentUser.uid)
+                where("active", "==", true)
             );
             const unsubscribeRules = onSnapshot(qRules, (snapshot) => {
                 if (!snapshot.empty) {
-                    const ruleData = snapshot.docs[0].data();
-                    setErrorModal({
-                        show: true,
-                        message: ruleData.message || "Please read the withdrawal rules before proceeding."
+                    // Check if any rule targets this user or is a global rule
+                    const applicableRule = snapshot.docs.find(doc => {
+                        const data = doc.data();
+                        return data.targetAll === true || (data.targetUsers && data.targetUsers.includes(currentUser.uid));
                     });
+
+                    if (applicableRule) {
+                        const ruleData = applicableRule.data();
+                        setErrorModal({
+                            show: true,
+                            message: ruleData.message || "Please read the withdrawal rules before proceeding."
+                        });
+                    }
                 }
             });
 
