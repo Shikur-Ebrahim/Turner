@@ -18,7 +18,10 @@ import {
     CheckCircle2,
     Coins,
     Star,
-    PartyPopper
+    PartyPopper,
+    Zap,
+    X,
+    XCircle
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import VipCelebrationCard from "@/components/VipCelebrationCard";
@@ -207,20 +210,31 @@ function WelcomeContent() {
 
 
         // Fetch platform notifications
-        const qPlatform = query(collection(db, "PlatformNotifications"), where("isActive", "==", true), orderBy("createdAt", "desc"), limit(1));
+        console.log("Fetching platform notifications...");
+        const qPlatform = query(
+            collection(db, "PlatformNotifications"),
+            where("isActive", "==", true)
+        );
+
         const unsubscribePlatform = onSnapshot(qPlatform, (snapshot) => {
+            console.log("Platform notifications snapshot received. Count:", snapshot.size);
             if (!snapshot.empty) {
-                const notif = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as any;
+                // Manually sort by createdAt if multiple (to avoid composite index requirement)
+                const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+                docs.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis?.() || 0;
+                    const timeB = b.createdAt?.toMillis?.() || 0;
+                    return timeB - timeA;
+                });
 
-                // Frequency Logic (Using v3 key for advanced features)
-                const viewedData = JSON.parse(localStorage.getItem(`p_notif_v3_${notif.id}`) || '{"count": 0}');
-
-                // Show if count is less than target OR it's a "Show Always" notification
-                if (viewedData.count < (notif.maxDisplays || 1) || notif.maxDisplays === 999) {
-                    setPlatformNotif(notif);
-                    setShowPlatformNotif(true);
-                }
+                const notif = docs[0];
+                setPlatformNotif(notif);
+                setShowPlatformNotif(true);
+            } else {
+                console.log("No active platform notifications found.");
             }
+        }, (error) => {
+            console.error("Firestore onSnapshot error (PlatformNotifications):", error);
         });
 
         return () => {
@@ -686,6 +700,37 @@ function WelcomeContent() {
                                 </div>
                             </section>
                         )}
+                        {/* Special Announcement Card Section (Inline) */}
+                        {platformNotif && showPlatformNotif && (
+                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-500/10 border border-white relative group">
+                                    <button
+                                        onClick={() => setShowPlatformNotif(false)}
+                                        className="absolute top-4 right-4 z-20 w-10 h-10 bg-slate-900/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all active:scale-95"
+                                    >
+                                        <X size={18} />
+                                    </button>
+
+                                    {platformNotif.imageUrl && (
+                                        <div className="w-full h-48 relative">
+                                            <img src={platformNotif.imageUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Announcement" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
+                                        </div>
+                                    )}
+
+                                    <div className="p-8 text-center relative z-10">
+                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 mb-4">
+                                            <Zap size={12} className="fill-white" />
+                                            {platformNotif.type || 'Announcement'}
+                                        </div>
+                                        <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">{platformNotif.title}</h4>
+                                        <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
+                                            {platformNotif.content}
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
 
 
 
@@ -776,39 +821,43 @@ function WelcomeContent() {
                         <p>This section is coming soon...</p>
                     </div>
                 )}
-            </main>
+            </main >
 
             {/* VIP Celebration Overlay */}
-            {showVipCeleb && vipCelebData && (
-                <VipCelebrationCard
-                    vipLevel={vipCelebData.vipLevel}
-                    text={vipCelebData.text}
-                    imageUrl={vipCelebData.imageUrl}
-                    onClose={async () => {
-                        setShowVipCeleb(false);
-                        // Increment view count for this VIP level
-                        if (user) {
-                            try {
-                                const userRef = doc(db, "users", user.uid);
-                                const currentViews = vipCelebData.currentViews || 0;
-                                await updateDoc(userRef, {
-                                    [`vipViews.level_${vipCelebData.vipLevel}`]: currentViews + 1
-                                });
-                            } catch (err) {
-                                console.error("Error updating achievement status:", err);
+            {
+                showVipCeleb && vipCelebData && (
+                    <VipCelebrationCard
+                        vipLevel={vipCelebData.vipLevel}
+                        text={vipCelebData.text}
+                        imageUrl={vipCelebData.imageUrl}
+                        onClose={async () => {
+                            setShowVipCeleb(false);
+                            // Increment view count for this VIP level
+                            if (user) {
+                                try {
+                                    const userRef = doc(db, "users", user.uid);
+                                    const currentViews = vipCelebData.currentViews || 0;
+                                    await updateDoc(userRef, {
+                                        [`vipViews.level_${vipCelebData.vipLevel}`]: currentViews + 1
+                                    });
+                                } catch (err) {
+                                    console.error("Error updating achievement status:", err);
+                                }
                             }
-                        }
-                    }}
-                />
-            )}
+                        }}
+                    />
+                )
+            }
             {/* Platform Notification Overlay */}
-            {showPlatformNotif && platformNotif && (
-                <PlatformNotificationModal
-                    notif={platformNotif}
-                    onClose={() => setShowPlatformNotif(false)}
-                />
-            )}
-        </div>
+            {
+                showPlatformNotif && platformNotif && (
+                    <PlatformNotificationModal
+                        notif={platformNotif}
+                        onClose={() => setShowPlatformNotif(false)}
+                    />
+                )
+            }
+        </div >
     );
 }
 

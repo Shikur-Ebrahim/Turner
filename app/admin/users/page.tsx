@@ -200,8 +200,13 @@ function UsersManagement() {
                                         <div className="flex flex-wrap sm:flex-nowrap gap-3 sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 sm:border-l border-gray-50 sm:pl-5">
                                             <div className="flex-1 sm:w-28 flex flex-col items-center justify-center p-3 rounded-2xl bg-blue-50/50 border border-blue-100 group-hover:bg-blue-50 transition-colors">
                                                 <ArrowUpCircle size={14} className="text-blue-500 mb-1" />
-                                                <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">Recharge</p>
+                                                <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">T. Recharge</p>
                                                 <p className="text-sm font-black text-blue-600 leading-none">{user.totalRecharge || 0}</p>
+                                            </div>
+                                            <div className="flex-1 sm:w-28 flex flex-col items-center justify-center p-3 rounded-2xl bg-indigo-50/50 border border-indigo-100 group-hover:bg-indigo-50 transition-colors text-center">
+                                                <BadgeCheck size={14} className="text-indigo-500 mb-1" />
+                                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Credits</p>
+                                                <p className="text-sm font-black text-indigo-600 leading-none">{user.Recharge || 0}</p>
                                             </div>
                                             <div className="flex-1 sm:w-28 flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-50/50 border border-amber-100 group-hover:bg-amber-50 transition-colors">
                                                 <ArrowDownCircle size={14} className="text-amber-500 mb-1" />

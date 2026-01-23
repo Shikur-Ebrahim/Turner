@@ -92,25 +92,33 @@ export default function RechargeVerificationPage() {
 
         try {
             await runTransaction(db, async (transaction) => {
-                const userDocRef = doc(db, "users", recharge.userId);
+                let userDocRef = doc(db, "users", recharge.userId);
+                let userDocSnap = await transaction.get(userDocRef);
 
-                // 1. Get User Data to find Inviters
-                const userDocSnap = await transaction.get(userDocRef);
+                // Fallback: If UID lookup fails, try phone number
                 if (!userDocSnap.exists()) {
-                    throw "User does not exist!";
+                    console.log("UID lookup failed, trying phone number fallback...");
+                    const q = query(collection(db, "users"), where("phoneNumber", "==", recharge.phoneNumber));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        userDocRef = doc(db, "users", snap.docs[0].id);
+                        userDocSnap = await transaction.get(userDocRef);
+                    }
                 }
+
+                if (!userDocSnap.exists()) {
+                    throw new Error("User does not exist!");
+                }
+
                 const userData = userDocSnap.data();
                 const amount = Number(recharge.amount);
 
-                // 1. Fetch Referral Settings (Dynamic)
-                const settingsSnap = await getDoc(doc(db, "settings", "referral"));
-
-                // Merge Db values with defaults for safety
+                // 2. Fetch Referral Settings (Dynamic)
+                const settingsSnap = await transaction.get(doc(db, "settings", "referral"));
                 const defaults = { levelA: 12, levelB: 7, levelC: 4, levelD: 2 };
                 const dbRates = settingsSnap.exists() ? settingsSnap.data() : {};
                 const rates = { ...defaults, ...dbRates };
 
-                // Convert percentage to decimal (Clean & Dynamic)
                 const pctA = Number(rates.levelA) / 100;
                 const pctB = Number(rates.levelB) / 100;
                 const pctC = Number(rates.levelC) / 100;
@@ -129,13 +137,9 @@ export default function RechargeVerificationPage() {
                 }));
 
                 const inviterSnaps = await Promise.all(inviterRefs.map(i => transaction.get(i.ref)));
-
-                // Check if this is the user's FIRST verified recharge to update investedTeamSize
                 const isFirstRecharge = (userData.totalRecharge || 0) === 0;
 
-                // 2. EXECUTE ALL WRITES
-
-                // Update User
+                // 3. Update User
                 transaction.update(userDocRef, {
                     totalRecharge: increment(amount),
                     Recharge: increment(amount)
@@ -148,45 +152,33 @@ export default function RechargeVerificationPage() {
                     verifiedAt: Timestamp.now()
                 });
 
-                // Update Inviters (using pre-fetched snapshots)
+                // Update Inviters
                 inviterSnaps.forEach((snap, index) => {
                     if (snap.exists()) {
                         const { ref, pct } = inviterRefs[index];
                         const inviterData = snap.data();
-
                         const inviterUpdate: any = {
-                            teamAssets: increment(amount) // Always track team assets
+                            teamAssets: increment(amount)
                         };
 
-                        // Only give invitation rewards on FIRST recharge
                         if (isFirstRecharge) {
                             const bonus = amount * pct;
                             inviterUpdate.teamIncome = increment(bonus);
                             inviterUpdate.investedTeamSize = increment(1);
 
-                            // Check for VIP Eligibility
+                            // VIP Eligibility Check
                             const currentInvestedSize = (inviterData.investedTeamSize || 0) + 1;
                             const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
                             const currentVip = inviterData.vip ?? 0;
-                            const currentVipNum = typeof currentVip === 'number'
-                                ? currentVip
-                                : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
+                            const currentVipNum = typeof currentVip === 'number' ? currentVip : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
                             const nextVipNum = currentVipNum + 1;
 
-                            const nextRule = vipRules.find(r => {
-                                const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
-                                return rNum === nextVipNum;
-                            });
-
-                            if (nextRule) {
-                                const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
-                                const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
-                                if (sizeMet && assetsMet) {
-                                    inviterUpdate.isVipEligible = true;
-                                }
+                            const nextRule = vipRules.find(r => parseInt(r.level?.replace(/\D/g, '') || "0") === nextVipNum);
+                            if (nextRule && currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0) && currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0)) {
+                                inviterUpdate.isVipEligible = true;
                             }
 
-                            // Create Reward Notification (only on first recharge)
+                            // Notification
                             const levelLabels = ["Level A", "Level B", "Level C", "Level D"];
                             const notifRef = doc(collection(db, "UserNotifications"));
                             transaction.set(notifRef, {
@@ -200,38 +192,26 @@ export default function RechargeVerificationPage() {
                                 read: false
                             });
                         } else {
-                            // For subsequent recharges, still check VIP eligibility based on updated teamAssets
                             const currentInvestedSize = inviterData.investedTeamSize || 0;
                             const currentTeamAssets = (inviterData.teamAssets || 0) + amount;
                             const currentVip = inviterData.vip ?? 0;
-                            const currentVipNum = typeof currentVip === 'number'
-                                ? currentVip
-                                : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
+                            const currentVipNum = typeof currentVip === 'number' ? currentVip : parseInt(currentVip.toString().replace(/\D/g, '') || "0");
                             const nextVipNum = currentVipNum + 1;
 
-                            const nextRule = vipRules.find(r => {
-                                const rNum = parseInt(r.level?.replace(/\D/g, '') || "0");
-                                return rNum === nextVipNum;
-                            });
-
-                            if (nextRule) {
-                                const sizeMet = currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0);
-                                const assetsMet = currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0);
-                                if (sizeMet && assetsMet) {
-                                    inviterUpdate.isVipEligible = true;
-                                }
+                            const nextRule = vipRules.find(r => parseInt(r.level?.replace(/\D/g, '') || "0") === nextVipNum);
+                            if (nextRule && currentInvestedSize >= (Number(nextRule.investedTeamSize) || 0) && currentTeamAssets >= (Number(nextRule.totalTeamAssets) || 0)) {
+                                inviterUpdate.isVipEligible = true;
                             }
                         }
-
                         transaction.update(ref, inviterUpdate);
                     }
                 });
             });
 
             toast.success(`Verified ETB ${recharge.amount} & Distributed Rewards`);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Verification error:", error);
-            toast.error("Failed to verify transaction");
+            toast.error(error.message === "User does not exist!" ? "User not found in database" : "Failed to verify transaction");
         } finally {
             setVerifying(null);
         }

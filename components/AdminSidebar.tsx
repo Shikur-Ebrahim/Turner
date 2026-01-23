@@ -95,7 +95,6 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "products", label: "Products", icon: Package, path: "/admin/product" },
         { id: "referral", label: "Referral Rule", icon: Percent, path: "/admin/referral-settings" },
         { id: "vip-rules", label: "VIP Rules", icon: Crown, path: "/admin/vip-rules" },
-        { id: "recharge-settings", label: "Recharge Settings", icon: Settings, path: "/admin/settings/recharge" },
         { id: "vip-notifications", label: "VIP Celebration", icon: PartyPopper, path: "/admin/vip-notifications" },
         { id: "telegram", label: "Telegram Staff", icon: Send, path: "/admin/telegram" },
         { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
@@ -103,6 +102,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
         { id: "platform-notifications", label: "Platform Alerts", icon: Bell, path: "/admin/platform-notifications" },
         { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },
+        { id: "team-search", label: "Team Search", icon: Users, path: "/admin/team-search" },
         { id: "users", label: "Users", icon: Users, path: "/admin/users" },
         { id: "settings", label: "Settings", icon: Settings, path: "/admin/settings" },
     ];

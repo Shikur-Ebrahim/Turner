@@ -35,8 +35,11 @@ function SecurityContent() {
     // Restriction States
     const [isRestricted, setIsRestricted] = useState(false); // 24h Cap
     const [isPartnerRestricted, setIsPartnerRestricted] = useState(false); // Verified Recharge
-    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [minRecharge, setMinRecharge] = useState<number>(4500);
+    const [withdrawalSettings, setWithdrawalSettings] = useState<any>({
+        frequency: 1,
+    });
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
@@ -68,6 +71,13 @@ function SecurityContent() {
                     if (settings.minAmount) {
                         setMinRecharge(Number(settings.minAmount));
                     }
+                }
+
+                // Fetch Withdrawal Settings
+                const withdrawRef = doc(db, "GlobalSettings", "withdrawal");
+                const withdrawSnap = await getDoc(withdrawRef);
+                if (withdrawSnap.exists()) {
+                    setWithdrawalSettings(withdrawSnap.data());
                 }
             } catch (error) {
                 console.error("Error fetching settings:", error);
@@ -184,7 +194,9 @@ function SecurityContent() {
         if (!user) return false;
 
         const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const f = withdrawalSettings.frequency || 1;
+        // Start date for checking previous withdrawals: today - (f-1) days at 0:00
+        const checkStartDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (f - 1));
 
         // Fetch all withdrawals for this user (avoids composite index requirement)
         const q = query(
@@ -195,13 +207,13 @@ function SecurityContent() {
         const snapshot = await getDocs(q);
 
         // Filter by date on the client side to avoid index issues
-        const hasTodayWithdrawal = snapshot.docs.some(doc => {
+        const hasRestrictedWithdrawal = snapshot.docs.some(doc => {
             const data = doc.data();
             const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
-            return createdAt >= startOfDay;
+            return createdAt >= checkStartDate;
         });
 
-        return hasTodayWithdrawal;
+        return hasRestrictedWithdrawal;
     };
 
     const checkPartnerStatus = async () => {
@@ -226,10 +238,12 @@ function SecurityContent() {
         if (isRestricted) {
             timer = setInterval(() => {
                 const now = new Date();
-                const midnight = new Date();
-                midnight.setHours(24, 0, 0, 0); // Next midnight
 
-                const diff = midnight.getTime() - now.getTime();
+                // Reset always happens at midnight 0:00
+                const targetReset = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                targetReset.setHours(0, 0, 0, 0);
+
+                const diff = targetReset.getTime() - now.getTime();
 
                 if (diff <= 0) {
                     setIsRestricted(false);
@@ -237,6 +251,7 @@ function SecurityContent() {
                 }
 
                 setTimeLeft({
+                    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
                     hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
                     minutes: Math.floor((diff / (1000 * 60)) % 60),
                     seconds: Math.floor((diff / 1000) % 60)
@@ -383,8 +398,8 @@ function SecurityContent() {
 
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Daily Cap Reached</h3>
-                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em]">One Withdrawal Per 24h</p>
+                                    <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Withdrawal Limit</h3>
+                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em]">One Withdrawal Per {withdrawalSettings.frequency} Day(s)</p>
                                 </div>
                                 <p className="text-xs font-bold text-slate-500 leading-relaxed px-2">
                                     Your next payout window opens at <span className="text-slate-900">Midnight (0:00)</span>.
@@ -394,6 +409,15 @@ function SecurityContent() {
 
                             {/* Advanced Countdown UI */}
                             <div className="flex gap-3 justify-center w-full bg-slate-50 py-6 rounded-[2rem] border border-slate-100">
+                                {timeLeft.days > 0 && (
+                                    <>
+                                        <div className="flex flex-col items-center min-w-[60px]">
+                                            <span className="text-2xl font-black text-slate-900 tabular-nums">{timeLeft.days}</span>
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Days</span>
+                                        </div>
+                                        <span className="text-2xl font-black text-slate-300 self-start mt-0.5">:</span>
+                                    </>
+                                )}
                                 <div className="flex flex-col items-center min-w-[60px]">
                                     <span className="text-2xl font-black text-slate-900 tabular-nums">{timeLeft.hours.toString().padStart(2, '0')}</span>
                                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Hrs</span>

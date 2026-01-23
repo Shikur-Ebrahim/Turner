@@ -13,8 +13,20 @@ import {
     ChevronRight,
     Loader2,
     Lock,
-    XCircle
+    XCircle,
+    CheckCircle2,
+    Clock
 } from "lucide-react";
+
+const DAYS_MAP: Record<number, string> = {
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+    0: "Sun"
+};
 
 export default function WithdrawalPage() {
     const router = useRouter();
@@ -24,6 +36,14 @@ export default function WithdrawalPage() {
     const [amount, setAmount] = useState("");
     const [linkedBank, setLinkedBank] = useState<any>(null);
     const [showBankDetails, setShowBankDetails] = useState(false);
+    const [withdrawalSettings, setWithdrawalSettings] = useState<any>({
+        minAmount: 300,
+        maxAmount: 40000,
+        activeDays: [1, 2, 3, 4, 5, 6],
+        startTime: "08:00",
+        endTime: "17:00",
+        frequency: 1,
+    });
 
     // Error Modal State
     const [errorModal, setErrorModal] = useState<{ show: boolean, message: string } | null>(null);
@@ -48,6 +68,14 @@ export default function WithdrawalPage() {
             const bankRef = doc(db, "Bank", currentUser.uid);
             const unsubscribeBank = onSnapshot(bankRef, (doc) => {
                 setLinkedBank(doc.exists() ? doc.data() : null);
+            });
+
+            // Fetch Global Withdrawal Settings
+            const settingsRef = doc(db, "GlobalSettings", "withdrawal");
+            const unsubscribeSettings = onSnapshot(settingsRef, (doc) => {
+                if (doc.exists()) {
+                    setWithdrawalSettings(doc.data());
+                }
                 setLoading(false);
             });
 
@@ -78,6 +106,7 @@ export default function WithdrawalPage() {
                 unsubscribeUser();
                 unsubscribeBank();
                 unsubscribeRules();
+                unsubscribeSettings();
             };
         });
 
@@ -100,13 +129,33 @@ export default function WithdrawalPage() {
             return;
         }
 
-        if (numAmount < 300) {
-            setErrorModal({ show: true, message: "Minimum withdrawal amount is 300 ETB." });
+        if (numAmount < withdrawalSettings.minAmount) {
+            setErrorModal({ show: true, message: `Minimum withdrawal amount is ${withdrawalSettings.minAmount} ETB.` });
             return;
         }
 
-        if (numAmount > 40000) {
-            setErrorModal({ show: true, message: "Maximum single withdrawal is 40,000 ETB." });
+        if (numAmount > withdrawalSettings.maxAmount) {
+            setErrorModal({ show: true, message: `Maximum single withdrawal is ${withdrawalSettings.maxAmount.toLocaleString()} ETB.` });
+            return;
+        }
+
+        // Check Schedule
+        const now = new Date();
+        const currentDay = now.getDay();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        const [startH, startM] = withdrawalSettings.startTime.split(":").map(Number);
+        const [endH, endM] = withdrawalSettings.endTime.split(":").map(Number);
+        const startTotal = startH * 60 + startM;
+        const endTotal = endH * 60 + endM;
+
+        if (!withdrawalSettings.activeDays.includes(currentDay)) {
+            setErrorModal({ show: true, message: "Withdrawals are not available today." });
+            return;
+        }
+
+        if (currentTime < startTotal || currentTime > endTotal) {
+            setErrorModal({ show: true, message: `Withdrawals are only available between ${withdrawalSettings.startTime} and ${withdrawalSettings.endTime}.` });
             return;
         }
 
@@ -180,6 +229,51 @@ export default function WithdrawalPage() {
                 </button>
                 <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">Withdrawal</h1>
             </header>
+
+            {/* Withdrawal Schedule Status */}
+            <div className="px-6 mt-4">
+                {(() => {
+                    const now = new Date();
+                    const currentDay = now.getDay();
+                    const currentTime = now.getHours() * 60 + now.getMinutes();
+                    const [startH, startM] = withdrawalSettings.startTime.split(":").map(Number);
+                    const [endH, endM] = withdrawalSettings.endTime.split(":").map(Number);
+                    const startTotal = startH * 60 + startM;
+                    const endTotal = endH * 60 + endM;
+
+                    const isOpenToday = withdrawalSettings.activeDays.includes(currentDay);
+                    const isWithinHours = currentTime >= startTotal && currentTime <= endTotal;
+
+                    if (!isOpenToday || !isWithinHours) {
+                        return (
+                            <div className="bg-amber-50 border border-amber-200 rounded-[1.5rem] p-4 flex items-center gap-4 animate-pulse">
+                                <div className="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-700">
+                                    <Clock size={20} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Withdrawals Closed</p>
+                                    <p className="text-[10px] font-bold text-amber-600 uppercase">
+                                        Next window: {withdrawalSettings.startTime} tomorrow
+                                    </p>
+                                </div>
+                            </div>
+                        );
+                    }
+                    return (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-[1.5rem] p-4 flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700">
+                                <CheckCircle2 size={20} className="text-emerald-600" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Withdrawals Active</p>
+                                <p className="text-[10px] font-bold text-emerald-600 uppercase">
+                                    Window Closes: {withdrawalSettings.endTime}
+                                </p>
+                            </div>
+                        </div>
+                    );
+                })()}
+            </div>
 
             <main className="p-6 space-y-6">
                 {/* Amount Input Card */}
@@ -285,18 +379,22 @@ export default function WithdrawalPage() {
                     <ul className="space-y-3">
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">1.</span>
-                            Withdrawal time is from 8 am to 5 pm from Monday to Friday.
+                            Withdrawal time is from {withdrawalSettings.startTime} to {withdrawalSettings.endTime} ({withdrawalSettings.activeDays.map((d: number) => DAYS_MAP[d]).join(", ")}).
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">2.</span>
-                            Single withdrawal is 300-40000 Br.
+                            Single withdrawal is {withdrawalSettings.minAmount}-{withdrawalSettings.maxAmount.toLocaleString()} Br.
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">3.</span>
-                            Withdrawal will arrive in your account in 2-72 hours.
+                            Withdrawal frequency is every {withdrawalSettings.frequency} day(s). Reset at 0:00.
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">4.</span>
+                            Withdrawal will arrive in your account in 2-72 hours.
+                        </li>
+                        <li className="flex gap-3 text-xs text-gray-500 font-medium">
+                            <span className="font-bold text-slate-900">5.</span>
                             One person can only use one bank card to withdraw money.
                         </li>
                     </ul>
