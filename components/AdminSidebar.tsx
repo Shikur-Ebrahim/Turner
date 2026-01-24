@@ -42,6 +42,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     const [pendingRechargeCount, setPendingRechargeCount] = useState(0);
     const [pendingWithdrawalCount, setPendingWithdrawalCount] = useState(0);
     const [vipUpgradeCount, setVipUpgradeCount] = useState(0);
+    const [todaySalesCount, setTodaySalesCount] = useState(0);
 
     useEffect(() => {
         // Recharge Listener
@@ -71,10 +72,22 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
             setVipUpgradeCount(snapshot.size);
         });
 
+        // Today's Sales Listener
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const qSales = query(
+            collection(db, "UserOrders"),
+            where("purchaseDate", ">=", startOfToday)
+        );
+        const unsubscribeSales = onSnapshot(qSales, (snapshot) => {
+            setTodaySalesCount(snapshot.size);
+        });
+
         return () => {
             unsubscribeRecharge();
             unsubscribeWithdrawal();
             unsubscribeVip();
+            unsubscribeSales();
         };
     }, []);
 
@@ -102,7 +115,9 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
         { id: "platform-notifications", label: "Platform Alerts", icon: Bell, path: "/admin/platform-notifications" },
         { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },
+        { id: "sales-tracking", label: "Sales Tracking", icon: BarChart3, path: "/admin/sales-tracking" },
         { id: "team-search", label: "Team Search", icon: Users, path: "/admin/team-search" },
+        { id: "buy-product", label: "Buy Product", icon: Package, path: "/admin/buy-product" },
         { id: "users", label: "Users", icon: Users, path: "/admin/users" },
         { id: "settings", label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
@@ -193,6 +208,11 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
                                     {item.id === "vip-upgrade" && vipUpgradeCount > 0 && (
                                         <span className="ml-auto bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded-full animate-bounce shadow-lg shadow-emerald-500/40">
                                             {vipUpgradeCount}
+                                        </span>
+                                    )}
+                                    {item.id === "sales-tracking" && todaySalesCount > 0 && (
+                                        <span className="ml-auto bg-blue-500 text-white text-[10px] font-black px-2 py-1 rounded-full animate-pulse shadow-lg shadow-blue-500/40" title="Today's Sales">
+                                            {todaySalesCount}
                                         </span>
                                     )}
                                 </Link>
