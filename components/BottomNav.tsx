@@ -16,6 +16,36 @@ function BottomNavContent() {
 
     const [userId, setUserId] = useState<string | null>(null);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            home: "HOME",
+            market: "MARKET",
+            teams: "TEAMS",
+            wallets: "WALLETS",
+            me: "ME"
+        },
+        amharic: {
+            home: "መነሻ",
+            market: "ገበያ",
+            teams: "ቡድኖች",
+            wallets: "ቦርሳዎች",
+            me: "እኔ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         setMounted(true);
         // Clean up any potential auth listeners
@@ -50,11 +80,11 @@ function BottomNavContent() {
     if (!mounted || hideNav) return null;
 
     const navItems = [
-        { id: "home", icon: Home, label: "HOME", path: "/users/welcome?tab=home" },
-        { id: "product", icon: Ship, label: "MARKET", path: "/users/product" },
-        { id: "team", icon: Users, label: "TEAMS", path: "/users/team" },
-        { id: "wallet", icon: Wallet, label: "WALLETS", path: "/users/wallet" },
-        { id: "me", icon: Shield, label: "ME", path: "/users/profile" },
+        { id: "home", icon: Home, label: t("home"), path: "/users/welcome?tab=home" },
+        { id: "product", icon: Ship, label: t("market"), path: "/users/product" },
+        { id: "team", icon: Users, label: t("teams"), path: "/users/team" },
+        { id: "wallet", icon: Wallet, label: t("wallets"), path: "/users/wallet" },
+        { id: "me", icon: Shield, label: t("me"), path: "/users/profile" },
     ];
 
     return (

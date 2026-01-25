@@ -48,6 +48,82 @@ export default function UserBankPage() {
         bankLogoUrl: ""
     });
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            myBankAccounts: "My Bank Accounts",
+            connectAccount: "Connect Account",
+            verifiedAccounts: "Verified Accounts",
+            addBank: "Add Bank",
+            activeConnection: "Active Connection",
+            accountNumber: "Account Number",
+            accountType: "Account Type",
+            personal: "Personal",
+            holderName: "Holder Name",
+            status: "Status",
+            verified: "Verified",
+            linkBankAccount: "Link Bank Account",
+            connectDesc: "Connect your bank account securely to enable fast withdrawals.",
+            connectNow: "Connect Now",
+            alreadyConnected: "Already Connected",
+            alreadyConnectedDesc: "This bank name is already connected. If you want to unlink and connect another account, please contact the Turner Team via Telegram.",
+            ok: "OK",
+            secureLink: "Secure Link",
+            encryptedGateway: "Encrypted Banking Gateway",
+            selectPartnerBank: "Select Partner Bank",
+            chooseBank: "Choose Supported Bank",
+            accountHolderName: "Account Holder Name",
+            asPerBank: "AS PER BANK RECORDS",
+            verifyLink: "Verify & Link",
+            bankSecurity: "Bank Grade Security",
+            fillAll: "Please fill all fields",
+            linkSuccess: "Bank account linked successfully!",
+            linkFail: "Failed to link bank account"
+        },
+        amharic: {
+            myBankAccounts: "የባንክ ሂሳቦቼ",
+            connectAccount: "ሂሳብ ያገናኙ",
+            verifiedAccounts: "የተረጋገጡ ሂሳቦች",
+            addBank: "ባንክ ጨምር",
+            activeConnection: "ንቁ ግንኙነት",
+            accountNumber: "የሂሳብ ቁጥር",
+            accountType: "የሂሳብ አይነት",
+            personal: "የግል",
+            holderName: "የባለቤቱ ስም",
+            status: "ሁኔታ",
+            verified: "የተረጋገጠ",
+            linkBankAccount: "የባንክ ሂሳብ ያገናኙ",
+            connectDesc: "ፈጣን ወጪ ለማድረግ የባንክ ሂሳብዎን ደህንነቱ በተጠበቀ ሁኔታ ያገናኙ።",
+            connectNow: "አሁን አገናኝ",
+            alreadyConnected: "ቀድሞውኑ ተገናኝቷል",
+            alreadyConnectedDesc: "ይህ ባንክ ቀድሞውኑ ተገናኝቷል። ይህን ለማቋረጥ እና ሌላ ሂሳብ ለማገናኘት ከፈለጉ እባክዎን የ Turner ቡድንን በቴሌግራም ያግኙ።",
+            ok: "እሺ",
+            secureLink: "ደህንነቱ የተጠበቀ ግንኙነት",
+            encryptedGateway: "የተመሰጠረ የባንክ መግቢያ",
+            selectPartnerBank: "አጋር ባንክ ይምረጡ",
+            chooseBank: "የሚደገፍ ባንክ ይምረጡ",
+            accountHolderName: "የሂሳብ ባለቤቱ ስም",
+            asPerBank: "በባንኩ መዛግብት መሰረት",
+            verifyLink: "አረጋግጥ እና አገናኝ",
+            bankSecurity: "የባንክ ደረጃ ደህንነት",
+            fillAll: "እባክዎ ሁሉንም ቦታዎች ይሙሉ።",
+            linkSuccess: "የባንክ ሂሳቡ በተሳካ ሁኔታ ተገናኝቷል!",
+            linkFail: "የባንክ ሂሳብ ማገናኘት አልተቻለም"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
             if (!currentUser) {
@@ -91,7 +167,7 @@ export default function UserBankPage() {
     const handleConnect = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.bankName || !formData.holderName || !formData.accountNumber) {
-            toast.error("Please fill all fields");
+            toast.error(t("fillAll"));
             return;
         }
 
@@ -110,11 +186,11 @@ export default function UserBankPage() {
                 status: "verified",
                 linkedAt: new Date().toISOString()
             });
-            toast.success("Bank account linked successfully!");
+            toast.success(t("linkSuccess"));
             setView("list");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to link bank account");
+            toast.error(t("linkFail"));
         } finally {
             setSubmitting(false);
         }
@@ -148,7 +224,7 @@ export default function UserBankPage() {
                         <ChevronLeft size={22} />
                     </button>
                     <h1 className="text-lg font-black tracking-wider uppercase text-slate-900">
-                        {view === "list" ? "My Bank Accounts" : "Connect Account"}
+                        {view === "list" ? t("myBankAccounts") : t("connectAccount")}
                     </h1>
                 </header>
 
@@ -158,12 +234,12 @@ export default function UserBankPage() {
                             /* Linked State */
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex items-center justify-between px-1">
-                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Verified Accounts (1)</h3>
+                                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t("verifiedAccounts")} (1)</h3>
                                     <button
                                         onClick={() => setView("connect")}
                                         className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-1.5 transition-colors bg-indigo-50 px-3 py-1.5 rounded-full"
                                     >
-                                        <Plus size={12} /> Add Bank
+                                        <Plus size={12} /> {t("addBank")}
                                     </button>
                                 </div>
 
@@ -186,31 +262,31 @@ export default function UserBankPage() {
                                                 <h4 className="text-xl font-black tracking-tight leading-tight text-slate-900 mb-1.5 truncate">{linkedBank.bankName}</h4>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] animate-pulse"></div>
-                                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Connection</span>
+                                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t("activeConnection")}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-y-8 bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
                                             <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Account Number</p>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t("accountNumber")}</p>
                                                 <p className="text-lg font-black tracking-[0.1em] text-slate-800 font-mono">
                                                     {linkedBank.accountNumber}
                                                 </p>
                                             </div>
                                             <div className="space-y-1 text-right">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Account Type</p>
-                                                <p className="text-sm font-black uppercase tracking-widest text-slate-700">Personal</p>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t("accountType")}</p>
+                                                <p className="text-sm font-black uppercase tracking-widest text-slate-700">{t("personal")}</p>
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Holder Name</p>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t("holderName")}</p>
                                                 <p className="text-sm font-black uppercase tracking-widest text-slate-800 truncate">{linkedBank.holderName}</p>
                                             </div>
                                             <div className="space-y-1 text-right">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</p>
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t("status")}</p>
                                                 <div className="flex items-center justify-end gap-1.5">
                                                     <ShieldCheck size={12} className="text-emerald-500" />
-                                                    <p className="text-xs font-black text-indigo-900 uppercase tracking-widest">Verified</p>
+                                                    <p className="text-xs font-black text-indigo-900 uppercase tracking-widest">{t("verified")}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -235,8 +311,8 @@ export default function UserBankPage() {
                                 </div>
 
                                 <div className="space-y-3 max-w-xs mx-auto">
-                                    <h2 className="text-3xl font-black tracking-tight uppercase text-slate-900">Link Bank Account</h2>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Connect your bank account securely to enable fast withdrawals.</p>
+                                    <h2 className="text-3xl font-black tracking-tight uppercase text-slate-900">{t("linkBankAccount")}</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">{t("connectDesc")}</p>
                                 </div>
 
                                 <button
@@ -244,7 +320,7 @@ export default function UserBankPage() {
                                     className="w-full max-w-xs py-5 bg-slate-900 hover:bg-slate-800 text-white rounded-3xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 active:scale-95 transition-all flex items-center justify-center gap-3"
                                 >
                                     <ShieldCheck size={18} className="text-slate-400" />
-                                    Connect Now
+                                    {t("connectNow")}
                                 </button>
                             </div>
                         )
@@ -256,9 +332,9 @@ export default function UserBankPage() {
                             </div>
 
                             <div className="space-y-4 max-w-xs mx-auto">
-                                <h3 className="text-2xl font-black uppercase text-slate-900 leading-none">Already Connected</h3>
+                                <h3 className="text-2xl font-black uppercase text-slate-900 leading-none">{t("alreadyConnected")}</h3>
                                 <p className="text-xs font-bold text-slate-500 leading-relaxed uppercase tracking-wider">
-                                    Thise bank already connected befor. If you want to unliked and connect other account just conmucated Turner Team with telegram section.
+                                    {t("alreadyConnectedDesc")}
                                 </p>
                             </div>
 
@@ -266,7 +342,7 @@ export default function UserBankPage() {
                                 onClick={() => router.push("/users/service")}
                                 className="w-full max-w-xs py-5 bg-red-500 text-white rounded-3xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all hover:bg-red-600"
                             >
-                                OK
+                                {t("ok")}
                             </button>
                         </div>
                     ) : (
@@ -276,15 +352,15 @@ export default function UserBankPage() {
                                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-[1.5rem] bg-indigo-50 text-indigo-600 mb-4 shadow-sm border border-indigo-100">
                                     <Lock size={24} />
                                 </div>
-                                <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900">Secure Link</h2>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Encrypted Banking Gateway</p>
+                                <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900">{t("secureLink")}</h2>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{t("encryptedGateway")}</p>
                             </div>
 
                             <form onSubmit={handleConnect} className="space-y-6">
                                 <div className="space-y-5">
                                     {/* Bank Selector - Custom Dropdown */}
                                     <div className="space-y-2.5 relative">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Select Partner Bank</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">{t("selectPartnerBank")}</label>
 
                                         <div
                                             onClick={() => setShowBankDropdown(!showBankDropdown)}
@@ -302,7 +378,7 @@ export default function UserBankPage() {
                                                 {formData.bankName ? (
                                                     <p className="font-black text-sm text-slate-800 uppercase tracking-wider">{formData.bankName}</p>
                                                 ) : (
-                                                    <p className="font-bold text-sm text-slate-300 uppercase tracking-wider">Choose Supported Bank</p>
+                                                    <p className="font-bold text-sm text-slate-300 uppercase tracking-wider">{t("chooseBank")}</p>
                                                 )}
                                             </div>
 
@@ -347,7 +423,7 @@ export default function UserBankPage() {
 
                                     {/* Holder Name */}
                                     <div className="space-y-2.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Account Holder Name</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">{t("accountHolderName")}</label>
                                         <div className="relative group">
                                             <div className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-xl text-slate-400 group-focus-within:text-slate-900 group-focus-within:bg-white transition-all shadow-sm">
                                                 <User size={18} />
@@ -355,7 +431,7 @@ export default function UserBankPage() {
                                             <input
                                                 type="text"
                                                 required
-                                                placeholder="AS PER BANK RECORDS"
+                                                placeholder={t("asPerBank")}
                                                 value={formData.holderName}
                                                 onChange={(e) => setFormData({ ...formData, holderName: e.target.value })}
                                                 className="w-full h-[4.5rem] pl-[4.5rem] pr-6 rounded-[2rem] bg-white border border-slate-100 focus:border-slate-300 focus:ring-4 focus:ring-slate-100 outline-none font-bold text-sm text-slate-800 uppercase tracking-wider placeholder:text-slate-300 transition-all shadow-sm"
@@ -365,7 +441,7 @@ export default function UserBankPage() {
 
                                     {/* Account Number */}
                                     <div className="space-y-2.5">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Account Number</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">{t("accountNumber")}</label>
                                         <div className="relative group">
                                             <div className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-xl text-slate-400 group-focus-within:text-slate-900 group-focus-within:bg-white transition-all shadow-sm">
                                                 <Hash size={18} />
@@ -391,7 +467,7 @@ export default function UserBankPage() {
                                         <Loader2 className="animate-spin text-slate-400" size={24} />
                                     ) : (
                                         <>
-                                            <span>Verify & Link</span>
+                                            <span>{t("verifyLink")}</span>
                                             <ShieldCheck size={20} className="text-emerald-400" />
                                         </>
                                     )}
@@ -405,7 +481,7 @@ export default function UserBankPage() {
                 <footer className="p-8 text-center">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100/50 border border-slate-200/50">
                         <Lock size={10} className="text-slate-400" />
-                        <span className="text-[8px] font-black text-slate-400 tracking-[0.2em] uppercase">Bank Grade Security</span>
+                        <span className="text-[8px] font-black text-slate-400 tracking-[0.2em] uppercase">{t("bankSecurity")}</span>
                     </div>
                 </footer>
             </div>

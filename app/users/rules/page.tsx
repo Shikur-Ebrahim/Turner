@@ -51,6 +51,48 @@ export default function UserRulesPage() {
     const [userData, setUserData] = useState<any>(null);
     const [user, setUser] = useState<any>(null);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            platformRules: "Platform Rules",
+            guidelines: "Guidelines",
+            rechargeGuide: "Recharge Guide",
+            referralRewards: "Referral Rewards",
+            withdrawalRules: "Withdrawal Rules",
+            monthlySalary: "Monthly Salary",
+            dailyTasks: "Daily Tasks",
+            generalInfo: "General Info",
+            loadingGuidelines: "Loading Guidelines...",
+            noGuidelinesFound: "No guidelines found here.",
+            step: "Step"
+        },
+        amharic: {
+            platformRules: "የመድረክ ደንቦች",
+            guidelines: "መመሪያዎች",
+            rechargeGuide: "የሪቻርጅ መመሪያ",
+            referralRewards: "የሪፈራል ሽልማቶች",
+            withdrawalRules: "የመውጣት ደንቦች",
+            monthlySalary: "ወርሃዊ ደመወዝ",
+            dailyTasks: "ዕለታዊ ተግባራት",
+            generalInfo: "አጠቃላይ መረጃ",
+            loadingGuidelines: "መመሪያዎች በመጫን ላይ...",
+            noGuidelinesFound: "እዚህ ምንም መመሪያዎች አልተገኙም።",
+            step: "ደረጃ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     // Get current user and their data
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -67,6 +109,15 @@ export default function UserRulesPage() {
         });
         return () => unsubscribeAuth();
     }, []);
+
+    const CATEGORY_META: any = {
+        recharge: { label: t("rechargeGuide"), icon: Wallet, color: "emerald", gradient: "from-emerald-500 to-emerald-700" },
+        invitation: { label: t("referralRewards"), icon: Users, color: "blue", gradient: "from-blue-500 to-blue-700" },
+        withdrawal: { label: t("withdrawalRules"), icon: Zap, color: "amber", gradient: "from-amber-500 to-orange-600" },
+        salary: { label: t("monthlySalary"), icon: Calendar, color: "purple", gradient: "from-purple-500 to-indigo-700" },
+        tasks: { label: t("dailyTasks"), icon: Trophy, color: "indigo", gradient: "from-indigo-500 to-blue-700" },
+        general: { label: t("generalInfo"), icon: BookOpen, color: "rose", gradient: "from-rose-500 to-rose-700" },
+    };
 
     useEffect(() => {
         const q = query(collection(db, "rules"), orderBy("order", "asc"));
@@ -120,9 +171,9 @@ export default function UserRulesPage() {
                         <ActiveIcon size={32} className="text-white" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-white tracking-tight uppercase">Platform Rules</h1>
+                        <h1 className="text-3xl font-black text-white tracking-tight uppercase">{t("platformRules")}</h1>
                         <p className="text-white/70 text-xs font-bold uppercase tracking-widest mt-1">
-                            {activeMeta?.label} Guidelines
+                            {activeMeta?.label} {t("guidelines")}
                         </p>
                     </div>
                 </div>
@@ -173,12 +224,12 @@ export default function UserRulesPage() {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
                         <div className={`w-8 h-8 border-4 ${scheme.loading} border-t-transparent rounded-full animate-spin`}></div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading Guidelines...</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t("loadingGuidelines")}</p>
                     </div>
                 ) : filteredRules.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 bg-white/50 backdrop-blur-md rounded-[2.5rem] border border-dashed border-gray-200">
                         <BookOpen size={48} className="text-gray-200 mb-4" />
-                        <p className="text-xs font-bold uppercase tracking-widest text-gray-400">No guidelines found here.</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{t("noGuidelinesFound")}</p>
                     </div>
                 ) : (
                     filteredRules.map((rule, idx) => (
@@ -190,7 +241,7 @@ export default function UserRulesPage() {
                             <div className="flex items-start justify-between">
                                 <div className="space-y-1">
                                     <div className={`px-3 py-1 ${scheme.badge} rounded-lg text-[9px] font-black uppercase tracking-widest w-fit inline-block mb-1`}>
-                                        Step {idx + 1}
+                                        {t("step")} {idx + 1}
                                     </div>
                                     <h3 className="text-xl font-black text-slate-900 leading-tight uppercase tracking-tight">
                                         {rule.title}

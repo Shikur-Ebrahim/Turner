@@ -39,6 +39,62 @@ export default function UserVipRulesPage() {
         return () => unsubscribe();
     }, []);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            vipTiers: "VIP Tiers",
+            exclusiveRewards: "Exclusive Rewards",
+            vipRewardMatrix: "VIP Reward Matrix",
+            maximizeEarnings: "Maximize your earnings by climbing our elite leadership tiers",
+            availableTiers: "Available Tiers",
+            liveUpdates: "Live Updates",
+            syncingRules: "Syncing Rules...",
+            active: "Active",
+            leadershipTier: "Leadership Tier",
+            investedTeam: "Invested Team",
+            members: "Members",
+            totalAssets: "Total Assets",
+            etb: "ETB",
+            monthlySalary: "Monthly Salary",
+            fiveYearLoyalty: "5-Year Loyalty",
+            viewEligibility: "View Eligibility",
+            underMaintenance: "Tier system under maintenance",
+            disclaimer: "* All VIP rewards are subject to platform terms and conditions. Monthly salaries are distributed automatically to eligible ambassadors."
+        },
+        amharic: {
+            vipTiers: "ቪ.አይ.ፒ ደረጃዎች",
+            exclusiveRewards: "ልዩ ሽልማቶች",
+            vipRewardMatrix: "የቪ.አይ.ፒ ሽልማት ማትሪክስ",
+            maximizeEarnings: "በተመረጡ የአመራር ደረጃዎቻችን በመውጣት ገቢዎን ያሳድጉ",
+            availableTiers: "የሚገኙ ደረጃዎች",
+            liveUpdates: "የቀጥታ ዝመናዎች",
+            syncingRules: "ደንቦችን በማመሳሰል ላይ...",
+            active: "ንቁ",
+            leadershipTier: "የአመራር ደረጃ",
+            investedTeam: "ኢንቨስት ያደረገ ቡድን",
+            members: "አባላት",
+            totalAssets: "ጠቅላላ ንብረቶች",
+            etb: "ብር",
+            monthlySalary: "ወርሃዊ ደሞዝ",
+            fiveYearLoyalty: "የ5 ዓመት ታማኝነት",
+            viewEligibility: "ብቁነትን ይመልከቱ",
+            underMaintenance: "የደረጃ ስርዓት በጥገና ላይ",
+            disclaimer: "* ሁሉም የቪ.አይ.ፒ ሽልማቶች የመድረኩ ውሎች እና ሁኔታዎች ተፈጻሚ ይሆናሉ። ወርሃዊ ደሞዝ ለብቁ አምባሳደሮች በራስ-ሰር ይከፋፈላል።"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-x-hidden font-sans">
             {/* Animated Background Mesh */}
@@ -56,8 +112,8 @@ export default function UserVipRulesPage() {
                     <ChevronLeft size={20} />
                 </button>
                 <div className="flex flex-col items-center">
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">VIP Tiers</h2>
-                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter mt-1">Exclusive Rewards</p>
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">{t("vipTiers")}</h2>
+                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter mt-1">{t("exclusiveRewards")}</p>
                 </div>
                 <div className="w-10"></div> {/* Spacer for symmetry */}
             </header>
@@ -73,8 +129,8 @@ export default function UserVipRulesPage() {
                             <img src="/vip_rule_3d.png" alt="VIP Icon" className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]" />
                         </div>
                         <div className="space-y-2">
-                            <h1 className="text-3xl font-black text-white tracking-tight">VIP Reward Matrix</h1>
-                            <p className="text-emerald-100/60 text-xs font-medium uppercase tracking-widest px-4">Maximize your earnings by climbing our elite leadership tiers</p>
+                            <h1 className="text-3xl font-black text-white tracking-tight">{t("vipRewardMatrix")}</h1>
+                            <p className="text-emerald-100/60 text-xs font-medium uppercase tracking-widest px-4">{t("maximizeEarnings")}</p>
                         </div>
                     </div>
                 </div>
@@ -84,16 +140,16 @@ export default function UserVipRulesPage() {
                     <div className="flex items-center justify-between px-2">
                         <div className="flex items-center gap-3">
                             <Sparkles className="text-amber-500" size={18} />
-                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Available Tiers</h3>
+                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">{t("availableTiers")}</h3>
                         </div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Updates</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t("liveUpdates")}</span>
                     </div>
 
                     <div className="space-y-4">
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-20 gap-4">
                                 <div className="w-12 h-12 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Syncing Rules...</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("syncingRules")}</p>
                             </div>
                         ) : vipRules.length > 0 ? (
                             vipRules.map((rule, idx) => (
@@ -103,7 +159,7 @@ export default function UserVipRulesPage() {
                                 >
                                     {/* Indicator Tag */}
                                     <div className="absolute top-0 right-0 px-6 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-bl-[1.5rem] text-[8px] font-black text-white uppercase tracking-widest shadow-xl shadow-emerald-500/20">
-                                        Active
+                                        {t("active")}
                                     </div>
 
                                     <div className="flex items-start gap-5 mb-6">
@@ -117,7 +173,7 @@ export default function UserVipRulesPage() {
                                             </div>
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leadership Tier</span>
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("leadershipTier")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -126,16 +182,16 @@ export default function UserVipRulesPage() {
                                         <div className="bg-slate-50/50 rounded-[1.5rem] p-4 border border-slate-100 group-hover:bg-white group-hover:border-emerald-100 transition-colors">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Users size={12} className="text-slate-400" />
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Invested Team</p>
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("investedTeam")}</p>
                                             </div>
-                                            <p className="text-sm font-black text-slate-800">{rule.investedTeamSize} <span className="text-[9px] text-slate-400">Members</span></p>
+                                            <p className="text-sm font-black text-slate-800">{rule.investedTeamSize} <span className="text-[9px] text-slate-400">{t("members")}</span></p>
                                         </div>
                                         <div className="bg-slate-50/50 rounded-[1.5rem] p-4 border border-slate-100 group-hover:bg-white group-hover:border-emerald-100 transition-colors">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <CircleDollarSign size={12} className="text-slate-400" />
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Assets</p>
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("totalAssets")}</p>
                                             </div>
-                                            <p className="text-sm font-black text-slate-800">{Number(rule.totalTeamAssets).toLocaleString()} <span className="text-[9px] text-slate-400">ETB</span></p>
+                                            <p className="text-sm font-black text-slate-800">{Number(rule.totalTeamAssets).toLocaleString()} <span className="text-[9px] text-slate-400">{t("etb")}</span></p>
                                         </div>
                                     </div>
 
@@ -145,9 +201,9 @@ export default function UserVipRulesPage() {
                                                 <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center">
                                                     <TrendingUp size={12} className="text-emerald-600" />
                                                 </div>
-                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Monthly Salary</span>
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t("monthlySalary")}</span>
                                             </div>
-                                            <span className="text-md font-black text-emerald-600">{Number(rule.monthlySalary).toLocaleString()} ETB</span>
+                                            <span className="text-md font-black text-emerald-600">{Number(rule.monthlySalary).toLocaleString()} {t("etb")}</span>
                                         </div>
 
                                         <div className="flex items-center justify-between">
@@ -155,14 +211,14 @@ export default function UserVipRulesPage() {
                                                 <div className="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center">
                                                     <Calendar size={12} className="text-indigo-600" />
                                                 </div>
-                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">5-Year Loyalty</span>
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t("fiveYearLoyalty")}</span>
                                             </div>
-                                            <span className="text-md font-black text-indigo-600 font-mono tracking-tighter">{Number(rule.yearlySalary5Year).toLocaleString()} ETB</span>
+                                            <span className="text-md font-black text-indigo-600 font-mono tracking-tighter">{Number(rule.yearlySalary5Year).toLocaleString()} {t("etb")}</span>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 flex items-center justify-center gap-2 py-4 bg-slate-50 group-hover:bg-emerald-50 rounded-2xl transition-colors">
-                                        <span className="text-[10px] font-black text-slate-400 group-hover:text-emerald-600 uppercase tracking-widest">View Eligibility</span>
+                                        <span className="text-[10px] font-black text-slate-400 group-hover:text-emerald-600 uppercase tracking-widest">{t("viewEligibility")}</span>
                                         <ArrowRight size={12} className="text-slate-300 group-hover:text-emerald-500 transition-colors" />
                                     </div>
                                 </div>
@@ -170,7 +226,7 @@ export default function UserVipRulesPage() {
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 text-slate-300 gap-4">
                                 <Crown size={48} className="opacity-10" />
-                                <p className="text-xs font-bold uppercase tracking-widest">Tier system under maintenance</p>
+                                <p className="text-xs font-bold uppercase tracking-widest">{t("underMaintenance")}</p>
                             </div>
                         )}
                     </div>
@@ -179,7 +235,7 @@ export default function UserVipRulesPage() {
                 {/* Disclaimer */}
                 <div className="p-6 bg-slate-100/50 rounded-3xl border border-slate-200">
                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-relaxed text-center">
-                        * All VIP rewards are subject to platform terms and conditions. Monthly salaries are distributed automatically to eligible ambassadors.
+                        {t("disclaimer")}
                     </p>
                 </div>
             </main>

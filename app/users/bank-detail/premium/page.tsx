@@ -20,6 +20,88 @@ function PremiumContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            premiumPay: "Premium Pay",
+            timeRemaining: "Time Remaining",
+            totalAmount: "Total Amount",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            bankInstance: "Bank Instance",
+            beneficiaryName: "Beneficiary Name",
+            accountNumber: "Account Number",
+            copied: "Copied to clipboard",
+            copy: "copy",
+            pasteSMS: "Paste payment sms or enter TID: FT*****",
+            pastePlaceholder: "Paste your official transaction confirmation message or TID (FT...) here for priority processing...",
+            secureInput: "Secure Input",
+            verifiedDetails: "Only verified details will be processed",
+            confirmPayment: "Confirm Payment",
+            vipAccess: "VIP ACCESS",
+            welcomeTo: "Welcome to",
+            partner: "Turner Profitable Construction Partner",
+            selectMsg: "Thank you for selecting the",
+            premiumMethod: "Premium Payment Method",
+            excellenceAwaits: "Excellence Awaits",
+            enterLounge: "Enter Lounge",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your premium deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            failedLoad: "Failed to load payment details",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            etb: "ETB"
+        },
+        amharic: {
+            premiumPay: "ፕሪሚየም ክፍያ",
+            timeRemaining: "ቀሪ ጊዜ",
+            totalAmount: "ጠቅላላ ክፍያ",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            bankInstance: "የባንክ መረጃ",
+            beneficiaryName: "የሂሳብ ስም",
+            accountNumber: "የሂሳብ ቁጥር",
+            copied: "ተገልብጧል",
+            copy: "ቅዳ",
+            pasteSMS: "የክፍያ SMS ይለጥፉ ወይም FT ኮድ ያስገቡ",
+            pastePlaceholder: "ትክክለኛ የግብይት ማረጋገጫ መልእክት ወይም TID (FT...) ለቅድሚያ አገልግሎት እዚህ ይለጥፉ...",
+            secureInput: "ደህንነቱ የተጠበቀ ማስገቢያ",
+            verifiedDetails: "የተረጋገጡ ዝርዝሮች ብቻ ይስተናገዳሉ",
+            confirmPayment: "ክፍያውን ያረጋግጡ",
+            vipAccess: "ቪ.አይ.ፒ መግቢያ",
+            welcomeTo: "እንኳን ወደ",
+            partner: "ቱርነር ትርፋማ የኮንስትራክሽን አጋር በደህና መጡ",
+            selectMsg: "የፕሪሚየም ክፍያ ዘዴን ስለመረጡ እናመሰግናለን",
+            premiumMethod: " ",
+            excellenceAwaits: "ምርጥ አገልግሎት ይጠብቅዎታል",
+            enterLounge: "ወደ ላውንጅ ይግቡ",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "የፕሪሚየም መሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            failedLoad: "የክፍያ ዝርዝሮችን መጫን አልተቻለም",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            etb: "ብር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -33,7 +115,7 @@ function PremiumContent() {
                 }
             } catch (error) {
                 console.error("Error fetching method:", error);
-                toast.error("Failed to load payment details");
+                toast.error(t('failedLoad'));
             } finally {
                 setLoading(false);
             }
@@ -51,7 +133,7 @@ function PremiumContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied to clipboard");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -64,14 +146,14 @@ function PremiumContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -107,7 +189,7 @@ function PremiumContent() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
-            toast.error("Failed to submit. Please try again.");
+            toast.error(t('failedLoad'));
         } finally {
             setSubmitting(false);
         }
@@ -140,9 +222,9 @@ function PremiumContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your premium deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -151,9 +233,9 @@ function PremiumContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -168,14 +250,14 @@ function PremiumContent() {
                     </button>
                     <div className="flex items-center gap-2">
                         <Crown size={20} className="text-amber-500" />
-                        <h1 className="text-lg font-bold tracking-widest text-amber-500 uppercase">Premium Pay</h1>
+                        <h1 className="text-lg font-bold tracking-widest text-amber-500 uppercase">{t('premiumPay')}</h1>
                     </div>
                     <div className="w-10" />
                 </header>
 
                 {/* Golden Timer */}
                 <div className="flex flex-col items-center justify-center pb-8 gap-2">
-                    <span className="text-slate-400 text-xs uppercase tracking-widest">Time Remaining</span>
+                    <span className="text-slate-400 text-xs uppercase tracking-widest">{t('timeRemaining')}</span>
                     <div className="flex items-baseline gap-1 text-4xl font-light text-white font-mono">
                         <span>{String(m).padStart(2, '0')}</span>
                         <span className="text-amber-500 animate-pulse">:</span>
@@ -190,9 +272,9 @@ function PremiumContent() {
 
                 {/* Amount Display */}
                 <section className="text-center space-y-2">
-                    <p className="text-slate-400 text-sm uppercase tracking-wider">Total Amount</p>
+                    <p className="text-slate-400 text-sm uppercase tracking-wider">{t('totalAmount')}</p>
                     <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
-                        ETB {Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        {t('etb')} {Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
                 </section>
 
@@ -200,7 +282,7 @@ function PremiumContent() {
                 <section>
                     <div className="flex items-center gap-3 text-amber-500/80 mb-4">
                         <div className="w-1.5 h-6 bg-gradient-to-b from-amber-300 to-amber-600 rounded-full"></div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-amber-100">Step 1 Copy account for payment</h2>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-amber-100">{t('step1')} {t('step1Desc')}</h2>
                     </div>
                     <div className="bg-slate-900/50 backdrop-blur-md border border-amber-500/20 rounded-2xl p-6 shadow-2xl space-y-6 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -210,7 +292,7 @@ function PremiumContent() {
                         <div className="space-y-4 relative">
                             {/* Bank */}
                             <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                                <span className="text-slate-400 text-sm">Bank Instance</span>
+                                <span className="text-slate-400 text-sm">{t('bankInstance')}</span>
                                 <div className="flex items-center gap-3">
                                     <span className="font-semibold text-slate-200">{method?.bankName}</span>
                                     {method?.bankLogoUrl && (
@@ -221,7 +303,7 @@ function PremiumContent() {
 
                             {/* Name */}
                             <div className="space-y-1">
-                                <span className="text-slate-500 text-xs uppercase">Beneficiary Name</span>
+                                <span className="text-slate-500 text-xs uppercase">{t('beneficiaryName')}</span>
                                 <div className="flex items-center justify-between bg-black/20 p-3 rounded-lg border border-white/5 group hover:border-amber-500/30 transition-colors gap-3">
                                     <span className="font-mono text-slate-200 flex-1">{method?.holderName}</span>
                                     <button
@@ -231,14 +313,14 @@ function PremiumContent() {
                                             : 'bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30'
                                             }`}
                                     >
-                                        {copiedName ? 'Copied!' : 'copy'}
+                                        {copiedName ? t('copied') : t('copy')}
                                     </button>
                                 </div>
                             </div>
 
                             {/* Number */}
                             <div className="space-y-1">
-                                <span className="text-slate-500 text-xs uppercase">Account Number</span>
+                                <span className="text-slate-500 text-xs uppercase">{t('accountNumber')}</span>
                                 <div className="flex items-center justify-between bg-black/20 p-3 rounded-lg border border-white/5 group hover:border-amber-500/30 transition-colors gap-3">
                                     <span className="font-mono text-xl tracking-wider text-amber-500">{method?.accountNumber}</span>
                                     <button
@@ -248,7 +330,7 @@ function PremiumContent() {
                                             : 'bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30'
                                             }`}
                                     >
-                                        {copiedAccount ? 'Copied!' : 'copy'}
+                                        {copiedAccount ? t('copied') : t('copy')}
                                     </button>
                                 </div>
                             </div>
@@ -261,7 +343,7 @@ function PremiumContent() {
                     <div className="flex items-center gap-3 text-amber-500/80 mb-2">
                         <div className="w-1.5 h-6 bg-gradient-to-b from-amber-300 to-amber-600 rounded-full"></div>
                         <h2 className="text-sm font-bold uppercase tracking-widest text-amber-100">
-                            Paste payment sms Or enter TID: FT*****
+                            {t('pasteSMS')}
                         </h2>
                     </div>
 
@@ -270,16 +352,16 @@ function PremiumContent() {
                             <textarea
                                 value={smsContent}
                                 onChange={(e) => setSmsContent(e.target.value)}
-                                placeholder="Paste your official transaction confirmation message or TID (FT...) here for priority processing..."
+                                placeholder={t('pastePlaceholder')}
                                 className="w-full h-36 p-5 rounded-xl bg-slate-950/50 border border-amber-500/10 text-amber-100 placeholder:text-amber-500/30 focus:outline-none focus:bg-slate-900 focus:border-amber-500/30 transition-all resize-none text-sm font-serif leading-relaxed"
                             />
                         </div>
                         <div className="absolute -top-3 left-4 bg-slate-950 px-2 text-[10px] text-amber-500 border border-amber-500/20 rounded uppercase tracking-wider">
-                            Secure Input
+                            {t('secureInput')}
                         </div>
                     </div>
                     <p className="text-[10px] text-amber-500/40 text-center uppercase tracking-widest">
-                        Only verified details will be processed
+                        {t('verifiedDetails')}
                     </p>
                 </section>
             </main>
@@ -295,17 +377,17 @@ function PremiumContent() {
                             : 'bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-950 shadow-lg shadow-amber-900/20 hover:shadow-amber-500/20 active:scale-[0.98]'
                             }`}
                     >
-                        {submitting ? <Loader2 className="animate-spin" /> : <span>Confirm Payment</span>}
+                        {submitting ? <Loader2 className="animate-spin" /> : <span>{t('confirmPayment')}</span>}
                     </button>
                 </div>
             </div>
 
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -329,13 +411,13 @@ function WelcomeNotification({ method }: { method: any }) {
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-3xl font-serif text-amber-50 tracking-widest">VIP ACCESS</h3>
+                        <h3 className="text-3xl font-serif text-amber-50 tracking-widest">{t('vipAccess')}</h3>
                         <p className="text-amber-500/60 text-sm leading-relaxed font-light px-4">
-                            Welcome to <span className="text-amber-200 font-semibold">Turner Profitable Construction Partner</span>.
+                            {t('welcomeTo')} <span className="text-amber-200 font-semibold">{t('partner')}</span>.
                             <br /><br />
-                            Thank you for selecting the <span className="text-amber-200 font-semibold">Premium Payment Method</span>.
+                            {t('selectMsg')} <span className="text-amber-200 font-semibold">{t('premiumMethod')}</span>.
                             <br /><br />
-                            <span className="text-xs uppercase tracking-[0.2em] opacity-80 border-t border-b border-amber-900/50 py-2 inline-block">Excellence Awaits</span>
+                            <span className="text-xs uppercase tracking-[0.2em] opacity-80 border-t border-b border-amber-900/50 py-2 inline-block">{t('excellenceAwaits')}</span>
                         </p>
                     </div>
                 </div>
@@ -345,7 +427,7 @@ function WelcomeNotification({ method }: { method: any }) {
                     className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-slate-950 font-bold h-14 rounded-lg uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] active:scale-[0.98] transition-all duration-300 relative overflow-hidden group"
                 >
                     <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12"></div>
-                    <span className="relative z-10">Enter Lounge</span>
+                    <span className="relative z-10">{t('enterLounge')}</span>
                 </button>
             </div>
         </div>

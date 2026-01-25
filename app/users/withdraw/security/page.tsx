@@ -41,6 +41,98 @@ function SecurityContent() {
         frequency: 1,
     });
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            pinSetSuccess: "Security PIN Set Successfully",
+            pinMismatch: "PINs do not match. Try again.",
+            incorrectPin: "Incorrect withdrawal password. Please enter the correct password.",
+            errorOccurred: "An error occurred",
+            withdrawalFailed: "Withdrawal Failed",
+            unlockWithdrawals: "Unlock Withdrawals",
+            turnerPartners: "Turner Partners",
+            partnerDesc: "Withdrawals are available only for",
+            partnerDesc2: "Recharge your wallet, activate funding, and join the Turner Partnership to start withdrawing.",
+            rechargeJoin: "Recharge & Join Now",
+            returnSecure: "Return to Secure Area",
+            withdrawalLimit: "Withdrawal Limit",
+            oneWithdrawalPer: "One Withdrawal Per",
+            days: "Day(s)",
+            payoutWindow: "Your next payout window opens at",
+            midnight: "Midnight (0:00)",
+            stayFocused: "Stay focused on your journey!",
+            dayLabel: "Days",
+            hrLabel: "Hrs",
+            minLabel: "Min",
+            secLabel: "Sec",
+            acknowledged: "Acknowleged",
+            withdrawalSuccess: "Withdrawal Successful",
+            successMsg: "Your request has been verified and submitted for processing. Funds will arrive in your account in",
+            hoursRange: "2-72 hours",
+            proceedHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            createPin: "Create Security PIN",
+            confirmPin: "Confirm PIN",
+            securityCheck: "Security Check",
+            setPinDesc: "Set a 4-digit code to secure your withdrawals.",
+            confirmPinDesc: "Re-enter your code to confirm.",
+            enterPinDesc: "Enter your 4-digit code to authorize withdrawal.",
+            unlockWithdraw: "Unlock & Withdraw",
+            continue: "Continue",
+            cancelTrans: "Cancel Transaction"
+        },
+        amharic: {
+            pinSetSuccess: "የደህንነት ፒን በተሳካ ሁኔታ ተዘጋጅቷል",
+            pinMismatch: "ፒኖች አይዛመዱም። እንደገና ይሞክሩ።",
+            incorrectPin: "የተሳሳተ የገንዘብ ማውጫ የይለፍ ቃል። እባክዎ ትክክለኛውን የይለፍ ቃል ያስገቡ።",
+            errorOccurred: "ስህተት ተከስቷል",
+            withdrawalFailed: "ገንዘብ ማውጣት አልተሳካም",
+            unlockWithdrawals: "ገንዘብ ማውጣትን ይክፈቱ",
+            turnerPartners: "የተርነር አጋሮች",
+            partnerDesc: "ገንዘብ ማውጣት የሚገኘው ለ",
+            partnerDesc2: "ብቻ ነው። ቦርሳዎን ይሙሉ፣ የገንዘብ ድጋፍን ያግብሩ እና ገንዘብ ማውጣት ለመጀመር የተርነር አጋርነትን ይቀላቀሉ።",
+            rechargeJoin: "አሁን ይሙሉ እና ይቀላቀሉ",
+            returnSecure: "ወደ ደህንነቱ የተጠበቀ ቦታ ይመለሱ",
+            withdrawalLimit: "የገንዘብ ማውጣት ገደብ",
+            oneWithdrawalPer: "አንድ ወጪ በየ",
+            days: "ቀን(ናት)",
+            payoutWindow: "ቀጣዩ የክፍያ መስኮትዎ በ",
+            midnight: "እኩለ ሌሊት (0:00)",
+            stayFocused: "ይከፈታል። በጉዞዎ ላይ ያተኩሩ!",
+            dayLabel: "ቀናት",
+            hrLabel: "ሰዓታት",
+            minLabel: "ደቂቃዎች",
+            secLabel: "ሰከንዶች",
+            acknowledged: "ተረድቻለሁ",
+            withdrawalSuccess: "ገንዘብ ማውጣት ተሳክቷል",
+            successMsg: "ጥያቄዎ ተረጋግጦ ለሂደት ቀርቧል። ገንዘብ በ",
+            hoursRange: "2-72 ሰዓታት",
+            proceedHome: "ወደ መነሻ ገጽ ይቀጥሉ",
+            securedBy: "ግብይቱ በተርነር የተጠበቀ ነው",
+            createPin: "የደህንነት ፒን ይፍጠሩ",
+            confirmPin: "ፒን ያረጋግጡ",
+            securityCheck: "የደህንነት ምርመራ",
+            setPinDesc: "ገንዘብ ማውጣትዎን ለመጠበቅ ባለ 4 አሃዝ ኮድ ያዘጋጁ።",
+            confirmPinDesc: "ለማረጋገጥ ኮድዎን እንደገና ያስገቡ።",
+            enterPinDesc: "ገንዘብ ማውጣትን ለማጽደቅ ባለ 4 አሃዝ ኮድዎን ያስገቡ።",
+            unlockWithdraw: "ይክፈቱ እና ያውጡ",
+            continue: "ይቀጥሉ",
+            cancelTrans: "ግብይቱን ይሰርዙ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -128,7 +220,7 @@ function SecurityContent() {
                     await updateDoc(doc(db, "users", user.uid), {
                         withdrawalPassword: input
                     });
-                    toast.success("Security PIN Set Successfully");
+                    toast.success(t("pinSetSuccess"));
                     setUserData({ ...userData, withdrawalPassword: input });
 
                     // AUTO EXECUTE WITHDRAWAL after setting password
@@ -149,7 +241,7 @@ function SecurityContent() {
                     }
                     await executeWithdrawal();
                 } else {
-                    toast.error("PINs do not match. Try again.");
+                    toast.error(t("pinMismatch"));
                     setInput("");
                     setConfirmInput("");
                     setStep("set");
@@ -178,14 +270,14 @@ function SecurityContent() {
                     // Wrong Password
                     setShake(true);
                     setTimeout(() => setShake(false), 500);
-                    setCustomError("Incorrect withdrawal password. Please enter the correct password.");
+                    setCustomError(t("incorrectPin"));
                     setInput("");
                     setVerifying(false);
                 }
             }
         } catch (error) {
             console.error(error);
-            toast.error("An error occurred");
+            toast.error(t("errorOccurred"));
             setVerifying(false);
         }
     };
@@ -312,7 +404,7 @@ function SecurityContent() {
             setVerifying(false);
         } catch (error) {
             console.error(error);
-            toast.error("Withdrawal Failed");
+            toast.error(t("withdrawalFailed"));
             setVerifying(false);
         }
     };
@@ -352,13 +444,13 @@ function SecurityContent() {
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-100 via-amber-400 to-amber-600 uppercase tracking-tighter leading-none italic">
-                                        Unlock<br />Withdrawals
+                                        {t("unlockWithdrawals").split(' ')[0]}<br />{t("unlockWithdrawals").split(' ').slice(1).join(' ')}
                                     </h3>
                                     <div className="h-1 w-12 bg-amber-500/50 mx-auto rounded-full"></div>
                                 </div>
                                 <p className="text-amber-100/50 text-xs font-bold leading-relaxed px-2 uppercase tracking-wider">
-                                    Withdrawals are available only for <span className="text-amber-400 font-black">Turner Partners</span>.
-                                    Recharge your wallet, activate funding, and join the Turner Partnership to start withdrawing.
+                                    {t("partnerDesc")} <span className="text-amber-400 font-black">{t("turnerPartners")}</span>.
+                                    {t("partnerDesc2")}
                                 </p>
                             </div>
 
@@ -367,14 +459,14 @@ function SecurityContent() {
                                     onClick={() => router.push(`/users/recharge?amount=${minRecharge}`)}
                                     className="w-full py-6 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2.2rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-[0_20px_40px_-10px_rgba(245,158,11,0.3)] active:scale-95 transition-all relative overflow-hidden group"
                                 >
-                                    <span className="relative z-10">Recharge & Join Now</span>
+                                    <span className="relative z-10">{t("rechargeJoin")}</span>
                                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 slant-glow"></div>
                                 </button>
                                 <button
                                     onClick={() => setIsPartnerRestricted(false)}
                                     className="text-amber-100/20 text-[9px] font-black uppercase tracking-[0.4em] hover:text-amber-400 transition-all hover:tracking-[0.5em]"
                                 >
-                                    Return to Secure Area
+                                    {t("returnSecure")}
                                 </button>
                             </div>
                         </div>
@@ -398,12 +490,12 @@ function SecurityContent() {
 
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Withdrawal Limit</h3>
-                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em]">One Withdrawal Per {withdrawalSettings.frequency} Day(s)</p>
+                                    <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{t("withdrawalLimit")}</h3>
+                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em]">{t("oneWithdrawalPer")} {withdrawalSettings.frequency} {t("days")}</p>
                                 </div>
                                 <p className="text-xs font-bold text-slate-500 leading-relaxed px-2">
-                                    Your next payout window opens at <span className="text-slate-900">Midnight (0:00)</span>.
-                                    Stay focused on your journey!
+                                    {t("payoutWindow")} <span className="text-slate-900">{t("midnight")}</span>.
+                                    {t("stayFocused")}
                                 </p>
                             </div>
 
@@ -413,24 +505,24 @@ function SecurityContent() {
                                     <>
                                         <div className="flex flex-col items-center min-w-[60px]">
                                             <span className="text-2xl font-black text-slate-900 tabular-nums">{timeLeft.days}</span>
-                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Days</span>
+                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("dayLabel")}</span>
                                         </div>
                                         <span className="text-2xl font-black text-slate-300 self-start mt-0.5">:</span>
                                     </>
                                 )}
                                 <div className="flex flex-col items-center min-w-[60px]">
                                     <span className="text-2xl font-black text-slate-900 tabular-nums">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Hrs</span>
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("hrLabel")}</span>
                                 </div>
                                 <span className="text-2xl font-black text-slate-300 self-start mt-0.5">:</span>
                                 <div className="flex flex-col items-center min-w-[60px]">
                                     <span className="text-2xl font-black text-slate-900 tabular-nums">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Min</span>
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("minLabel")}</span>
                                 </div>
                                 <span className="text-2xl font-black text-slate-300 self-start mt-0.5">:</span>
                                 <div className="flex flex-col items-center min-w-[60px]">
                                     <span className="text-2xl font-black text-slate-900 tabular-nums text-indigo-600">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Sec</span>
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{t("secLabel")}</span>
                                 </div>
                             </div>
 
@@ -438,7 +530,7 @@ function SecurityContent() {
                                 onClick={() => router.push('/users/welcome')}
                                 className="w-full h-16 bg-slate-900 hover:bg-black text-white rounded-[1.8rem] text-xs font-black uppercase tracking-[0.25em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"
                             >
-                                <CheckCircle2 size={18} /> Acknowleged
+                                <CheckCircle2 size={18} /> {t("acknowledged")}
                             </button>
                         </div>
                     </div>
@@ -463,9 +555,9 @@ function SecurityContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Withdrawal Successful</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t("withdrawalSuccess")}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-4">
-                                    Your request has been verified and submitted for processing. Funds will arrive in your account in <span className="text-amber-400 font-black">2-72 hours</span>.
+                                    {t("successMsg")} <span className="text-amber-400 font-black">{t("hoursRange")}</span>.
                                 </p>
                             </div>
 
@@ -474,9 +566,9 @@ function SecurityContent() {
                                     onClick={() => router.push('/users/welcome')}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t("proceedHome")}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t("securedBy")}</p>
                             </div>
                         </div>
                     </div>
@@ -494,14 +586,14 @@ function SecurityContent() {
             {/* Title & Instructions */}
             <div className="space-y-3 mb-12 max-w-xs mx-auto">
                 <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
-                    {step === "set" ? "Create Security PIN" : step === "confirm" ? "Confirm PIN" : "Security Check"}
+                    {step === "set" ? t("createPin") : step === "confirm" ? t("confirmPin") : t("securityCheck")}
                 </h2>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
                     {step === "set"
-                        ? "Set a 4-digit code to secure your withdrawals."
+                        ? t("setPinDesc")
                         : step === "confirm"
-                            ? "Re-enter your code to confirm."
-                            : "Enter your 4-digit code to authorize withdrawal."}
+                            ? t("confirmPinDesc")
+                            : t("enterPinDesc")}
                 </p>
             </div>
 
@@ -560,14 +652,14 @@ function SecurityContent() {
                 disabled={input.length !== 4 || verifying}
                 className="w-full max-w-[280px] py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:scale-100 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-                {verifying ? <Loader2 className="animate-spin" /> : (step === "enter" ? "Unlock & Withdraw" : "Continue")}
+                {verifying ? <Loader2 className="animate-spin" /> : (step === "enter" ? t("unlockWithdraw") : t("continue"))}
             </button>
 
             <button
                 onClick={() => router.back()}
                 className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600"
             >
-                Cancel Transaction
+                {t("cancelTrans")}
             </button>
         </div>
     );

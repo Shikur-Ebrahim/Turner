@@ -20,6 +20,96 @@ function SecureContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            rechargeTitle: "Recharge",
+            sessionExpires: "Session Expires",
+            total: "Total",
+            etb: "ETB",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            verifiedInstitution: "Verified Institution",
+            accountNumber: "Account Number",
+            beneficiaryName: "Beneficiary Name",
+            copied: "Copied secure data",
+            copiedShort: "Copied!",
+            copy: "copy",
+            exactAmountTip: "Please ensure exact amount transfer to avoid delays.",
+            step2: "Step 2",
+            step2Desc: "Paste payment sms Or enter TID: FT*****",
+            smsPlaceholder: "// Paste transaction ID or SMS confirmation here...",
+            encryptedInputZone: "ENCRYPTED INPUT ZONE",
+            confirmSecureTransaction: "Confirm Secure Transaction",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your secure deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            verifiedAccess: "Verified Access",
+            welcomeToSecure: "Welcome to Secure Turner",
+            profitableCompany: "Profitable Construction Company",
+            securePaymentMethodSelected: "Thank you for selecting the Secure Payment Method",
+            enteringPortal: "You are entering the",
+            enteringPortalEnd: "Portal.",
+            encryptionNote: "All transaction data is encrypted with 256-bit security.",
+            enterSecureZone: "Enter Secure Zone",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            failedLoad: "Failed to load",
+            encrypted256: "Encrypted 256-bit",
+        },
+        amharic: {
+            rechargeTitle: "ገንዘብ ይሙሉ",
+            sessionExpires: "ጊዜው ከማለቁ በፊት",
+            total: "ጠቅላላ",
+            etb: "ብር",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            verifiedInstitution: "የተረጋገጠ ተቋም",
+            accountNumber: "የአካውንት ቁጥር",
+            beneficiaryName: "የባለቤቱ ስም",
+            copied: "ደህንነቱ የተጠበቀ መረጃ ተገልብጧል",
+            copiedShort: "ተገልብጧል!",
+            copy: "ቅዳ",
+            exactAmountTip: "እባክዎ መዘግየትን ለማስወገድ ትክክለኛውን መጠን ማስተላለፍዎን ያረጋግጡ።",
+            step2: "ደረጃ 2",
+            step2Desc: "የከፈሉበትን SMS እዚህ ይለጥፉ ወይም FT ኮድ ያስገቡ",
+            smsPlaceholder: "// እባክዎ የግብይት መታወቂያውን ወይም የSMS ማረጋገጫውን እዚህ ይለጥፉ...",
+            encryptedInputZone: "የተመሰጠረ የግቤት ዞን",
+            confirmSecureTransaction: "ደህንነቱ የተጠበቀ ግብይቱን አረጋግጥ",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "ደህንነቱ የተጠበቀ የመሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            verifiedAccess: "የተረጋገጠ መዳረሻ",
+            welcomeToSecure: "ወደ Secure Turner እንኳን ደህና መጡ",
+            profitableCompany: "ትርፋማ የኮንስትራክሽን ኩባንያ",
+            securePaymentMethodSelected: "ደህንነቱ የተጠበቀ የክፍያ ዘዴን ስለመረጡ እናመሰግናለን",
+            enteringPortal: "ወደ",
+            enteringPortalEnd: "ፖርታል እየገቡ ነው።",
+            encryptionNote: "ሁሉም የግብይት መረጃዎች በ256-ቢት ደህንነት የተመሰጠሩ ናቸው።",
+            enterSecureZone: "ደህንነቱ የተጠበቀ ዞን ይግቡ",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            failedLoad: "መጫን አልተቻለም",
+            encrypted256: "በ256-ቢት የተመሰጠረ",
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -29,7 +119,7 @@ function SecureContent() {
                 const docRef = doc(db, "paymentMethods", methodId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) setMethod(docSnap.data());
-            } catch (error) { toast.error("Failed to load"); }
+            } catch (error) { toast.error(t('failedLoad')); }
             finally { setLoading(false); }
         };
         fetchMethod();
@@ -45,7 +135,7 @@ function SecureContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied secure data");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -58,14 +148,14 @@ function SecureContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -128,9 +218,9 @@ function SecureContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your secure deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -139,9 +229,9 @@ function SecureContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -159,18 +249,18 @@ function SecureContent() {
                         </button>
                         <div className="flex items-center gap-2 bg-blue-800/50 px-3 py-1 rounded-full text-xs font-medium">
                             <Lock size={12} />
-                            Encrypted 256-bit
+                            {t('encrypted256')}
                         </div>
                     </div>
 
                     <div className="flex items-end justify-between">
                         <div>
-                            <p className="text-blue-200 text-xs uppercase tracking-wide mb-1">Session Expires</p>
+                            <p className="text-blue-200 text-xs uppercase tracking-wide mb-1">{t('sessionExpires')}</p>
                             <h2 className="text-3xl font-mono font-bold tracking-tight">{String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}</h2>
                         </div>
                         <div className="text-right">
-                            <p className="text-blue-200 text-xs uppercase tracking-wide mb-1">Total</p>
-                            <h2 className="text-2xl font-bold tracking-tight">ETB {Number(amount).toLocaleString()}</h2>
+                            <p className="text-blue-200 text-xs uppercase tracking-wide mb-1">{t('total')}</p>
+                            <h2 className="text-2xl font-bold tracking-tight">{t('etb')} {Number(amount).toLocaleString()}</h2>
                         </div>
                     </div>
                 </div>
@@ -180,7 +270,7 @@ function SecureContent() {
                 <div>
                     <div className="flex items-center gap-2 mb-3 px-1">
                         <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                        <h3 className="font-bold text-xs text-blue-200 uppercase tracking-wider">Step 1 Copy account for payment</h3>
+                        <h3 className="font-bold text-xs text-blue-200 uppercase tracking-wider">{t('step1')} {t('step1Desc')}</h3>
                     </div>
                     <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 space-y-6">
                         <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -189,14 +279,14 @@ function SecureContent() {
                             </div>
                             <div>
                                 <div className="text-sm font-bold text-slate-900">{method?.bankName}</div>
-                                <div className="text-xs text-slate-500">Verified Institution</div>
+                                <div className="text-xs text-slate-500">{t('verifiedInstitution')}</div>
                             </div>
                             <CheckCircle2 size={16} className="text-green-500 ml-auto" />
                         </div>
 
                         <div className="space-y-4">
                             <div className="space-y-1 group cursor-pointer">
-                                <label className="text-xs text-slate-500 uppercase font-semibold">Account Number</label>
+                                <label className="text-xs text-slate-500 uppercase font-semibold">{t('accountNumber')}</label>
                                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200 group-hover:border-blue-500 transition-colors gap-3">
                                     <span className="font-mono text-lg font-bold text-slate-800 tracking-wider">{method?.accountNumber}</span>
                                     <button
@@ -206,13 +296,13 @@ function SecureContent() {
                                             : 'bg-blue-100 text-blue-600 border border-blue-200 hover:bg-blue-200'
                                             }`}
                                     >
-                                        {copiedAccount ? 'Copied!' : 'copy'}
+                                        {copiedAccount ? t('copiedShort') : t('copy')}
                                     </button>
                                 </div>
                             </div>
 
                             <div className="space-y-1 group cursor-pointer">
-                                <label className="text-xs text-slate-500 uppercase font-semibold">Beneficiary Name</label>
+                                <label className="text-xs text-slate-500 uppercase font-semibold">{t('beneficiaryName')}</label>
                                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200 group-hover:border-blue-500 transition-colors gap-3">
                                     <span className="font-medium text-slate-800 flex-1">{method?.holderName}</span>
                                     <button
@@ -222,7 +312,7 @@ function SecureContent() {
                                             : 'bg-blue-100 text-blue-600 border border-blue-200 hover:bg-blue-200'
                                             }`}
                                     >
-                                        {copiedName ? 'Copied!' : 'copy'}
+                                        {copiedName ? t('copiedShort') : t('copy')}
                                     </button>
                                 </div>
                             </div>
@@ -230,7 +320,7 @@ function SecureContent() {
 
                         <div className="pt-2 text-center">
                             <p className="text-xs text-slate-400">
-                                Please ensure exact amount transfer to avoid delays.
+                                {t('exactAmountTip')}
                             </p>
                         </div>
                     </div>
@@ -240,7 +330,7 @@ function SecureContent() {
                     <div className="bg-slate-50 border-b border-slate-100 p-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <h3 className="font-bold text-xs text-slate-500 uppercase tracking-wider">Paste payment sms Or enter TID: FT*****</h3>
+                            <h3 className="font-bold text-xs text-slate-500 uppercase tracking-wider">{t('step2Desc')}</h3>
                         </div>
                         <Lock size={12} className="text-slate-400" />
                     </div>
@@ -250,12 +340,12 @@ function SecureContent() {
                             value={smsContent}
                             onChange={(e) => setSmsContent(e.target.value)}
                             className="w-full h-28 p-4 text-sm focus:outline-none transition-all placeholder:text-slate-300 text-slate-700 resize-none font-mono"
-                            placeholder="// Paste transaction ID or SMS confirmation here..."
+                            placeholder={t('smsPlaceholder')}
                         />
                     </div>
 
                     <div className="bg-slate-50 border-t border-slate-100 p-2 text-right">
-                        <span className="text-[10px] text-slate-400 font-mono">ENCRYPTED INPUT ZONE</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{t('encryptedInputZone')}</span>
                     </div>
                 </div>
             </main>
@@ -270,17 +360,17 @@ function SecureContent() {
                             : 'bg-blue-900 hover:bg-blue-800 text-white shadow-md'
                             }`}
                     >
-                        {submitting ? <Loader2 className="animate-spin" /> : <><Lock size={16} /> Confirm Secure Transaction</>}
+                        {submitting ? <Loader2 className="animate-spin" /> : <><Lock size={16} /> {t('confirmSecureTransaction')}</>}
                     </button>
                 </div>
             </div>
 
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -311,27 +401,27 @@ function WelcomeNotification({ method }: { method: any }) {
 
                 {/* Content */}
                 <div className="space-y-3 sm:space-y-4 relative z-10">
-                    <h3 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-cyan-200 to-teal-200 tracking-tight leading-tight">Verified Access</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-cyan-200 to-teal-200 tracking-tight leading-tight">{t('verifiedAccess')}</h3>
 
                     <div className="space-y-2 text-left bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
                         <p className="text-blue-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Welcome to <span className="font-bold text-white">Secure Turner</span>
+                            {t('welcomeToSecure')}
                         </p>
                         <p className="text-blue-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Profitable Construction Company
+                            {t('profitableCompany')}
                         </p>
                         <p className="text-blue-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Thank you for selecting the <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-teal-300">Secure Payment Method</span>
+                            {t('securePaymentMethodSelected')}
                         </p>
                     </div>
 
                     <p className="text-blue-100/80 text-xs sm:text-sm leading-relaxed font-light px-2">
-                        You are entering the <span className="font-bold text-white">{method?.bankDetailType || "Secure"} Portal</span>.
+                        {t('enteringPortal')} <span className="font-bold text-white">{method?.bankDetailType || "Secure"} {t('enteringPortalEnd')}</span>
                         <br />
-                        All transaction data is encrypted with 256-bit security.
+                        {t('encryptionNote')}
                     </p>
                 </div>
 
@@ -342,7 +432,7 @@ function WelcomeNotification({ method }: { method: any }) {
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     <ShieldCheck size={20} className="relative z-10 group-hover:scale-110 transition-transform" />
-                    <span className="relative z-10 text-base sm:text-lg tracking-wide uppercase font-black">Enter Secure Zone</span>
+                    <span className="relative z-10 text-base sm:text-lg tracking-wide uppercase font-black">{t('enterSecureZone')}</span>
                 </button>
             </div>
         </div>

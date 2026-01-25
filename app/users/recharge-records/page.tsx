@@ -46,6 +46,60 @@ export default function RechargeRecordsPage() {
     const [filter, setFilter] = useState<"all" | "verified" | "under review">("all");
     const [paymentMethodLogos, setPaymentMethodLogos] = useState<Record<string, string>>({});
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            rechargeHistory: "Recharge History",
+            loadingRecords: "Loading Records...",
+            total: "Total",
+            records: "Records",
+            verified: "Verified",
+            amount: "Amount",
+            etb: "ETB",
+            underReview: "Under Review",
+            all: "All",
+            noRecordsFound: "No Records Found",
+            noFilteredRecords: "recharge records yet",
+            noRecordsYet: "You don't have any recharge records yet",
+            ftCode: "FT Code",
+            method: "Method",
+            bank: "Bank",
+            account: "Account",
+            verifiedOn: "Verified on"
+        },
+        amharic: {
+            rechargeHistory: "የሪቻርጅ ታሪክ",
+            loadingRecords: "መዝገቦች በመጫን ላይ...",
+            total: "ጠቅላላ",
+            records: "መዝገቦች",
+            verified: "የተረጋገጠ",
+            amount: "መጠን",
+            etb: "ብር",
+            underReview: "በግምገማ ላይ",
+            all: "ሁሉም",
+            noRecordsFound: "ምንም መዝገቦች አልተገኙም",
+            noFilteredRecords: "የሪቻርጅ መዝገቦች ገና የሉም",
+            noRecordsYet: "እስካሁን ምንም የሪቻርጅ መዝገቦች የሉዎትም",
+            ftCode: "FT ኮድ",
+            method: "ዘዴ",
+            bank: "ባንክ",
+            account: "ሂሳብ",
+            verifiedOn: "የተረጋገጠው በ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -192,7 +246,7 @@ export default function RechargeRecordsPage() {
                         <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
                         <Loader2 className="w-16 h-16 text-blue-500 animate-spin relative z-10" />
                     </div>
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Loading Records...</p>
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">{t("loadingRecords")}</p>
                 </div>
             </div>
         );
@@ -209,7 +263,7 @@ export default function RechargeRecordsPage() {
                     >
                         <ChevronLeft className="text-white" size={24} />
                     </button>
-                    <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase">Recharge History</h1>
+                    <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase">{t("rechargeHistory")}</h1>
                     <div className="w-10"></div>
                 </div>
             </header>
@@ -236,8 +290,8 @@ export default function RechargeRecordsPage() {
                                             <FileText className="text-blue-400" size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-blue-200/60 uppercase tracking-[0.2em]">Total</p>
-                                            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Records</p>
+                                            <p className="text-[10px] font-black text-blue-200/60 uppercase tracking-[0.2em]">{t("total")}</p>
+                                            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">{t("records")}</p>
                                         </div>
                                     </div>
                                     <p className="text-4xl font-black text-white tracking-tighter drop-shadow-md">{stats.total}</p>
@@ -258,13 +312,13 @@ export default function RechargeRecordsPage() {
                                             <DollarSign className="text-emerald-400" size={20} />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-emerald-200/60 uppercase tracking-[0.2em]">Verified</p>
-                                            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Amount</p>
+                                            <p className="text-[10px] font-black text-emerald-200/60 uppercase tracking-[0.2em]">{t("verified")}</p>
+                                            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">{t("amount")}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-baseline gap-2">
                                         <p className="text-3xl font-black text-white tracking-tighter drop-shadow-md">{stats.totalAmount.toLocaleString()}</p>
-                                        <span className="text-sm font-black text-emerald-400 uppercase">ETB</span>
+                                        <span className="text-sm font-black text-emerald-400 uppercase">{t("etb")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -276,14 +330,14 @@ export default function RechargeRecordsPage() {
                         <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-100">
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Verified</p>
+                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">{t("verified")}</p>
                             </div>
                             <p className="text-2xl font-black text-emerald-900">{stats.verified}</p>
                         </div>
                         <div className="bg-blue-50 rounded-2xl p-3 border border-blue-100">
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                                <p className="text-[9px] font-black text-blue-600 uppercase tracking-wider">Under Review</p>
+                                <p className="text-[9px] font-black text-blue-600 uppercase tracking-wider">{t("underReview")}</p>
                             </div>
                             <p className="text-2xl font-black text-blue-900">{stats.underReview}</p>
                         </div>
@@ -293,9 +347,9 @@ export default function RechargeRecordsPage() {
                 {/* Filter Tabs */}
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                     {[
-                        { key: "all", label: "All", icon: Activity },
-                        { key: "verified", label: "Verified", icon: CheckCircle2 },
-                        { key: "under review", label: "Under Review", icon: Clock }
+                        { key: "all", label: t("all"), icon: Activity },
+                        { key: "verified", label: t("verified"), icon: CheckCircle2 },
+                        { key: "under review", label: t("underReview"), icon: Clock }
                     ].map((tab) => (
                         <button
                             key={tab.key}
@@ -319,9 +373,9 @@ export default function RechargeRecordsPage() {
                             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-6 shadow-inner">
                                 <FileText className="text-gray-400" size={40} />
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tight">No Records Found</h3>
+                            <h3 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tight">{t("noRecordsFound")}</h3>
                             <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                                {filter !== "all" ? `No ${filter} recharge records yet` : "You don't have any recharge records yet"}
+                                {filter !== "all" ? `${t("noFilteredRecords")} ${filter} ${t("noFilteredRecords")}` : t("noRecordsYet")}
                             </p>
                         </div>
                     </div>
@@ -378,7 +432,7 @@ export default function RechargeRecordsPage() {
                                             {/* Amount */}
                                             <div className="text-right">
                                                 <p className="text-3xl font-black text-gray-900 tracking-tighter">{record.amount.toLocaleString()}</p>
-                                                <p className="text-xs font-black text-blue-600 uppercase tracking-widest">ETB</p>
+                                                <p className="text-xs font-black text-blue-600 uppercase tracking-widest">{t("etb")}</p>
                                             </div>
                                         </div>
 
@@ -387,28 +441,28 @@ export default function RechargeRecordsPage() {
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <Hash size={14} className="text-blue-500" />
-                                                    <p className="text-[10px] font-black uppercase tracking-widest">FT Code</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest">{t("ftCode")}</p>
                                                 </div>
                                                 <p className="text-sm font-black text-gray-900 truncate">{record.FTcode}</p>
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <CreditCard size={14} className="text-purple-500" />
-                                                    <p className="text-[10px] font-black uppercase tracking-widest">Method</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest">{t("method")}</p>
                                                 </div>
                                                 <p className="text-sm font-black text-gray-900 capitalize">{record.paymentMethod}</p>
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <Building2 size={14} className="text-emerald-500" />
-                                                    <p className="text-[10px] font-black uppercase tracking-widest">Bank</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest">{t("bank")}</p>
                                                 </div>
                                                 <p className="text-sm font-black text-gray-900 truncate">{record.bankName}</p>
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <UserIcon size={14} className="text-orange-500" />
-                                                    <p className="text-[10px] font-black uppercase tracking-widest">Account</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest">{t("account")}</p>
                                                 </div>
                                                 <p className="text-sm font-black text-gray-900 truncate">{record.accountHolderName}</p>
                                             </div>
@@ -420,7 +474,7 @@ export default function RechargeRecordsPage() {
                                                 <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100">
                                                     <Shield size={14} className="text-emerald-600" />
                                                     <p className="text-xs font-bold text-emerald-600">
-                                                        Verified on {formatDate(record.verifiedAt)}
+                                                        {t("verifiedOn")} {formatDate(record.verifiedAt)}
                                                     </p>
                                                 </div>
                                             </div>

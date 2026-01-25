@@ -20,6 +20,88 @@ function SmartContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            smartPay: "Smart Pay",
+            transferAmount: "Transfer Amount",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            currentBank: "Current Bank",
+            accountNumber: "Account Number",
+            beneficiaryName: "Beneficiary Name",
+            copied: "Copied!",
+            copy: "copy",
+            pasteSMSLabel: "Paste payment sms Or enter TID: FT*****",
+            consolePlaceholder: "Processing console active...",
+            waitingInput: "WAITING FOR INPUT",
+            confirmTransaction: "Confirm Transaction",
+            processing: "Processing...",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your smart deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            welcomeTo: "Welcome to",
+            smartTurner: "Smart Turner",
+            profitableCo: "Profitable Construction Company",
+            selectMsg: "Thank you for selecting the",
+            smartMethod: "Smart Payment Method",
+            protocolInit: "Protocol initialized.",
+            welcomeFuture: "Welcome to the future of Turner Construction payments.",
+            getStarted: "Get Started",
+            failedLoad: "Failed to load",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            etb: "ETB"
+        },
+        amharic: {
+            smartPay: "ስማርት ክፍያ",
+            transferAmount: "የዝውውር መጠን",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            currentBank: "ወቅታዊ ባንክ",
+            accountNumber: "የሂሳብ ቁጥር",
+            beneficiaryName: "የሂሳብ ስም",
+            copied: "ተገልብጧል!",
+            copy: "ቅዳ",
+            pasteSMSLabel: "የክፍያ SMS ይለጥፉ ወይም FT ኮድ ያስገቡ",
+            consolePlaceholder: "የማቀናበሪያ ኮንሶል ሂደቱን ጀምሯል...",
+            waitingInput: "ግብዓት በመጠበቅ ላይ",
+            confirmTransaction: "ግብይቱን ያረጋግጡ",
+            processing: "በማ ሂደት ላይ...",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "የስማርት መሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            welcomeTo: "እንኳን ወደ",
+            smartTurner: "ስማርት ቱርነር በደህና መጡ",
+            profitableCo: "ትርፋማ የኮንስትራክሽን ኩባንያ",
+            selectMsg: "ስማርት የክፍያ ዘዴን ስለመረጡ እናመሰግናለን",
+            smartMethod: " ",
+            protocolInit: "ፕሮቶኮል ተጀምሯል።",
+            welcomeFuture: "ወደ ቱርነር ኮንስትራክሽን ክፍያዎች የወደፊት ጊዜ እንኳን ደህና መጡ።",
+            getStarted: "ይጀምሩ",
+            failedLoad: "መጫን አልተቻለም",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            etb: "ብር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -29,7 +111,7 @@ function SmartContent() {
                 const docRef = doc(db, "paymentMethods", methodId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) setMethod(docSnap.data());
-            } catch (error) { toast.error("Failed to load"); }
+            } catch (error) { toast.error(t('failedLoad')); }
             finally { setLoading(false); }
         };
         fetchMethod();
@@ -45,7 +127,7 @@ function SmartContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied!");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -58,14 +140,14 @@ function SmartContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -101,7 +183,7 @@ function SmartContent() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
-            toast.error("Failed to submit. Please try again.");
+            toast.error(t('failedLoad'));
         } finally {
             setSubmitting(false);
         }
@@ -128,9 +210,9 @@ function SmartContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your smart deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -139,9 +221,9 @@ function SmartContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -159,7 +241,7 @@ function SmartContent() {
                     <ChevronLeft size={20} />
                 </button>
                 <div className="glass-pill px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-xs font-bold tracking-widest uppercase text-purple-300">
-                    Smart Pay
+                    {t('smartPay')}
                 </div>
                 <div className="w-10"></div>
             </header>
@@ -191,9 +273,9 @@ function SmartContent() {
                         </div>
                     </div>
                     <div>
-                        <span className="text-slate-400 text-xs uppercase tracking-wider">Transfer Amount</span>
+                        <span className="text-slate-400 text-xs uppercase tracking-wider">{t('transferAmount')}</span>
                         <h1 className="text-4xl font-light text-white mt-1">
-                            <span className="text-purple-400 font-bold">ETB</span> {Number(amount).toLocaleString()}
+                            <span className="text-purple-400 font-bold">{t('etb')}</span> {Number(amount).toLocaleString()}
                         </h1>
                     </div>
                 </div>
@@ -202,7 +284,7 @@ function SmartContent() {
                 <div className="space-y-4">
                     <label className="text-xs font-bold text-purple-300 uppercase tracking-widest pl-2 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></div>
-                        Step 1 Copy account for payment
+                        {t('step1')} {t('step1Desc')}
                     </label>
 
                     {/* The Card */}
@@ -215,7 +297,7 @@ function SmartContent() {
                         <div className="relative h-full p-6 flex flex-col justify-between">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-1">
-                                    <div className="text-xs text-white/50 uppercase tracking-wider">Current Bank</div>
+                                    <div className="text-xs text-white/50 uppercase tracking-wider">{t('currentBank')}</div>
                                     <div className="flex items-center gap-2 font-bold text-lg text-white">
                                         {method?.bankLogoUrl && <img src={method.bankLogoUrl} className="w-6 h-6 object-contain rounded-full bg-white/10 p-0.5" />}
                                         {method?.bankName}
@@ -227,7 +309,7 @@ function SmartContent() {
                             <div className="space-y-1 my-2">
                                 <div className="flex items-center gap-2 text-white/40 text-[10px] uppercase tracking-widest">
                                     <CreditCard size={12} />
-                                    <span>Account Number</span>
+                                    <span>{t('accountNumber')}</span>
                                 </div>
                                 <div className="flex items-center gap-3 group/copy">
                                     <div
@@ -243,14 +325,14 @@ function SmartContent() {
                                             : 'bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30'
                                             }`}
                                     >
-                                        {copiedAccount ? 'Copied!' : 'copy'}
+                                        {copiedAccount ? t('copied') : t('copy')}
                                     </button>
                                 </div>
                             </div>
 
                             <div className="flex justify-between items-end">
                                 <div className="space-y-1 flex-1">
-                                    <div className="text-[10px] text-white/50 uppercase tracking-wider">Beneficiary Name</div>
+                                    <div className="text-[10px] text-white/50 uppercase tracking-wider">{t('beneficiaryName')}</div>
                                     <div className="flex items-center gap-3">
                                         <div
                                             onClick={() => handleCopy(method?.holderName, 'name')}
@@ -281,7 +363,7 @@ function SmartContent() {
                 <div className="space-y-4">
                     <label className="text-xs font-bold text-purple-300 uppercase tracking-widest pl-2 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></div>
-                        Paste payment sms Or enter TID: FT*****
+                        {t('pasteSMSLabel')}
                     </label>
 
                     <div className="relative group">
@@ -290,13 +372,13 @@ function SmartContent() {
                             <textarea
                                 value={smsContent}
                                 onChange={(e) => setSmsContent(e.target.value)}
-                                placeholder="Processing console active..."
+                                placeholder={t('consolePlaceholder')}
                                 className="w-full h-32 bg-transparent rounded-xl p-4 text-sm text-purple-100 placeholder:text-slate-600 focus:outline-none resize-none font-mono leading-relaxed"
                             />
                             <div className="flex justify-end p-2 border-t border-white/5">
                                 <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
                                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
-                                    WAITING FOR INPUT
+                                    {t('waitingInput')}
                                 </span>
                             </div>
                         </div>
@@ -317,7 +399,7 @@ function SmartContent() {
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <span className={`pl-6 font-bold tracking-wider text-sm uppercase relative z-10 ${!smsContent.trim() || submitting ? 'text-white/40' : 'text-white'}`}>
-                        {submitting ? "Processing..." : "Confirm Transaction"}
+                        {submitting ? t('processing') : t('confirmTransaction')}
                     </span>
                     <div className={`h-12 w-16 rounded-[1.5rem] flex items-center justify-center shadow-lg relative z-10 group-active:scale-95 transition-transform ${!smsContent.trim() || submitting ? 'bg-white/10 text-white/20' : 'bg-white text-purple-600'}`}>
                         {submitting ? <Loader2 className="animate-spin" size={20} /> : <ArrowRightLeft size={20} />}
@@ -325,12 +407,12 @@ function SmartContent() {
                 </button>
             </div>
 
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -361,27 +443,27 @@ function WelcomeNotification({ method }: { method: any }) {
 
                 {/* Content */}
                 <div className="space-y-3 sm:space-y-4 relative z-10">
-                    <h3 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-indigo-200 to-blue-200 tracking-tight leading-tight">Smart Pay</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-indigo-200 to-blue-200 tracking-tight leading-tight">{t('smartPay')}</h3>
 
                     <div className="space-y-2 text-left bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
                         <p className="text-purple-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Welcome to <span className="font-bold text-white">Smart Turner</span>
+                            {t('welcomeTo')} <span className="font-bold text-white">{t('smartTurner')}</span>
                         </p>
                         <p className="text-purple-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Profitable Construction Company
+                            {t('profitableCo')}
                         </p>
                         <p className="text-purple-200 text-xs sm:text-sm leading-relaxed font-medium">
                             <span className="text-cyan-400 font-mono">{`> `}</span>
-                            Thank you for selecting the <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300">Smart Payment Method</span>
+                            {t('selectMsg')} <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300">{t('smartMethod')}</span>
                         </p>
                     </div>
 
                     <p className="text-purple-100/80 text-xs sm:text-sm leading-relaxed font-light px-2">
-                        <span className="font-semibold text-white">{method?.bankDetailType || "Smart"} Protocol</span> initialized.
+                        <span className="font-semibold text-white">{method?.bankDetailType || "Smart"} {t('protocolInit')}</span>
                         <br />
-                        Welcome to the future of Turner Construction payments.
+                        {t('welcomeFuture')}
                     </p>
                 </div>
 
@@ -392,7 +474,7 @@ function WelcomeNotification({ method }: { method: any }) {
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     <Wand2 size={18} className="relative z-10 group-hover:rotate-12 transition-transform" />
-                    <span className="relative z-10 text-base sm:text-lg tracking-wide">Get Started</span>
+                    <span className="relative z-10 text-base sm:text-lg tracking-wide">{t('getStarted')}</span>
                 </button>
             </div>
         </div>

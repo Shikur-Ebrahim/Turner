@@ -29,6 +29,60 @@ export default function UserProductsPage() {
     const [activeCategory, setActiveCategory] = useState("ALL");
     const [fetchingProducts, setFetchingProducts] = useState(true);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            marketplace: "Marketplace",
+            investmentPlans: "Investment Plans",
+            all: "ALL",
+            lev1: "Level 1",
+            lev2: "Level 2",
+            lev3: "Level 3",
+            vip: "VIP",
+            loading: "Loading Market...",
+            noPlans: "No plans in",
+            yet: "yet",
+            price: "Price",
+            dailyIncome: "Daily Income",
+            contractPeriod: "Contract Period",
+            days: "DAYS",
+            salesTracked: "Sales Tracked",
+            buy: "Buy",
+            etb: "ETB"
+        },
+        amharic: {
+            marketplace: "የገበያ ቦታ",
+            investmentPlans: "የኢንቨስትመንት ዕቅዶች",
+            all: "ሁሉም",
+            lev1: "ደረጃ 1",
+            lev2: "ደረጃ 2",
+            lev3: "ደረጃ 3",
+            vip: "ቪ.አይ.ፒ",
+            loading: "ገበያውን በመጫን ላይ...",
+            noPlans: "በዚህ ምድብ ውስጥ ምንም ዕቅዶች የሉም",
+            yet: "",
+            price: "ዋጋ",
+            dailyIncome: "ዕለታዊ ገቢ",
+            contractPeriod: "የኮንትራት ጊዜ",
+            days: "ቀናት",
+            salesTracked: "የተሸጠው መጠን",
+            buy: "ግዛ",
+            etb: "ብር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -84,8 +138,8 @@ export default function UserProductsPage() {
                         <ChevronLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-lg font-black text-gray-900 uppercase tracking-tight">Marketplace</h1>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-none">Investment Plans</p>
+                        <h1 className="text-lg font-black text-gray-900 uppercase tracking-tight">{t("marketplace")}</h1>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-none">{t("investmentPlans")}</p>
                     </div>
                 </div>
                 <div className="w-10 h-10 p-1 rounded-full border border-gray-100 overflow-hidden">
@@ -98,11 +152,11 @@ export default function UserProductsPage() {
                     {/* Category Selector */}
                     <div className="grid grid-cols-5 gap-1.5 w-full">
                         {[
-                            { id: "ALL", label: "ALL" },
-                            { id: "Level 1", label: "Lev 1" },
-                            { id: "Level 2", label: "Lev 2" },
-                            { id: "Level 3", label: "Lev 3" },
-                            { id: "VIP", label: "VIP" }
+                            { id: "ALL", label: "all" },
+                            { id: "Level 1", label: "lev1" },
+                            { id: "Level 2", label: "lev2" },
+                            { id: "Level 3", label: "lev3" },
+                            { id: "VIP", label: "vip" }
                         ].map((cat) => (
                             <button
                                 key={cat.id}
@@ -112,7 +166,8 @@ export default function UserProductsPage() {
                                     : "bg-white text-gray-400 border-gray-100 hover:bg-gray-50"
                                     }`}
                             >
-                                {cat.label}
+                                {/* @ts-ignore */}
+                                {t(cat.label)}
                             </button>
                         ))}
                     </div>
@@ -121,12 +176,12 @@ export default function UserProductsPage() {
                     {fetchingProducts ? (
                         <div className="py-20 flex flex-col items-center justify-center">
                             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Loading Market...</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("loading")}</p>
                         </div>
                     ) : (products.filter(p => activeCategory === "ALL" || (p.category || "Level 1") === activeCategory).length === 0) ? (
                         <div className="py-20 flex flex-col items-center justify-center bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100 italic text-gray-400">
                             <Ship size={48} className="mb-4 opacity-10" />
-                            <p className="text-[10px] font-black uppercase tracking-widest">No plans in {activeCategory} yet</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest">{t("noPlans")} {activeCategory} {t("yet")}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-6 pb-10">
@@ -161,16 +216,16 @@ export default function UserProductsPage() {
 
                                             <div className="space-y-4">
                                                 <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Price</span>
-                                                    <span className="text-xl font-black text-white">{product.price?.toLocaleString()} <span className="text-xs font-bold text-slate-400">ETB</span></span>
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t("price")}</span>
+                                                    <span className="text-xl font-black text-white">{product.price?.toLocaleString()} <span className="text-xs font-bold text-slate-400">{t("etb")}</span></span>
                                                 </div>
                                                 <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Daily Income</span>
-                                                    <span className="text-xl font-black text-emerald-400">{product.dailyIncome?.toLocaleString()} <span className="text-xs font-bold text-emerald-600/50">ETB</span></span>
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t("dailyIncome")}</span>
+                                                    <span className="text-xl font-black text-emerald-400">{product.dailyIncome?.toLocaleString()} <span className="text-xs font-bold text-emerald-600/50">{t("etb")}</span></span>
                                                 </div>
                                                 <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Contract Period</span>
-                                                    <span className="text-xl font-black text-blue-400">{product.contractPeriod} <span className="text-xs font-bold text-blue-600/50">DAYS</span></span>
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t("contractPeriod")}</span>
+                                                    <span className="text-xl font-black text-blue-400">{product.contractPeriod} <span className="text-xs font-bold text-blue-600/50">{t("days")}</span></span>
                                                 </div>
                                             </div>
 
@@ -179,7 +234,7 @@ export default function UserProductsPage() {
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] flex items-center gap-2">
                                                         <span className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></span>
-                                                        Sales Tracked
+                                                        {t("salesTracked")}
                                                     </span>
                                                     <span className="text-base font-black bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
                                                         {product.salesTracked || 0}%
@@ -208,7 +263,7 @@ export default function UserProductsPage() {
                                             </div>
 
                                             <button className="w-full py-5 bg-white text-[#0f172a] text-[11px] font-black uppercase tracking-[0.3em] rounded-[1.8rem] shadow-xl shadow-white/5 active:scale-95 transition-all mt-2">
-                                                Buy
+                                                {t("buy")}
                                             </button>
                                         </div>
                                     </div>

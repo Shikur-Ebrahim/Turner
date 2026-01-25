@@ -25,6 +25,46 @@ export default function CurrencyRatesPage() {
         starRate: 2.0
     });
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            currencyRates: "Currency Rates",
+            turnerCoin: "Turner Coin",
+            turnerStar: "Turner Star",
+            coin: "Coin",
+            star: "Star",
+            etb: "ETB",
+            totalAssetValue: "Total Asset Value",
+            amount: "Amount",
+            homeCurrency: "Home Currency",
+            totalValue: "Total Value"
+        },
+        amharic: {
+            currencyRates: "የምንዛሬ ተመኖች",
+            turnerCoin: "ተርነር ሳንቲም",
+            turnerStar: "ተርነር ኮከብ",
+            coin: "ሳንቲም",
+            star: "ኮከብ",
+            etb: "ብር",
+            totalAssetValue: "ጠቅላላ የንብረት ዋጋ",
+            amount: "መጠን",
+            homeCurrency: "የአገር ውስጥ ምንዛሬ",
+            totalValue: "ጠቅላላ ዋጋ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -124,7 +164,7 @@ export default function CurrencyRatesPage() {
                     >
                         <ChevronLeft size={20} />
                     </button>
-                    <h1 className="text-lg font-bold tracking-wide">Currency Rates</h1>
+                    <h1 className="text-lg font-bold tracking-wide">{t("currencyRates")}</h1>
                 </div>
             </header>
 
@@ -172,14 +212,14 @@ export default function CurrencyRatesPage() {
                             </div>
 
                             <div>
-                                <h3 className={`font-bold text-sm tracking-wide mb-1 ${selectedAsset === "COIN" ? "text-emerald-50" : "text-slate-400"}`}>Turner Coin</h3>
+                                <h3 className={`font-bold text-sm tracking-wide mb-1 ${selectedAsset === "COIN" ? "text-emerald-50" : "text-slate-400"}`}>{t("turnerCoin")}</h3>
                                 <span className={`text-3xl font-black tracking-tight ${selectedAsset === "COIN" ? "text-white" : "text-slate-200"}`}>
                                     {Number(userData?.teamIncome || 0).toLocaleString()}
                                 </span>
                             </div>
 
                             <div className={`text-[10px] font-bold font-mono px-3 py-1.5 rounded-xl w-fit transition-colors ${selectedAsset === "COIN" ? "bg-black/20 text-white" : "bg-[#252A3B] text-slate-500"}`}>
-                                1 Coin = {config.coinRate} ETB
+                                1 {t("coin")} = {config.coinRate} {t("etb")}
                             </div>
                         </div>
                     </button>
@@ -224,14 +264,14 @@ export default function CurrencyRatesPage() {
                             </div>
 
                             <div>
-                                <h3 className={`font-bold text-sm tracking-wide mb-1 ${selectedAsset === "STAR" ? "text-amber-50" : "text-slate-400"}`}>Turner Star</h3>
+                                <h3 className={`font-bold text-sm tracking-wide mb-1 ${selectedAsset === "STAR" ? "text-amber-50" : "text-slate-400"}`}>{t("turnerStar")}</h3>
                                 <span className={`text-3xl font-black tracking-tight ${selectedAsset === "STAR" ? "text-white" : "text-slate-200"}`}>
                                     {Number(userData?.stars || 0).toLocaleString()}
                                 </span>
                             </div>
 
                             <div className={`text-[10px] font-bold font-mono px-3 py-1.5 rounded-xl w-fit transition-colors ${selectedAsset === "STAR" ? "bg-black/20 text-white" : "bg-[#252A3B] text-slate-500"}`}>
-                                1 Star = {config.starRate} ETB
+                                1 {t("star")} = {config.starRate} {t("etb")}
                             </div>
                         </div>
                     </button>
@@ -241,10 +281,10 @@ export default function CurrencyRatesPage() {
 
                 <div className="flex items-center justify-between px-2">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Total Asset Value
+                        {t("totalAssetValue")}
                     </h2>
                     <span className="text-[10px] text-slate-600 bg-slate-900 px-2 py-1 rounded border border-white/5">
-                        Amount: {Number(selectedAsset === "COIN" ? userData?.teamIncome : userData?.stars).toLocaleString()}
+                        {t("amount")}: {Number(selectedAsset === "COIN" ? userData?.teamIncome : userData?.stars).toLocaleString()}
                     </span>
                 </div>
 
@@ -261,7 +301,7 @@ export default function CurrencyRatesPage() {
                                     <div className="flex items-center gap-2">
                                         <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-1.5 rounded uppercase">{country.currency}</span>
                                         {country.code === "ET" && (
-                                            <span className="text-[10px] text-blue-400 font-medium">Home Currency</span>
+                                            <span className="text-[10px] text-blue-400 font-medium">{t("homeCurrency")}</span>
                                         )}
                                     </div>
                                 </div>
@@ -274,7 +314,7 @@ export default function CurrencyRatesPage() {
                                 <div className="flex items-center gap-1.5 opacity-40">
                                     <ArrowRightLeft size={10} />
                                     <span className="text-[10px] uppercase tracking-wider">
-                                        Total Value
+                                        {t("totalValue")}
                                     </span>
                                 </div>
                             </div>

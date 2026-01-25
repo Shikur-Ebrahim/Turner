@@ -45,10 +45,60 @@ export default function ServicePage() {
         return `https://t.me/${input}`;
     };
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            customerService: "Customer Service",
+            howCanWeHelp: "How can we help?",
+            prioritySupport: "Connect with us through our official channels for 24/7 priority support",
+            officialCompany: "Official Company",
+            officialCompanyDesc: "Direct line to our main corporate account",
+            teamSupport: "Team Support",
+            teamSupportDesc: "Contact our dedicated team for assistance",
+            officialChannel: "Official Channel",
+            officialChannelDesc: "Stay updated with latest news and announcements",
+            chatNow: "CHAT NOW",
+            contactTeam: "CONTACT TEAM",
+            joinChannel: "JOIN CHANNEL",
+            verifiedSupport: "Verified Corporate Support",
+            secureCommunication: "100% Secure communication with encrypted protocols",
+            securityDisclaimer: "For your security, only use links from this official app section. We never ask for your password."
+        },
+        amharic: {
+            customerService: "የደንበኞች አገልግሎት",
+            howCanWeHelp: "እንዴት ልንረዳዎ እንችላለን?",
+            prioritySupport: "ለ 24/7 ቅድሚያ ድጋፍ በይፋዊ ቻናሎቻችን ይገናኙን",
+            officialCompany: "ይፋዊ ኩባንያ",
+            officialCompanyDesc: "ወደ ዋና የድርጅታችን መለያ ቀጥተኛ መስመር",
+            teamSupport: "የቡድን ድጋፍ",
+            teamSupportDesc: "ለእርዳታ የተሰጠውን ቡድናችንን ያነጋግሩ",
+            officialChannel: "ይፋዊ ቻናል",
+            officialChannelDesc: "በቅርብ ዜናዎች እና ማስታወቂያዎች ይዘምኑ",
+            chatNow: "አሁን ይወያዩ",
+            contactTeam: "ቡድንን ያነጋግሩ",
+            joinChannel: "ቻናል ይቀላቀሉ",
+            verifiedSupport: "የተረጋገጠ የድርጅት ድጋፍ",
+            secureCommunication: "100% ደህንነቱ የተጠበቀ ግንኙነት በተመሰጠረ ፕሮቶኮሎች",
+            securityDisclaimer: "ለደህንነትዎ፣ ከዚህ ይፋዊ መተግበሪያ ክፍል ብቻ አገናኞችን ይጠቀሙ። የይለፍ ቃልዎን በፍፁም አንጠይቅም።"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     const contactOptions = [
         {
-            title: "Official Company",
-            description: "Direct line to our main corporate account",
+            title: t("officialCompany"),
+            description: t("officialCompanyDesc"),
             image: "/logo.png",
             colorClass: "bg-emerald-600",
             shadowClass: "shadow-emerald-500/30",
@@ -56,11 +106,11 @@ export default function ServicePage() {
             glowClass: "bg-emerald-500/5",
             hoverGlowClass: "group-hover:bg-emerald-500/10",
             path: "/users/chat",
-            label: "CHAT NOW"
+            label: t("chatNow")
         },
         {
-            title: "Team Support",
-            description: "Contact our dedicated team for assistance",
+            title: t("teamSupport"),
+            description: t("teamSupportDesc"),
             image: "/telegram team.jpg",
             colorClass: "bg-purple-600",
             shadowClass: "shadow-purple-500/30",
@@ -68,11 +118,11 @@ export default function ServicePage() {
             glowClass: "bg-purple-500/5",
             hoverGlowClass: "group-hover:bg-purple-500/10",
             link: formatTG(links.teamLink),
-            label: "CONTACT TEAM"
+            label: t("contactTeam")
         },
         {
-            title: "Official Channel",
-            description: "Stay updated with latest news and announcements",
+            title: t("officialChannel"),
+            description: t("officialChannelDesc"),
             image: "/telegram.jpg",
             colorClass: "bg-blue-600",
             shadowClass: "shadow-blue-500/30",
@@ -80,7 +130,7 @@ export default function ServicePage() {
             glowClass: "bg-blue-500/5",
             hoverGlowClass: "group-hover:bg-blue-500/10",
             link: formatTG(links.channelLink),
-            label: "JOIN CHANNEL"
+            label: t("joinChannel")
         }
     ];
 
@@ -106,7 +156,7 @@ export default function ServicePage() {
                 >
                     <ChevronLeft size={20} className="text-gray-700" />
                 </button>
-                <h1 className="text-xl font-black text-gray-900 uppercase tracking-tight">Customer Service</h1>
+                <h1 className="text-xl font-black text-gray-900 uppercase tracking-tight">{t("customerService")}</h1>
             </header>
 
             <main className="pt-28 px-6 max-w-md mx-auto space-y-8 pb-44">
@@ -115,9 +165,9 @@ export default function ServicePage() {
                     <div className="w-20 h-20 bg-blue-600 rounded-[2rem] mx-auto flex items-center justify-center shadow-xl shadow-blue-500/20 mb-4 transform rotate-3 hover:rotate-0 transition-transform duration-500">
                         <MessageCircle size={36} className="text-white" />
                     </div>
-                    <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">How can we help?</h2>
+                    <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{t("howCanWeHelp")}</h2>
                     <p className="text-xs text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
-                        Connect with us through our official channels for 24/7 priority support
+                        {t("prioritySupport")}
                     </p>
                 </div>
 
@@ -186,9 +236,9 @@ export default function ServicePage() {
                             <ShieldCheck className="text-white" size={24} />
                         </div>
                         <div>
-                            <h4 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-0.5">Verified Corporate Support</h4>
+                            <h4 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-0.5">{t("verifiedSupport")}</h4>
                             <p className="text-[9px] text-emerald-700 font-bold uppercase tracking-widest opacity-70">
-                                100% Secure communication with encrypted protocols
+                                {t("secureCommunication")}
                             </p>
                         </div>
                     </div>
@@ -196,7 +246,7 @@ export default function ServicePage() {
 
                 {/* Footer Disclaimer */}
                 <p className="text-center text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] px-10 leading-loose">
-                    For your security, only use links from this official app section. We never ask for your password.
+                    {t("securityDisclaimer")}
                 </p>
             </main>
         </div>

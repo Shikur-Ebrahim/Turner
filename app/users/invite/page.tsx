@@ -15,6 +15,57 @@ export default function InvitePage() {
     const [copied, setCopied] = useState(false);
     const [stats, setStats] = useState({ earned: 0, invited: 0 });
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            rewardsProgram: "Rewards Program",
+            inviteFriends: "Invite Friends",
+            getRewards: "Get Rewards",
+            inviteDesc: "Share your link and earn real cash for every friend who joins and recharges.",
+            vipReward: "VIP Reward",
+            invited: "Invited",
+            earned: "Earned",
+            uniqueLink: "Your Unique Link",
+            copied: "Copied!",
+            copyLink: "COPY LINK",
+            copy: "COPY",
+            copiedToast: "Referral link copied to clipboard!",
+            shareTitle: "Join Turner & Earn!",
+            shareText: "Join me on Turner and get verified rewards!",
+            terms: "Terms and conditions apply to all rewards."
+        },
+        amharic: {
+            rewardsProgram: "የሽልማት ፕሮግራም",
+            inviteFriends: "ጓደኞችን ይጋብዙ",
+            getRewards: "ሽልማቶችን ያግኙ",
+            inviteDesc: "ሊንክዎን ያጋሩ እና ለእያንዳንዱ የተቀላቀለ እና ቦርሳውን ለሞላ ጓደኛ እውነተኛ ገንዘብ ያግኙ።",
+            vipReward: "ቪ.አይ.ፒ ሽልማት",
+            invited: "ተጋብዘዋል",
+            earned: "ያገኙት",
+            uniqueLink: "የእርስዎ ልዩ ሊንክ",
+            copied: "ተቀድቷል!",
+            copyLink: "ሊንኩን ይቅዱ",
+            copy: "ቅዳ",
+            copiedToast: "ሪፈራል ሊንኩ ወደ ቅንጥብ ሰሌዳ ተቀድቷል!",
+            shareTitle: "ተርነርን ይቀላቀሉ እና ያግኙ!",
+            shareText: "ተርነርን ይቀላቀሉ እና የተረጋገጡ ሽልማቶችን ያግኙ!",
+            terms: "ውሎች እና ሁኔታዎች ለሁሉም ሽልማቶች ተፈጻሚ ይሆናሉ።"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -48,7 +99,7 @@ export default function InvitePage() {
     const handleCopy = () => {
         navigator.clipboard.writeText(referralLink);
         setCopied(true);
-        toast.success("Referral link copied to clipboard!");
+        toast.success(t("copiedToast"));
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -56,8 +107,8 @@ export default function InvitePage() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join Turner & Earn!',
-                    text: 'Join me on Turner and get verified rewards!',
+                    title: t("shareTitle"),
+                    text: t("shareText"),
                     url: referralLink,
                 });
             } catch (error) {
@@ -93,7 +144,7 @@ export default function InvitePage() {
                 </button>
                 <div className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-50/50 border border-blue-100 rounded-full backdrop-blur-sm">
                     <Gift size={14} className="text-blue-600" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">Rewards Program</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-700">{t("rewardsProgram")}</span>
                 </div>
                 <div className="w-11"></div> {/* Spacer for balance */}
             </header>
@@ -104,11 +155,11 @@ export default function InvitePage() {
                 {/* Hero Section */}
                 <div className="flex flex-col items-center text-center space-y-2 mb-10">
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">
-                        Invite Friends<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Get Rewards</span>
+                        {t("inviteFriends")}<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">{t("getRewards")}</span>
                     </h1>
                     <p className="text-sm font-medium text-slate-500 max-w-[250px]">
-                        Share your link and earn real cash for every friend who joins and recharges.
+                        {t("inviteDesc")}
                     </p>
                 </div>
 
@@ -139,7 +190,7 @@ export default function InvitePage() {
                         {/* Interactive Floating Badge */}
                         <div className="absolute top-4 -right-2 px-5 py-2.5 bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] rounded-[1.2rem] shadow-xl shadow-amber-500/40 flex items-center gap-2 border border-white/40 animate-[float_4s_ease-in-out_infinite_reverse]">
                             <Sparkles size={16} className="text-white fill-white/20" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">VIP Reward</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">{t("vipReward")}</span>
                         </div>
                     </div>
                 </div>
@@ -156,7 +207,7 @@ export default function InvitePage() {
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center mb-3 text-white">
                                 <Users size={20} />
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Invited</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("invited")}</span>
                             <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.invited}</span>
                         </div>
                     </div>
@@ -171,7 +222,7 @@ export default function InvitePage() {
                             <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl shadow-lg shadow-emerald-500/30 flex items-center justify-center mb-3 text-white">
                                 <Wallet size={20} />
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Earned</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("earned")}</span>
                             <div className="flex items-center gap-2">
                                 <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.earned}</span>
                                 <div className="relative">
@@ -194,12 +245,12 @@ export default function InvitePage() {
                             <Copy size={18} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
                         </div>
                         <div className="flex-1 overflow-hidden">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Your Unique Link</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{t("uniqueLink")}</p>
                             <p className="text-xs font-bold text-slate-800 truncate select-all">{referralLink}</p>
                         </div>
                         {copied && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full animate-in fade-in slide-in-from-right-2">
-                                Copied!
+                                {t("copied")}
                             </div>
                         )}
                     </div>
@@ -218,14 +269,14 @@ export default function InvitePage() {
                             {copied ? (
                                 <>
                                     <CheckCircle2 size={18} />
-                                    <span className="hidden sm:inline">COPIED</span>
-                                    <span className="sm:hidden">COPIED</span>
+                                    <span className="hidden sm:inline">{t("copied").toUpperCase()}</span>
+                                    <span className="sm:hidden">{t("copied").toUpperCase()}</span>
                                 </>
                             ) : (
                                 <>
                                     <Copy size={18} />
-                                    <span className="hidden sm:inline">COPY LINK</span>
-                                    <span className="sm:hidden">COPY</span>
+                                    <span className="hidden sm:inline">{t("copyLink")}</span>
+                                    <span className="sm:hidden">{t("copy")}</span>
                                 </>
                             )}
                         </button>
@@ -241,7 +292,7 @@ export default function InvitePage() {
                     </div>
 
                     <p className="text-center mt-4 text-[10px] font-medium text-slate-400">
-                        Terms and conditions apply to all rewards.
+                        {t("terms")}
                     </p>
                 </div>
             </main>

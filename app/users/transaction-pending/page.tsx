@@ -111,18 +111,6 @@ const THEMES = {
     }
 };
 
-const LOG_MESSAGES = [
-    "Establishing secure gateway connection...",
-    "Fetching real-time account data...",
-    "Authenticating transaction request...",
-    "Validating transfer amount and currency...",
-    "Processing FT / SMS verification code...",
-    "Cross-referencing transaction records...",
-    "Synchronizing with Turner secure nodes...",
-    "Finalizing internal security audit...",
-    "Awaiting final Turner Team approval..."
-];
-
 function PendingContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -130,6 +118,79 @@ function PendingContent() {
     const theme = THEMES[themeKey as keyof typeof THEMES] || THEMES.regular;
     const [mounted, setMounted] = useState(false);
     const [currentLog, setCurrentLog] = useState(0);
+
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            synchronizing: "SYNCHRONIZING SECURE TUNNEL...",
+            bootingProtocol: "BOOTING PROTOCOL...",
+            analyzing: "Analyzing",
+            protocolVersion: "Protocol v.4.8.2",
+            statusPendingApproval: "Pending Approval",
+            statusUnderReview: "Under Review",
+            verification: "VERIFICATION",
+            highPriority: "High-priority security sequence initiated.",
+            estimatedWindow: "Verification estimated window:",
+            fiveToTenMins: "5-10 MINS",
+            liveProcessingPulse: "Live Processing Pulse",
+            active: "ACTIVE",
+            returnHome: "Return Home",
+            logMessages: [
+                "Establishing secure gateway connection...",
+                "Fetching real-time account data...",
+                "Authenticating transaction request...",
+                "Validating transfer amount and currency...",
+                "Processing FT / SMS verification code...",
+                "Cross-referencing transaction records...",
+                "Synchronizing with Turner secure nodes...",
+                "Finalizing internal security audit...",
+                "Awaiting final Turner Team approval..."
+            ]
+        },
+        amharic: {
+            synchronizing: "ደህንነቱ የተጠበቀ ዋሻ በማመሳሰል ላይ...",
+            bootingProtocol: "ፕሮቶኮል በማስነሳት ላይ...",
+            analyzing: "በመተንተን ላይ",
+            protocolVersion: "ፕሮቶኮል ስሪት 4.8.2",
+            statusPendingApproval: "ፈቃድ በመጠበቅ ላይ",
+            statusUnderReview: "በግምገማ ላይ",
+            verification: "ማረጋገጫ",
+            highPriority: "ከፍተኛ ቅድሚያ የደህንነት ሂደት ተጀምሯል።",
+            estimatedWindow: "የማረጋገጫ የተገመተ ጊዜ:",
+            fiveToTenMins: "5-10 ደቂቃዎች",
+            liveProcessingPulse: "የቀጥታ ሂደት ምት",
+            active: "ንቁ",
+            returnHome: "ወደ ቤት ተመለስ",
+            logMessages: [
+                "ደህንነቱ የተጠበቀ መግቢያ ግንኙነት በማቋቋም ላይ...",
+                "የቀጥታ የመለያ መረጃ በማምጣት ላይ...",
+                "የግብይት ጥያቄ በማረጋገጥ ላይ...",
+                "የማስተላለፍ መጠን እና ምንዛሬ በማረጋገጥ ላይ...",
+                "FT / SMS ማረጋገጫ ኮድ በማስኬድ ላይ...",
+                "የግብይት መዝገቦችን በማጣመር ላይ...",
+                "ከ Turner ደህንነቱ የተጠበቀ ኖዶች ጋር በማመሳሰል ላይ...",
+                "የውስጥ የደህንነት ኦዲት በማጠናቀቅ ላይ...",
+                "የ Turner ቡድን የመጨረሻ ፈቃድ በመጠበቅ ላይ..."
+            ]
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        if (key === 'logMessages') {
+            return translations[language][key];
+        }
+        return translations[language][key] || translations.english[key];
+    };
+
+    const LOG_MESSAGES = t('logMessages') as string[];
 
     useEffect(() => {
         setMounted(true);
@@ -200,7 +261,7 @@ function PendingContent() {
         return (
             <div className="min-h-screen bg-[#050810] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="animate-spin text-blue-500 w-10 h-10" />
-                <span className="text-blue-500 font-mono text-xs animate-pulse">SYNCHRONIZING SECURE TUNNEL...</span>
+                <span className="text-blue-500 font-mono text-xs animate-pulse">{t("synchronizing")}</span>
             </div>
         );
     }
@@ -265,9 +326,9 @@ function PendingContent() {
                             <div className="mt-6 flex flex-col items-center gap-1.5">
                                 <div className="flex items-center gap-2">
                                     <Loader2 size={18} className={`animate-spin ${theme.accent}`} />
-                                    <span className={`text-[12px] font-black tracking-[0.3em] uppercase ${theme.accent} opacity-80`}>Analyzing</span>
+                                    <span className={`text-[12px] font-black tracking-[0.3em] uppercase ${theme.accent} opacity-80`}>{t("analyzing")}</span>
                                 </div>
-                                <div className={`text-[9px] font-mono tracking-widest ${theme.accent} opacity-40 uppercase`}>Protocol v.4.8.2</div>
+                                <div className={`text-[9px] font-mono tracking-widest ${theme.accent} opacity-40 uppercase`}>{t("protocolVersion")}</div>
                             </div>
                         </div>
 
@@ -291,20 +352,20 @@ function PendingContent() {
                                 <span className={`w-1.5 h-1.5 rounded-full bg-current animate-bounce delay-100 ${theme.accent}`}></span>
                                 <span className={`w-1.5 h-1.5 rounded-full bg-current animate-bounce delay-200 ${theme.accent}`}></span>
                             </div>
-                            <span className={`text-[12px] font-black uppercase tracking-[0.2em] ${theme.accent}`}>Status: {searchParams.get('type') === 'withdrawal' ? 'Pending Approval' : 'Under Review'}</span>
+                            <span className={`text-[12px] font-black uppercase tracking-[0.2em] ${theme.accent}`}>Status: {searchParams.get('type') === 'withdrawal' ? t("statusPendingApproval") : t("statusUnderReview")}</span>
                         </div>
 
                         <h1 className={`text-4xl sm:text-5xl font-black tracking-tighter leading-[0.9] mb-4 ${!isLight ? 'text-white' : 'text-slate-950'}`}>
                             {theme.name.toUpperCase()} <br />
                             <span className={`text-transparent bg-clip-text bg-gradient-to-r drop-shadow-sm ${themeKey === 'digital' ? 'from-cyan-400 via-blue-400 to-indigo-500' : themeKey === 'premium' ? 'from-amber-300 via-amber-500 to-yellow-600' : 'from-blue-400 via-indigo-400 to-purple-500'}`}>
-                                VERIFICATION
+                                {t("verification")}
                             </span>
                         </h1>
                     </div>
 
                     <p className={`text-[14px] sm:text-[16px] leading-relaxed max-w-[320px] mx-auto ${!isLight ? 'text-slate-400/80' : 'text-slate-500'}`}>
-                        High-priority security sequence initiated. <br />
-                        Verification estimated window: <span className={`${!isLight ? 'text-white shadow-white' : 'text-slate-900'} font-black underline decoration-2 decoration-current underline-offset-4 ${theme.accent}`}>5-10 MINS</span>
+                        {t("highPriority")} <br />
+                        {t("estimatedWindow")} <span className={`${!isLight ? 'text-white shadow-white' : 'text-slate-900'} font-black underline decoration-2 decoration-current underline-offset-4 ${theme.accent}`}>{t("fiveToTenMins")}</span>
                     </p>
 
                     {/* Elite Live Verification Log */}
@@ -316,7 +377,7 @@ function PendingContent() {
                             <div className={`p-2 rounded-xl ${theme.accentBg} ${theme.accent}`}>
                                 <Cpu size={16} />
                             </div>
-                            <h4 className={`text-[11px] font-black uppercase tracking-widest ${!isLight ? 'text-slate-400' : 'text-slate-600'}`}>Live Processing Pulse</h4>
+                            <h4 className={`text-[11px] font-black uppercase tracking-widest ${!isLight ? 'text-slate-400' : 'text-slate-600'}`}>{t("liveProcessingPulse")}</h4>
                         </div>
 
                         <div className="space-y-3 font-mono">
@@ -327,7 +388,7 @@ function PendingContent() {
                                         {msg}
                                         {idx === currentLog && <span className="inline-block w-1.5 h-3 bg-current animate-pulse ml-1 opacity-60"></span>}
                                     </span>
-                                    {idx === currentLog && <span className={`ml-auto text-[9px] uppercase font-bold ${theme.accent}`}>ACTIVE</span>}
+                                    {idx === currentLog && <span className={`ml-auto text-[9px] uppercase font-bold ${theme.accent}`}>{t("active")}</span>}
                                 </div>
                             ))}
                         </div>
@@ -344,7 +405,7 @@ function PendingContent() {
                     >
                         <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-20 group-hover:via-blue-500"></div>
                         <Home size={20} />
-                        <span>Return Home</span>
+                        <span>{t("returnHome")}</span>
                     </button>
                 </div>
             </div>

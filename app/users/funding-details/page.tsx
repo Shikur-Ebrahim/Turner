@@ -26,6 +26,54 @@ export default function FundingDetailsPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [products, setProducts] = useState<Record<string, any>>({});
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            portfolio: "Portfolio",
+            assetIntelligence: "Asset Intelligence",
+            marketVacant: "Market Vacant",
+            noActiveFunding: "No active funding plans detected",
+            explorePlans: "Explore Plans",
+            active: "Active",
+            planCycle: "Plan Cycle",
+            days: "Days",
+            principal: "Principal",
+            etb: "ETB",
+            dailyYield: "Daily Yield",
+            totalEarned: "Total Earned",
+            timeRemaining: "Time Remaining",
+            purchaseTimeline: "Purchase Timeline"
+        },
+        amharic: {
+            portfolio: "ፖርትፎሊዮ",
+            assetIntelligence: "የንብረት መረጃ",
+            marketVacant: "ገበያ ባዶ ነው",
+            noActiveFunding: "ምንም ንቁ የገንዘብ ድጋፍ እቅዶች አልተገኙም",
+            explorePlans: "እቅዶችን ያስሱ",
+            active: "ንቁ",
+            planCycle: "የእቅድ ዑደት",
+            days: "ቀናት",
+            principal: "ዋና ገንዘብ",
+            etb: "ብር",
+            dailyYield: "ዕለታዊ ገቢ",
+            totalEarned: "ጠቅላላ የተገኘ",
+            timeRemaining: "የቀረው ጊዜ",
+            purchaseTimeline: "የግዢ ጊዜ መስመር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
             if (!currentUser) {
@@ -118,10 +166,10 @@ export default function FundingDetailsPage() {
                     <ChevronLeft size={24} className="text-white" />
                 </button>
                 <div className="flex-1">
-                    <h1 className="text-2xl font-black uppercase tracking-tighter leading-none mb-1">Portfolio</h1>
+                    <h1 className="text-2xl font-black uppercase tracking-tighter leading-none mb-1">{t("portfolio")}</h1>
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Asset Intelligence</p>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">{t("assetIntelligence")}</p>
                     </div>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -137,14 +185,14 @@ export default function FundingDetailsPage() {
                             <Gem size={40} className="text-slate-700 relative z-10" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="text-lg font-black text-slate-400 uppercase tracking-widest leading-none">Market Vacant</h3>
-                            <p className="text-xs font-bold text-slate-600 uppercase tracking-tighter">No active funding plans detected</p>
+                            <h3 className="text-lg font-black text-slate-400 uppercase tracking-widest leading-none">{t("marketVacant")}</h3>
+                            <p className="text-xs font-bold text-slate-600 uppercase tracking-tighter">{t("noActiveFunding")}</p>
                         </div>
                         <button
                             onClick={() => router.push('/users/product')}
                             className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 active:scale-95 transition-all"
                         >
-                            Explore Plans
+                            {t("explorePlans")}
                         </button>
                     </div>
                 ) : (
@@ -177,12 +225,12 @@ export default function FundingDetailsPage() {
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="text-xl font-black text-white leading-none tracking-tighter uppercase">{order.productName}</h3>
                                             <div className="px-2.5 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                                <span className="text-[8px] font-black text-emerald-400 uppercase tracking-[0.2em]">Active</span>
+                                                <span className="text-[8px] font-black text-emerald-400 uppercase tracking-[0.2em]">{t("active")}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 mb-4">
                                             <Timer size={12} className="text-blue-400" />
-                                            <p className="text-[10px] font-black text-blue-400/80 uppercase tracking-widest">Plan Cycle: {order.contractPeriod} Days</p>
+                                            <p className="text-[10px] font-black text-blue-400/80 uppercase tracking-widest">{t("planCycle")}: {order.contractPeriod} {t("days")}</p>
                                         </div>
                                         {/* Simple Progress Bar */}
                                         <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -199,30 +247,30 @@ export default function FundingDetailsPage() {
                                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Coins size={12} className="text-amber-400" />
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Principal</span>
+                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t("principal")}</span>
                                         </div>
-                                        <p className="text-lg font-black text-white tracking-tighter">{Number(order.price).toLocaleString()} <span className="text-[10px] text-gray-500">ETB</span></p>
+                                        <p className="text-lg font-black text-white tracking-tighter">{Number(order.price).toLocaleString()} <span className="text-[10px] text-gray-500">{t("etb")}</span></p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Zap size={12} className="text-emerald-400" />
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Daily Yield</span>
+                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t("dailyYield")}</span>
                                         </div>
-                                        <p className="text-lg font-black text-emerald-400 tracking-tighter">{Number(order.dailyIncome).toLocaleString()} <span className="text-[10px] text-emerald-900/40 font-bold">ETB</span></p>
+                                        <p className="text-lg font-black text-emerald-400 tracking-tighter">{Number(order.dailyIncome).toLocaleString()} <span className="text-[10px] text-emerald-900/40 font-bold">{t("etb")}</span></p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                                         <div className="flex items-center gap-2 mb-2 text-indigo-400">
                                             <LayoutDashboard size={12} />
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Total Earned</span>
+                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t("totalEarned")}</span>
                                         </div>
-                                        <p className="text-lg font-black text-indigo-400 tracking-tighter">{totalProfit.toLocaleString()} <span className="text-[10px] text-indigo-900/40 font-bold">ETB</span></p>
+                                        <p className="text-lg font-black text-indigo-400 tracking-tighter">{totalProfit.toLocaleString()} <span className="text-[10px] text-indigo-900/40 font-bold">{t("etb")}</span></p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
                                         <div className="flex items-center gap-2 mb-2 text-red-400">
                                             <Timer size={12} />
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Time Remaining</span>
+                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t("timeRemaining")}</span>
                                         </div>
-                                        <p className="text-lg font-black text-white tracking-tighter">{remaining} <span className="text-[10px] text-red-900/40 font-bold">DAYS</span></p>
+                                        <p className="text-lg font-black text-white tracking-tighter">{remaining} <span className="text-[10px] text-red-900/40 font-bold">{t("days").toUpperCase()}</span></p>
                                     </div>
                                 </div>
 
@@ -233,7 +281,7 @@ export default function FundingDetailsPage() {
                                             <Calendar size={18} className="text-slate-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">Purchase Timeline</p>
+                                            <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest leading-none mb-1">{t("purchaseTimeline")}</p>
                                             <p className="text-[10px] font-black text-white uppercase tracking-tighter">
                                                 {formatDate(order.purchaseDate || order.createdAt)}
                                             </p>

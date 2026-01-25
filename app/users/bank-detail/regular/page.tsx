@@ -20,6 +20,88 @@ function RegularBankDetailContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            rechargeTitle: "Recharge",
+            orderRemaining: "Order Remaining",
+            min: "Min",
+            sec: "Sec",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            orderAmount: "Order Amount",
+            etb: "ETB",
+            paymentChannel: "Payment Channel",
+            switch: "switch",
+            accountName: "Account Name",
+            accountNumber: "Account Number",
+            copied: "Copied!",
+            copy: "copy",
+            step2: "Step 2",
+            step2Desc: "Paste payment sms Or enter TID: FT*****",
+            smsPlaceholder: "Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc...",
+            submitButton: "I HAVE TRANSFERRED",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            welcomeToTurner: "Welcome to Turner",
+            selectedPayment: "You have selected",
+            selectedPaymentEnd: "Payment.",
+            tapBelow: "Tap below to access your profitable partnership dashboard.",
+            getStarted: "GET STARTED",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            failedLoad: "Failed to load payment details",
+        },
+        amharic: {
+            rechargeTitle: "ገንዘብ ይሙሉ",
+            orderRemaining: "የቀረው ጊዜ",
+            min: "ደቂቃ",
+            sec: "ሰከንድ",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            orderAmount: "የትእዛዝ መጠን",
+            etb: "ብር",
+            paymentChannel: "የክፍያ መስመር",
+            switch: "ቀይር",
+            accountName: "የአካውንት ስም",
+            accountNumber: "የአካውንት ቁጥር",
+            copied: "ተገልብጧል!",
+            copy: "ቅዳ",
+            step2: "ደረጃ 2",
+            step2Desc: "የከፈሉበትን SMS እዚህ ይለጥፉ ወይም FT ኮድ ያስገቡ",
+            smsPlaceholder: "ውድ ደንበኛ ቁጥር 1*********1122 በ ETB 200.00 ተቀንሷል። ቀሪ ሂሳብዎ ETB 44.76 ነው። ወዘተ...",
+            submitButton: "ገንዘቡን አስተላልፌያለሁ",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "የመሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            welcomeToTurner: "ወደ Turner እንኳን ደህና መጡ",
+            selectedPayment: "የ",
+            selectedPaymentEnd: "ክፍያን መርጠዋል በተጨማሪም",
+            tapBelow: "ወደ ዳሽቦርድዎ ለመግባት ከታች ያለውን ይጫኑ።",
+            getStarted: "ጀምር",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            failedLoad: "የክፍያ መረጃን መጫን አልተቻለም",
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -33,7 +115,7 @@ function RegularBankDetailContent() {
                 }
             } catch (error) {
                 console.error("Error fetching method:", error);
-                toast.error("Failed to load payment details");
+                toast.error(t('failedLoad'));
             } finally {
                 setLoading(false);
             }
@@ -61,7 +143,7 @@ function RegularBankDetailContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied to clipboard");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -74,14 +156,14 @@ function RegularBankDetailContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -150,9 +232,9 @@ function RegularBankDetailContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -161,9 +243,9 @@ function RegularBankDetailContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -183,7 +265,7 @@ function RegularBankDetailContent() {
                     <button onClick={() => router.back()} className="p-2 hover:bg-white/10 rounded-full transition-colors backdrop-blur-sm">
                         <ChevronLeft size={24} />
                     </button>
-                    <h1 className="text-lg font-bold">Recharge</h1>
+                    <h1 className="text-lg font-bold">{t('rechargeTitle')}</h1>
                     <div className="w-8" />
                 </header>
 
@@ -196,16 +278,16 @@ function RegularBankDetailContent() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                         </div>
-                        <span className="font-medium text-lg">Order Remaining</span>
+                        <span className="font-medium text-lg">{t('orderRemaining')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-2 min-w-[3rem] text-center border border-white/30">
                             <span className="text-xl font-bold">{String(m).padStart(1, '0')}</span>
-                            <span className="text-xs ml-1 opacity-80">Min</span>
+                            <span className="text-xs ml-1 opacity-80">{t('min')}</span>
                         </div>
                         <div className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-2 min-w-[3rem] text-center border border-white/30">
                             <span className="text-xl font-bold">{String(s).padStart(2, '0')}</span>
-                            <span className="text-xs ml-1 opacity-80">Sec</span>
+                            <span className="text-xs ml-1 opacity-80">{t('sec')}</span>
                         </div>
                     </div>
                 </div>
@@ -215,23 +297,23 @@ function RegularBankDetailContent() {
                 {/* Step 1 */}
                 <section>
                     <h2 className="text-lg font-bold text-slate-800 mb-6">
-                        Step 1 <span className="text-slate-500 font-normal">Copy account for payment</span>
+                        {t('step1')} <span className="text-slate-500 font-normal">{t('step1Desc')}</span>
                     </h2>
 
                     <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-3xl p-6 space-y-6 shadow-xl shadow-purple-100/50">
                         {/* Order Amount */}
                         <div className="flex items-center justify-between border-b border-slate-200/50 pb-4">
-                            <span className="text-slate-500 text-sm">Order Amount</span>
+                            <span className="text-slate-500 text-sm">{t('orderAmount')}</span>
                             <span className="text-xl font-bold text-purple-600">
-                                ETB {Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                {t('etb')} {Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </span>
                         </div>
 
                         {/* Payment Channel */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <span className="text-slate-500 text-sm">Payment Channel</span>
-                                <button className="text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">switch</button>
+                                <span className="text-slate-500 text-sm">{t('paymentChannel')}</span>
+                                <button className="text-xs px-3 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors">{t('switch')}</button>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="font-bold text-slate-900">{method?.bankName || "Bank Name"}</span>
@@ -243,7 +325,7 @@ function RegularBankDetailContent() {
 
                         {/* Account Name */}
                         <div className="space-y-2">
-                            <span className="text-slate-500 text-sm">Account Name</span>
+                            <span className="text-slate-500 text-sm">{t('accountName')}</span>
                             <div className="flex items-center justify-between gap-3">
                                 <span className="font-bold text-slate-900 text-lg flex-1">{method?.holderName || "Account Name"}</span>
                                 <button
@@ -253,14 +335,14 @@ function RegularBankDetailContent() {
                                         : 'bg-purple-100 text-purple-600 border border-purple-200 hover:bg-purple-200 active:scale-95'
                                         }`}
                                 >
-                                    {copiedName ? 'Copied!' : 'copy'}
+                                    {copiedName ? t('copied') : t('copy')}
                                 </button>
                             </div>
                         </div>
 
                         {/* Account Number */}
                         <div className="space-y-2">
-                            <span className="text-slate-500 text-sm">Account Number</span>
+                            <span className="text-slate-500 text-sm">{t('accountNumber')}</span>
                             <div className="flex items-center justify-between gap-3">
                                 <span className="font-bold text-slate-900 text-xl tracking-wide">{method?.accountNumber || "0000000000"}</span>
                                 <button
@@ -270,7 +352,7 @@ function RegularBankDetailContent() {
                                         : 'bg-purple-100 text-purple-600 border border-purple-200 hover:bg-purple-200 active:scale-95'
                                         }`}
                                 >
-                                    {copiedAccount ? 'Copied!' : 'copy'}
+                                    {copiedAccount ? t('copied') : t('copy')}
                                 </button>
                             </div>
                         </div>
@@ -280,15 +362,15 @@ function RegularBankDetailContent() {
                 {/* Step 2 */}
                 <section>
                     <h2 className="text-lg font-bold text-slate-800 mb-4 flex flex-wrap gap-1">
-                        Step 2
-                        <span className="text-red-500">Paste payment sms Or enter TID: FT*****</span>
+                        {t('step2')}
+                        <span className="text-red-500">{t('step2Desc')}</span>
                     </h2>
 
                     <div className="relative">
                         <textarea
                             value={smsContent}
                             onChange={(e) => setSmsContent(e.target.value)}
-                            placeholder="Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc..."
+                            placeholder={t('smsPlaceholder')}
                             className="w-full h-32 p-4 rounded-xl border border-slate-200/60 bg-white/70 backdrop-blur-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none text-sm leading-relaxed shadow-lg shadow-purple-100/30"
                         />
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-slate-200 rounded-full opacity-50"></div>
@@ -307,18 +389,18 @@ function RegularBankDetailContent() {
                             : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 active:scale-[0.98] shadow-purple-300/50'
                             }`}
                     >
-                        {submitting ? <Loader2 className="animate-spin mx-auto" /> : "I HAVE TRANSFERRED"}
+                        {submitting ? <Loader2 className="animate-spin mx-auto" /> : t('submitButton')}
                     </button>
                 </div>
             </div>
 
             {/* Welcome Notification - Regular Theme */}
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -348,11 +430,11 @@ function WelcomeNotification({ method }: { method: any }) {
 
                 {/* Content */}
                 <div className="space-y-4 relative z-10">
-                    <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900">Welcome to Turner</h3>
+                    <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900">{t('welcomeToTurner')}</h3>
                     <p className="text-slate-600 text-sm leading-relaxed px-2 font-medium">
-                        You have selected <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{method?.bankDetailType || "Regular"} Payment</span>.
+                        {t('selectedPayment')} <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{method?.bankDetailType || "Regular"} {t('selectedPaymentEnd')}</span>
                         <br />
-                        Tap below to access your profitable partnership dashboard.
+                        {t('tapBelow')}
                     </p>
                 </div>
 
@@ -362,7 +444,7 @@ function WelcomeNotification({ method }: { method: any }) {
                     className="relative z-10 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 hover:bg-pos-100 text-white font-bold h-16 rounded-2xl transition-all active:scale-[0.98] shadow-xl shadow-indigo-300/40 flex items-center justify-center gap-2 group overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    <span className="relative z-10 text-lg tracking-wide">GET STARTED</span>
+                    <span className="relative z-10 text-lg tracking-wide">{t('getStarted')}</span>
                     <ChevronLeft size={20} className="rotate-180 group-hover:translate-x-1 transition-transform relative z-10" />
                 </button>
             </div>

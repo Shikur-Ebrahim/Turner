@@ -20,6 +20,88 @@ function ExpressContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            expressPay: "Express Pay",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            bank: "Bank",
+            accountNumber: "Account Number",
+            accountName: "Account Name",
+            copied: "Copied!",
+            copy: "copy",
+            totalPayment: "Total Payment",
+            step2: "Step 2",
+            pasteSMS: "Paste payment SMS",
+            orEnterTID: "or enter TID: FT*****",
+            smsPlaceholder: "Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc...",
+            iHaveTransferred: "I Have Transferred",
+            initializing: "Initializing...",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your express deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            expressEntry: "Express Entry",
+            welcomeToTurner: "Welcome to",
+            partner: "Turner Profitable Construction Partner",
+            paymentGatewaySelected: "Payment gateway selected.",
+            fastTrackReady: "Your fast-track to profitability is ready.",
+            thankYouSelected: "Thank you for selecting the Express Payment Method.",
+            enterNow: "ENTER NOW",
+            failedLoad: "Failed to load",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            etb: "ETB"
+        },
+        amharic: {
+            expressPay: "ኤክስፕረስ ክፍያ",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            bank: "ባንክ",
+            accountNumber: "የአካውንት ቁጥር",
+            accountName: "የአካውንት ስም",
+            copied: "ተገልብጧል!",
+            copy: "ቅዳ",
+            totalPayment: "ጠቅላላ ክፍያ",
+            step2: "ደረጃ 2",
+            pasteSMS: "የክፍያ SMS ይለጥፉ",
+            orEnterTID: "ወይም FT ኮድ ያስገቡ",
+            smsPlaceholder: "ውድ ደንበኛ ሂሳብ ቁጥር 1*********1122 በ 200.00 ብር ቀንሷል... ወዘተ",
+            iHaveTransferred: "ክፍያ ፈጽሜያለሁ",
+            initializing: "በመጀመር ላይ...",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "የኤክስፕረስ መሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            expressEntry: "ኤክስፕረስ መግቢያ",
+            welcomeToTurner: "እንኳን ወደ",
+            partner: "ቱርነር ትርፋማ የኮንስትራክሽን አጋር በደህና መጡ",
+            paymentGatewaySelected: "የክፍያ ጌትዌይ ተመርጧል።",
+            fastTrackReady: "ወደ ትርፋማነት የሚያደርሱዎት ፈጣን መንገድ ዝግጁ ነው።",
+            thankYouSelected: "ኤክስፕረስ የክፍያ ዘዴን ስለመረጡ እናመሰግናለን።",
+            enterNow: "አሁን ይግቡ",
+            failedLoad: "መጫን አልተቻለም",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            etb: "ብር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -29,7 +111,7 @@ function ExpressContent() {
                 const docRef = doc(db, "paymentMethods", methodId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) setMethod(docSnap.data());
-            } catch (error) { toast.error("Failed to load"); }
+            } catch (error) { toast.error(t('failedLoad')); }
             finally { setLoading(false); }
         };
         fetchMethod();
@@ -45,7 +127,7 @@ function ExpressContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -58,14 +140,14 @@ function ExpressContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -102,7 +184,7 @@ function ExpressContent() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
-            toast.error("Failed to submit. Please try again.");
+            toast.error(t('failedLoad'));
         } finally {
             setSubmitting(false);
         }
@@ -129,9 +211,9 @@ function ExpressContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your express deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -140,9 +222,9 @@ function ExpressContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -154,7 +236,7 @@ function ExpressContent() {
                     <ChevronLeft size={22} />
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Express Pay</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">{t('expressPay')}</span>
                     <span className="font-mono font-bold tabular-nums text-xl text-emerald-600 mt-0.5">
                         {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
                     </span>
@@ -165,24 +247,24 @@ function ExpressContent() {
             <main className="px-4 sm:px-6 pt-6 max-w-md mx-auto space-y-6">
                 {/* Big Amount - High Visibility */}
                 <div className="bg-black text-white p-8 rounded-3xl shadow-2xl flex flex-col items-center justify-center gap-2">
-                    <span className="text-slate-400 text-xs uppercase tracking-wider">Total Payment</span>
-                    <span className="text-5xl font-bold tracking-tight">ETB {Number(amount).toLocaleString()}</span>
+                    <span className="text-slate-400 text-xs uppercase tracking-wider">{t('totalPayment')}</span>
+                    <span className="text-5xl font-bold tracking-tight">{t('etb')} {Number(amount).toLocaleString()}</span>
                 </div>
 
                 <div className="space-y-5">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-sm flex-shrink-0">1</div>
-                        <h2 className="font-bold text-base sm:text-lg leading-tight">Step 1 <span className="font-normal text-slate-500 text-sm sm:text-base">Copy account for payment</span></h2>
+                        <h2 className="font-bold text-base sm:text-lg leading-tight">{t('step1')} <span className="font-normal text-slate-500 text-sm sm:text-base">{t('step1Desc')}</span></h2>
                     </div>
 
                     <div className="bg-slate-50 border-l-4 border-black p-5 space-y-5 rounded-r-2xl shadow-sm">
                         <div className="flex justify-between items-center pb-4 border-b border-slate-200">
-                            <span className="text-slate-500 text-sm font-medium">Bank</span>
+                            <span className="text-slate-500 text-sm font-medium">{t('bank')}</span>
                             <span className="font-bold text-slate-900">{method?.bankName}</span>
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Account Number</label>
+                            <label className="text-xs text-slate-500 font-semibold uppercase tracking-wide">{t('accountNumber')}</label>
                             <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 gap-3">
                                 <span className="font-mono text-lg sm:text-xl font-bold tracking-wide text-slate-900">{method?.accountNumber}</span>
                                 <button
@@ -192,13 +274,13 @@ function ExpressContent() {
                                         : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                                         }`}
                                 >
-                                    {copiedAccount ? 'Copied!' : 'copy'}
+                                    {copiedAccount ? t('copied') : t('copy')}
                                 </button>
                             </div>
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Account Name</label>
+                            <label className="text-xs text-slate-500 font-semibold uppercase tracking-wide">{t('accountName')}</label>
                             <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 gap-3">
                                 <span className="font-semibold text-slate-900 flex-1">{method?.holderName}</span>
                                 <button
@@ -208,7 +290,7 @@ function ExpressContent() {
                                         : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                                         }`}
                                 >
-                                    {copiedName ? 'Copied!' : 'copy'}
+                                    {copiedName ? t('copied') : t('copy')}
                                 </button>
                             </div>
                         </div>
@@ -220,7 +302,7 @@ function ExpressContent() {
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm flex-shrink-0">2</div>
                         <h2 className="font-bold text-base sm:text-lg leading-tight">
-                            <span className="text-red-500">Paste payment SMS</span> <span className="text-slate-500 font-normal text-sm">or enter TID: FT*****</span>
+                            <span className="text-red-500">{t('pasteSMS')}</span> <span className="text-slate-500 font-normal text-sm">{t('orEnterTID')}</span>
                         </h2>
                     </div>
 
@@ -228,7 +310,7 @@ function ExpressContent() {
                         <textarea
                             value={smsContent}
                             onChange={(e) => setSmsContent(e.target.value)}
-                            placeholder="Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc..."
+                            placeholder={t('smsPlaceholder')}
                             className="w-full h-36 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl p-4 resize-none transition-all outline-none font-medium text-slate-700 placeholder:text-slate-400 text-sm leading-relaxed shadow-sm"
                         />
                     </div>
@@ -246,18 +328,18 @@ function ExpressContent() {
                             : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-200'
                             }`}
                     >
-                        <span>{submitting ? <Loader2 className="animate-spin" /> : "I Have Transferred"}</span>
+                        <span>{submitting ? <Loader2 className="animate-spin" /> : t('iHaveTransferred')}</span>
                         {!submitting && <ArrowRight size={18} />}
                     </button>
                 </div>
             </div>
 
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -278,15 +360,15 @@ function WelcomeNotification({ method }: { method: any }) {
                 </div>
 
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">Express Entry</h3>
+                    <h3 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">{t('expressEntry')}</h3>
                     <p className="text-slate-600 text-sm font-medium leading-relaxed">
-                        Welcome to <span className="font-bold text-emerald-600">Turner Profitable Construction Partner</span>.
+                        {t('welcomeToTurner')} <span className="font-bold text-emerald-600">{t('partner')}</span>.
                         <br /><br />
-                        <span className="font-bold text-emerald-600 uppercase">{method?.bankDetailType || "Express"} Payment</span> gateway selected.
+                        <span className="font-bold text-emerald-600 uppercase">{method?.bankDetailType || "Express"} {t('expressPay')}</span> {t('paymentGatewaySelected')}
                         <br />
-                        Your fast-track to profitability is ready.
+                        {t('fastTrackReady')}
                         <br /><br />
-                        Thank you for selecting the <span className="font-bold text-emerald-600">Express Payment Method</span>.
+                        {t('thankYouSelected')}
                     </p>
                 </div>
 
@@ -295,7 +377,7 @@ function WelcomeNotification({ method }: { method: any }) {
                     className="w-full bg-slate-900 hover:bg-black text-white font-black h-16 rounded-2xl transition-all active:scale-95 shadow-xl shadow-slate-300 flex items-center justify-center gap-3 group relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <span className="relative z-10 text-lg tracking-widest uppercase">ENTER NOW</span>
+                    <span className="relative z-10 text-lg tracking-widest uppercase">{t('enterNow')}</span>
                     <ArrowRight size={24} className="relative z-10 group-hover:translate-x-1 transition-transform" />
                 </button>
             </div>

@@ -42,6 +42,50 @@ export default function UserChatPage() {
     const initialUnreadCount = useRef(0);
     const [mounted, setMounted] = useState(false);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            supportStaff: "Support Staff",
+            activeNow: "Active Now",
+            noMessagesYet: "No Messages Yet",
+            sendMessageToStart: "Send a message to start chatting",
+            officialSupportGuide: "Official Support Guide",
+            chatHistory: "Chat History",
+            welcomeMessage: "Welcome Message",
+            companyGoal: "Company Goal",
+            howToRecharge: "How to Recharge",
+            howToBuyProduct: "How to Buy Product",
+            howToInviteUser: "How to Invite User",
+            typeYourMessage: "Type your message..."
+        },
+        amharic: {
+            supportStaff: "የድጋፍ ሰራተኛ",
+            activeNow: "አሁን ንቁ",
+            noMessagesYet: "ገና ምንም መልዕክቶች የሉም",
+            sendMessageToStart: "ለመወያየት መልዕክት ይላኩ",
+            officialSupportGuide: "ይፋዊ የድጋፍ መመሪያ",
+            chatHistory: "የውይይት ታሪክ",
+            welcomeMessage: "የመንደኻ መልዕክት",
+            companyGoal: "የኩባንያ ግብ",
+            howToRecharge: "እንዴት እንደሚሞሉ",
+            howToBuyProduct: "እንዴት ምርት እንደሚገዙ",
+            howToInviteUser: "እንዴት ተጠቃሚ እንደሚጋብዙ",
+            typeYourMessage: "መልዕክትዎን ይተይቡ..."
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -276,9 +320,9 @@ export default function UserChatPage() {
                             <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
                         <div>
-                            <h1 className="text-sm font-black text-gray-900 leading-none mb-1 uppercase tracking-tight">Support Staff</h1>
+                            <h1 className="text-sm font-black text-gray-900 leading-none mb-1 uppercase tracking-tight">{t("supportStaff")}</h1>
                             <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-bold text-green-600 uppercase tracking-widest">Active Now</span>
+                                <span className="text-[9px] font-bold text-green-600 uppercase tracking-widest">{t("activeNow")}</span>
                             </div>
                         </div>
                     </div>
@@ -296,8 +340,8 @@ export default function UserChatPage() {
                             <MessageSquare size={40} />
                         </div>
                         <div className="space-y-1">
-                            <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">No Messages Yet</h2>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Send a message to start chatting</p>
+                            <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">{t("noMessagesYet")}</h2>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{t("sendMessageToStart")}</p>
                         </div>
                     </div>
                 )}
@@ -335,7 +379,7 @@ export default function UserChatPage() {
                                 <div className="space-y-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                     <div className="flex items-center gap-2 mb-4 px-1">
                                         <div className="h-px bg-zinc-200 flex-1"></div>
-                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Official Support Guide</span>
+                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">{t("officialSupportGuide")}</span>
                                         <div className="h-px bg-zinc-200 flex-1"></div>
                                     </div>
                                     {guidelines.map((guide) => (
@@ -353,11 +397,11 @@ export default function UserChatPage() {
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
                                                     <h3 className="text-xs font-black text-gray-900 uppercase tracking-tight">
-                                                        {guide.id === 'welcome' ? 'Welcome Message' :
-                                                            guide.id === 'goal' ? 'Company Goal' :
-                                                                guide.id === 'recharge' ? 'How to Recharge' :
-                                                                    guide.id === 'product' ? 'How to Buy Product' :
-                                                                        guide.id === 'invite' ? 'How to Invite User' : guide.id}
+                                                        {guide.id === 'welcome' ? t("welcomeMessage") :
+                                                            guide.id === 'goal' ? t("companyGoal") :
+                                                                guide.id === 'recharge' ? t("howToRecharge") :
+                                                                    guide.id === 'product' ? t("howToBuyProduct") :
+                                                                        guide.id === 'invite' ? t("howToInviteUser") : guide.id}
                                                     </h3>
                                                 </div>
                                                 <p className="text-[11px] text-zinc-600 font-medium leading-relaxed whitespace-pre-wrap">
@@ -368,7 +412,7 @@ export default function UserChatPage() {
                                     ))}
                                     <div className="flex items-center gap-2 mt-8 px-1">
                                         <div className="h-px bg-zinc-200 flex-1"></div>
-                                        <span className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em]">Chat History</span>
+                                        <span className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em]">{t("chatHistory")}</span>
                                         <div className="h-px bg-zinc-200 flex-1"></div>
                                     </div>
                                 </div>
@@ -396,7 +440,7 @@ export default function UserChatPage() {
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="Type your message..."
+                            placeholder={t("typeYourMessage")}
                             className="w-full h-12 pl-5 pr-12 rounded-2xl bg-zinc-100 border-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-sm font-medium text-zinc-800"
                         />
                     </div>

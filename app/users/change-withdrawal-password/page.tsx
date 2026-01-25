@@ -35,6 +35,64 @@ function ChangePasswordContent() {
     const [errorMsg, setErrorMsg] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            securityCenter: "Security Center",
+            verifyOld: "Verify Old",
+            createNew: "Create New",
+            confirm: "Confirm",
+            verificationRequired: "Verification Required",
+            setNewPin: "Set New PIN",
+            confirmPin: "Confirm PIN",
+            enterCurrentPassword: "Please enter your current withdrawal password to proceed.",
+            enterNew4Digit: "Enter a new 4-digit security code for your account.",
+            reEnterNewCode: "Re-enter your new code to verify and save changes.",
+            nextStep: "Next Step",
+            success: "Success!",
+            passwordChangedCorrectly: "Your withdrawal password has been changed correctly.",
+            backToProfile: "Back to Profile",
+            identityVerified: "Identity Verified",
+            incorrectPassword: "Incorrect Password! Please enter the correct PIN.",
+            newPinSameAsOld: "New PIN cannot be the same as old PIN.",
+            pinsNoMatch: "PINs do not match. Please try again.",
+            errorOccurred: "An error occurred"
+        },
+        amharic: {
+            securityCenter: "የደህንነት ማዕከል",
+            verifyOld: "አሮጌውን አረጋግጥ",
+            createNew: "አዲስ ፍጠር",
+            confirm: "አረጋግጥ",
+            verificationRequired: "ማረጋገጫ ያስፈልጋል",
+            setNewPin: "አዲስ ፒን ያስቀምጡ",
+            confirmPin: "ፒን ያረጋግጡ",
+            enterCurrentPassword: "ለመቀጠል እባክዎ የአሁኑን የወጪ የይለፍ ቃል ያስገቡ።",
+            enterNew4Digit: "ለመለያዎ አዲስ 4-አሃዝ የደህንነት ኮድ ያስገቡ።",
+            reEnterNewCode: "ለማረጋገጥ እና ለማስቀመጥ አዲሱን ኮድዎን እንደገና ያስገቡ።",
+            nextStep: "ቀጣይ ደረጃ",
+            success: "ተሳክቷል!",
+            passwordChangedCorrectly: "የወጪ የይለፍ ቃልዎ በትክክል ተቀይሯል።",
+            backToProfile: "ወደ መገለጫ ተመለስ",
+            identityVerified: "ማንነት ተረጋግጧል",
+            incorrectPassword: "የተሳሳተ የይለፍ ቃል! እባክዎ ትክክለኛውን ፒን ያስገቡ።",
+            newPinSameAsOld: "አዲሱ ፒን ከአሮጌው ፒን ጋር ተመሳሳይ መሆን አይችልም።",
+            pinsNoMatch: "ፒኖች አይዛመዱም። እባክዎ እንደገና ይሞክሩ።",
+            errorOccurred: "ስህተት ተፈጥሯል"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -80,20 +138,20 @@ function ChangePasswordContent() {
         try {
             if (step === "enter_old") {
                 if (input === existingPass) {
-                    toast.success("Identity Verified");
+                    toast.success(t("identityVerified"));
                     setStep("create_new");
                     setInput("");
                 } else {
                     triggerShake();
-                    setErrorMsg("Incorrect Password! Please enter the correct PIN.");
-                    toast.error("Incorrect Password! Please enter the correct PIN.");
+                    setErrorMsg(t("incorrectPassword"));
+                    toast.error(t("incorrectPassword"));
                     setInput("");
                 }
                 setSubmitting(false);
             } else if (step === "create_new") {
                 if (hasExistingPass && input === existingPass) {
-                    setErrorMsg("New PIN cannot be the same as old PIN.");
-                    toast.error("New PIN cannot be the same as old PIN");
+                    setErrorMsg(t("newPinSameAsOld"));
+                    toast.error(t("newPinSameAsOld"));
                     triggerShake();
                     setInput("");
                     setSubmitting(false);
@@ -113,8 +171,8 @@ function ChangePasswordContent() {
                     setShowSuccess(true); // Trigger Success View
                 } else {
                     triggerShake();
-                    setErrorMsg("PINs do not match. Please try again.");
-                    toast.error("PINs do not match. Please try again.");
+                    setErrorMsg(t("pinsNoMatch"));
+                    toast.error(t("pinsNoMatch"));
                     setStep("create_new"); // Reset to creation step
                     setInput("");
                     setTempNew("");
@@ -124,7 +182,7 @@ function ChangePasswordContent() {
 
         } catch (error) {
             console.error(error);
-            toast.error("An error occurred");
+            toast.error(t("errorOccurred"));
             setSubmitting(false);
         }
     };
@@ -158,9 +216,9 @@ function ChangePasswordContent() {
                         </div>
 
                         <div className="space-y-2">
-                            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Success!</h2>
+                            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{t("success")}</h2>
                             <p className="text-sm font-bold text-slate-500 leading-relaxed">
-                                Your withdrawal password has been changed correctly.
+                                {t("passwordChangedCorrectly")}
                             </p>
                         </div>
 
@@ -169,7 +227,7 @@ function ChangePasswordContent() {
                                 onClick={() => router.back()}
                                 className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 transition-all active:scale-95"
                             >
-                                Back to Profile
+                                {t("backToProfile")}
                             </button>
                         </div>
                     </div>
@@ -181,13 +239,13 @@ function ChangePasswordContent() {
     // Determine visual steps
     const steps = hasExistingPass
         ? [
-            { id: 1, label: "Verify Old" },
-            { id: 2, label: "Create New" },
-            { id: 3, label: "Confirm" }
+            { id: 1, label: t("verifyOld") },
+            { id: 2, label: t("createNew") },
+            { id: 3, label: t("confirm") }
         ]
         : [
-            { id: 2, label: "Create New" },
-            { id: 3, label: "Confirm" }
+            { id: 2, label: t("createNew") },
+            { id: 3, label: t("confirm") }
         ];
 
     return (
@@ -201,7 +259,7 @@ function ChangePasswordContent() {
                     <ChevronLeft size={24} className="text-slate-700" />
                 </button>
                 <div className="flex-1 text-center pr-10">
-                    <h1 className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">Security Center</h1>
+                    <h1 className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">{t("securityCenter")}</h1>
                 </div>
             </header>
 
@@ -212,19 +270,19 @@ function ChangePasswordContent() {
                     {steps.map((s, i) => (
                         <div key={s.id} className="flex items-center gap-2">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 transition-all duration-500 ${(step === "enter_old" && s.id === 1) ||
-                                    (step === "create_new" && s.id === 2) ||
-                                    (step === "confirm_new" && s.id === 3)
-                                    ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110"
-                                    : ((step === "create_new" && s.id < 2) || (step === "confirm_new" && s.id < 3))
-                                        ? "bg-emerald-500 border-emerald-500 text-white"
-                                        : "bg-transparent border-slate-200 text-slate-300"
+                                (step === "create_new" && s.id === 2) ||
+                                (step === "confirm_new" && s.id === 3)
+                                ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110"
+                                : ((step === "create_new" && s.id < 2) || (step === "confirm_new" && s.id < 3))
+                                    ? "bg-emerald-500 border-emerald-500 text-white"
+                                    : "bg-transparent border-slate-200 text-slate-300"
                                 }`}>
                                 {(step === "create_new" && s.id < 2) || (step === "confirm_new" && s.id < 3) ? <CheckCircle2 size={14} /> : s.id}
                             </div>
                             {i < steps.length - 1 && (
                                 <div className={`w-8 h-0.5 rounded-full transition-colors duration-500 ${(step === "create_new" && s.id < 2) || (step === "confirm_new" && s.id < 3)
-                                        ? "bg-emerald-500"
-                                        : "bg-slate-200"
+                                    ? "bg-emerald-500"
+                                    : "bg-slate-200"
                                     }`}></div>
                             )}
                         </div>
@@ -248,14 +306,14 @@ function ChangePasswordContent() {
                 {/* Dynamic Title & Instructions */}
                 <div className="space-y-4 mb-8 text-center animate-in fade-in slide-in-from-bottom-2 duration-300" key={step}>
                     <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
-                        {step === "enter_old" ? "Verification Required" : step === "create_new" ? "Set New PIN" : "Confirm PIN"}
+                        {step === "enter_old" ? t("verificationRequired") : step === "create_new" ? t("setNewPin") : t("confirmPin")}
                     </h2>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[240px] mx-auto">
                         {step === "enter_old"
-                            ? "Please enter your current withdrawal password to proceed."
+                            ? t("enterCurrentPassword")
                             : step === "create_new"
-                                ? "Enter a new 4-digit security code for your account."
-                                : "Re-enter your new code to verify and save changes."}
+                                ? t("enterNew4Digit")
+                                : t("reEnterNewCode")}
                     </p>
                 </div>
 
@@ -265,8 +323,8 @@ function ChangePasswordContent() {
                         <div
                             key={i}
                             className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${i < input.length
-                                    ? (shake ? "bg-red-500" : "bg-indigo-600") + " scale-125 shadow-[0_0_10px_rgba(79,70,229,0.5)]"
-                                    : "bg-slate-200"
+                                ? (shake ? "bg-red-500" : "bg-indigo-600") + " scale-125 shadow-[0_0_10px_rgba(79,70,229,0.5)]"
+                                : "bg-slate-200"
                                 }`}
                         ></div>
                     ))}
@@ -315,7 +373,7 @@ function ChangePasswordContent() {
                         disabled={input.length !== 4 || submitting}
                         className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:scale-100 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                        {submitting ? <Loader2 className="animate-spin" /> : "Next Step"}
+                        {submitting ? <Loader2 className="animate-spin" /> : t("nextStep")}
                     </button>
                 </div>
             </main>

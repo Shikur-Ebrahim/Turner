@@ -35,6 +35,54 @@ export default function WalletPage() {
     const [hasRateUpdate, setHasRateUpdate] = useState(false);
     const [lastSeenRateUpdate, setLastSeenRateUpdate] = useState<number>(0);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            myWallet: "My Wallet",
+            premiumAsset: "Premium Asset",
+            totalBalance: "Total Balance",
+            etb: "ETB",
+            recharge: "Recharge",
+            withdraw: "Withdraw",
+            exchange: "Exchange",
+            financialInsights: "Financial Insights",
+            teamIncome: "Team Income",
+            turnerStars: "Turner Stars",
+            exchangeRates: "Exchange Rates",
+            updated: "Updated!",
+            coin: "Coin",
+            star: "Star"
+        },
+        amharic: {
+            myWallet: "የእኔ ቦርሳ",
+            premiumAsset: "ፕሪሚየም ንብረት",
+            totalBalance: "ጠቅላላ ሂሳብ",
+            etb: "ብር",
+            recharge: "ለመሙላት",
+            withdraw: "ለማውጣት",
+            exchange: "ለመቀየር",
+            financialInsights: "የገንዘብ ግንዛቤዎች",
+            teamIncome: "የቡድን ገቢ",
+            turnerStars: "ተርነር ኮከቦች",
+            exchangeRates: "የምንዛሬ ተመኖች",
+            updated: "ዘምኗል!",
+            coin: "ሳንቲም",
+            star: "ኮከብ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     const fetchProductData = async (uid: string) => {
         try {
             const ordersRef = collection(db, "UserOrders");
@@ -168,7 +216,7 @@ export default function WalletPage() {
                     <ChevronLeft size={20} />
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-sm font-bold text-slate-900 tracking-wide uppercase">My Wallet</span>
+                    <span className="text-sm font-bold text-slate-900 tracking-wide uppercase">{t("myWallet")}</span>
                 </div>
                 <button
                     onClick={handleRefresh}
@@ -229,18 +277,18 @@ export default function WalletPage() {
                             <div className="flex justify-between items-start">
                                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${hasImages ? 'bg-white/80 border-slate-200' : 'bg-white/10 border-white/10'}`}>
                                     <Gem size={12} className={hasImages ? "text-amber-500" : "text-yellow-300"} />
-                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${hasImages ? 'opacity-100' : 'opacity-90'}`}>Premium Asset</span>
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${hasImages ? 'opacity-100' : 'opacity-90'}`}>{t("premiumAsset")}</span>
                                 </div>
                                 <Shield size={16} className={hasImages ? "text-slate-900/40" : "text-white/60"} />
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <span className={`text-xs font-medium uppercase tracking-widest ${hasImages ? 'text-slate-700' : 'text-white/80'}`}>Total Balance</span>
+                                <span className={`text-xs font-medium uppercase tracking-widest ${hasImages ? 'text-slate-700' : 'text-white/80'}`}>{t("totalBalance")}</span>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-4xl font-black tracking-tight drop-shadow-sm">
                                         {Number(userData?.balance || 0).toLocaleString()}
                                     </span>
-                                    <span className={`text-sm font-bold ${hasImages ? 'text-slate-600' : 'text-white/80'}`}>ETB</span>
+                                    <span className={`text-sm font-bold ${hasImages ? 'text-slate-600' : 'text-white/80'}`}>{t("etb")}</span>
                                 </div>
                             </div>
 
@@ -263,7 +311,7 @@ export default function WalletPage() {
                                 className="w-14 h-14 object-contain drop-shadow-md transform group-hover:scale-110 transition-transform duration-500"
                             />
                         </div>
-                        <span className="text-xs font-bold text-slate-700 tracking-wide">Recharge</span>
+                        <span className="text-xs font-bold text-slate-700 tracking-wide">{t("recharge")}</span>
                     </button>
 
                     {/* Withdraw */}
@@ -279,7 +327,7 @@ export default function WalletPage() {
                                 className="w-14 h-14 object-contain drop-shadow-md transform group-hover:scale-110 transition-transform duration-500"
                             />
                         </div>
-                        <span className="text-xs font-bold text-slate-700 tracking-wide">Withdraw</span>
+                        <span className="text-xs font-bold text-slate-700 tracking-wide">{t("withdraw")}</span>
                     </button>
 
                     {/* Exchange */}
@@ -295,13 +343,13 @@ export default function WalletPage() {
                                 className="w-14 h-14 object-contain drop-shadow-md transform group-hover:rotate-180 transition-transform duration-700"
                             />
                         </div>
-                        <span className="text-xs font-bold text-slate-700 tracking-wide">Exchange</span>
+                        <span className="text-xs font-bold text-slate-700 tracking-wide">{t("exchange")}</span>
                     </button>
                 </section>
 
                 {/* 3. Detailed Income Stats */}
                 <section className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest pl-2">Financial Insights</h3>
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest pl-2">{t("financialInsights")}</h3>
 
                     {/* Team Revenue */}
                     {/* Team Revenue - Advanced Card */}
@@ -320,7 +368,7 @@ export default function WalletPage() {
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">Team Income</span>
+                                <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">{t("teamIncome")}</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-2xl font-black text-slate-900">
                                         {Number(userData?.teamIncome || 0).toLocaleString()}
@@ -353,7 +401,7 @@ export default function WalletPage() {
                                 <ClipboardList size={32} />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Turner Stars</span>
+                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">{t("turnerStars")}</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-2xl font-black text-slate-900">
                                         {Number(userData?.stars || 0).toLocaleString()}
@@ -405,17 +453,17 @@ export default function WalletPage() {
 
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest">Exchange Rates</span>
+                                    <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest">{t("exchangeRates")}</span>
                                     {hasRateUpdate && (
-                                        <span className="text-[9px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full animate-pulse">Updated!</span>
+                                        <span className="text-[9px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full animate-pulse">{t("updated")}</span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-sm font-bold text-slate-600">ETB</span>
+                                    <span className="text-sm font-bold text-slate-600">{t("etb")}</span>
                                     <span className="text-slate-300">•</span>
-                                    <span className="text-sm font-bold text-slate-600">Coin</span>
+                                    <span className="text-sm font-bold text-slate-600">{t("coin")}</span>
                                     <span className="text-slate-300">•</span>
-                                    <span className="text-sm font-bold text-slate-600">Star</span>
+                                    <span className="text-sm font-bold text-slate-600">{t("star")}</span>
                                 </div>
                             </div>
                         </div>

@@ -44,6 +44,56 @@ export default function TeamPage() {
         setMounted(true);
     }, []);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            myTeam: "My Team",
+            assets: "Assets",
+            totalIncome: "Total Income",
+            newToday: "New Today",
+            teamSize: "Team Size",
+            inviteFriends: "Invite Friends",
+            getRewards: "Get Extra Rewards",
+            level1: "Level 1",
+            level2: "Level 2",
+            level3: "Level 3",
+            level4: "Level 4",
+            recharge: "Recharge:",
+            reward: "REWARD",
+            noMembers: "No members found",
+            failedLoad: "Failed to load team data"
+        },
+        amharic: {
+            myTeam: "የእኔ ቡድን",
+            assets: "ንብረቶች",
+            totalIncome: "ጠቅላላ ገቢ",
+            newToday: "አዲስ ዛሬ",
+            teamSize: "የቡድን ብዛት",
+            inviteFriends: "ጓደኞችን ይጋብዙ",
+            getRewards: "ተጨማሪ ሽልማቶችን ያግኙ",
+            level1: "ደረጃ 1",
+            level2: "ደረጃ 2",
+            level3: "ደረጃ 3",
+            level4: "ደረጃ 4",
+            recharge: "የሞሉት:",
+            reward: "ሽልማት",
+            noMembers: "ምንም አባላት አልተገኘም",
+            failedLoad: "የቡድን መረጃ መጫን አልተቻለም"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         if (!mounted) return;
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -128,7 +178,7 @@ export default function TeamPage() {
 
             } catch (error) {
                 console.error("Error fetching team:", error);
-                toast.error("Failed to load team data");
+                toast.error(t("failedLoad"));
                 setLoading(false);
             } finally {
                 setLoading(false);
@@ -147,10 +197,10 @@ export default function TeamPage() {
     }, [router, mounted]);
 
     const tabs = [
-        { id: 'A', label: 'Level 1', pct: `${rates.levelA}%` },
-        { id: 'B', label: 'Level 2', pct: `${rates.levelB}%` },
-        { id: 'C', label: 'Level 3', pct: `${rates.levelC}%` },
-        { id: 'D', label: 'Level 4', pct: `${rates.levelD}%` },
+        { id: 'A', label: t("level1"), pct: `${rates.levelA}%` },
+        { id: 'B', label: t("level2"), pct: `${rates.levelB}%` },
+        { id: 'C', label: t("level3"), pct: `${rates.levelC}%` },
+        { id: 'D', label: t("level4"), pct: `${rates.levelD}%` },
     ];
 
     const formatPhone = (phone: string) => {
@@ -181,7 +231,7 @@ export default function TeamPage() {
                     >
                         <ChevronLeft size={24} />
                     </button>
-                    <h1 className="text-lg font-bold text-slate-800">My Team</h1>
+                    <h1 className="text-lg font-bold text-slate-800">{t("myTeam")}</h1>
                     <div className="w-10" />
                 </div>
             </div>
@@ -245,7 +295,7 @@ export default function TeamPage() {
                                 <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mb-1 shadow-inner animate-bounce-slow">
                                     <Trophy size={16} className="text-indigo-500 fill-indigo-500" />
                                 </div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-0.5">Assets</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight mb-0.5">{t("assets")}</span>
                                 <span className="font-black text-slate-800 text-sm tabular-nums leading-none tracking-tight">
                                     {stats.totalTeamRecharge >= 1000000 ? (stats.totalTeamRecharge / 1000000).toFixed(1) + "M" : stats.totalTeamRecharge.toLocaleString()}
                                 </span>
@@ -256,7 +306,7 @@ export default function TeamPage() {
                         <div className="flex-1 w-full space-y-5">
                             <div className="bg-slate-50/50 p-4 rounded-3xl border border-slate-100/80">
                                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                    Total Income <div className="h-[1px] flex-1 bg-slate-200"></div>
+                                    {t("totalIncome")} <div className="h-[1px] flex-1 bg-slate-200"></div>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <p className="text-4xl sm:text-3xl font-black text-slate-800 tabular-nums leading-none tracking-tight">
@@ -271,14 +321,14 @@ export default function TeamPage() {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">New Today</span>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{t("newToday")}</span>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Users size={14} className="text-emerald-500" />
                                         <span className="font-black text-slate-800 text-sm">+{stats.todayJoined}</span>
                                     </div>
                                 </div>
                                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Team Size</span>
+                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{t("teamSize")}</span>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Layers size={14} className="text-blue-500" />
                                         <span className="font-black text-slate-800 text-sm">{stats.totalMembers}</span>
@@ -301,8 +351,8 @@ export default function TeamPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/60 to-transparent flex flex-col justify-center px-8">
                         <div className="flex flex-col">
-                            <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">Invite Friends</span>
-                            <span className="text-white/90 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">Get Extra Rewards</span>
+                            <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">{t("inviteFriends")}</span>
+                            <span className="text-white/90 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{t("getRewards")}</span>
                         </div>
                     </div>
                     {/* Glossy overlay effect */}
@@ -335,7 +385,7 @@ export default function TeamPage() {
                     {currentMembers.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-slate-300 pl-4">
                             <Users size={32} className="opacity-20 mb-3" />
-                            <p className="text-xs font-bold uppercase tracking-widest">No members found</p>
+                            <p className="text-xs font-bold uppercase tracking-widest">{t("noMembers")}</p>
                         </div>
                     ) : (
                         currentMembers.map((member, idx) => (
@@ -361,14 +411,14 @@ export default function TeamPage() {
                                                 {formatPhone(member.phoneNumber)}
                                             </h3>
                                             <div className="bg-slate-50/80 px-4 py-1.5 rounded-full w-fit border border-slate-100 shadow-sm">
-                                                <span className="text-[10px] font-bold text-slate-400">Recharge: </span>
+                                                <span className="text-[10px] font-bold text-slate-400">{t("recharge")} </span>
                                                 <span className="text-[10px] font-black text-[#1E293B]">{member.totalRecharge.toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="text-right flex flex-col items-end">
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">REWARD</span>
+                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{t("reward")}</span>
                                         <span className="text-[16px] font-black text-[#10B981] tracking-tight">
                                             +{member.rewardEarned.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                         </span>

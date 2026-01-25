@@ -20,6 +20,96 @@ function DigitalContent() {
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            systemActive: "System Active",
+            step1: "Step 1",
+            step1Desc: "Copy account for payment",
+            paymentProtocol: "Payment Protocol",
+            secure: "Secure",
+            targetBank: "Target Bank",
+            accountName: "Account Name",
+            accountNumber: "Account Number",
+            copied: "Copied!",
+            copy: "copy",
+            processingAmount: "Processing Amount",
+            etb: "ETB",
+            step2: "Step 2",
+            step2Desc: "PASTE PAYMENT SMS OR ENTER TID: FT*****",
+            smsPlaceholder: "> PASTE TRANSACTION SMS OR TID HERE...\n> EXAMPLE: FT123456789...\n> WAITING FOR DATA SIGNAL...",
+            cursorActive: "_CURSOR_ACTIVE",
+            initializing: "Initializing...",
+            initializeTransfer: "Initialize Transfer",
+            rechargeSubmitted: "Recharge Submitted",
+            underReview: "Your digital deposit request for",
+            underReviewEnd: "is currently under review.",
+            proceedToHome: "Proceed to Home",
+            securedBy: "Transaction Secured by Turner",
+            systemReady: "SYSTEM READY",
+            welcomeToDigital: "Welcome to Digital Turner",
+            profitableCompany: "Profitable Construction Company",
+            digitalPaymentSelected: "Thank you for selecting the Digital Payment Method",
+            gateway: "GATEWAY",
+            status: "STATUS",
+            online: "ONLINE",
+            readyForExecution: "READY FOR EXECUTION...",
+            executeProtocol: "[ EXECUTE PROTOCOL ]",
+            loginFirst: "Please login first",
+            enterSmsErr: "Please enter SMS content or FT code",
+            failedLoad: "Failed to load",
+        },
+        amharic: {
+            systemActive: "ሲስተም ንቁ ነው",
+            step1: "ደረጃ 1",
+            step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
+            paymentProtocol: "የክፍያ ፕሮቶኮል",
+            secure: "ደህንነቱ የተጠበቀ",
+            targetBank: "ተቀባይ ባንክ",
+            accountName: "የአካውንት ስም",
+            accountNumber: "የአካውንት ቁጥር",
+            copied: "ተገልብጧል!",
+            copy: "ቅዳ",
+            processingAmount: "በሂደት ላይ ያለ መጠን",
+            etb: "ብር",
+            step2: "ደረጃ 2",
+            step2Desc: "የከፈሉበትን SMS እዚህ ይለጥፉ ወይም FT ኮድ ያስገቡ",
+            smsPlaceholder: "> የግብይት SMS ወይም TID እዚህ ይለጥፉ...\n> ምሳሌ: FT123456789...\n> የዳታ ሲግናል በመጠባበቅ ላይ...",
+            cursorActive: "_ኩርሰር_ንቁ",
+            initializing: "በመጀመር ላይ...",
+            initializeTransfer: "ክፍያውን ጀምር",
+            rechargeSubmitted: "ክፍያዎ ገብቷል",
+            underReview: "የዲጂታል መሙያ ጥያቄዎ",
+            underReviewEnd: "በአሁኑ ጊዜ በመገምገም ላይ ነው።",
+            proceedToHome: "ወደ መነሻ ገጽ ተመለስ",
+            securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
+            systemReady: "ሲስተም ዝግጁ ነው",
+            welcomeToDigital: "ወደ Digital Turner እንኳን ደህና መጡ",
+            profitableCompany: "ትርፋማ የኮንስትራክሽን ኩባንያ",
+            digitalPaymentSelected: "ዲጂታል የክፍያ ዘዴን ስለመረጡ እናመሰግናለን",
+            gateway: "ጌትዌይ",
+            status: "ሁኔታ",
+            online: "ኦንላይን",
+            readyForExecution: "ለማስፈጸም ዝግጁ...",
+            executeProtocol: "[ ፕሮቶኮሉን አስፈጽም ]",
+            loginFirst: "እባክዎ መጀመሪያ ይግቡ",
+            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            failedLoad: "መጫን አልተቻለም",
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -29,7 +119,7 @@ function DigitalContent() {
                 const docRef = doc(db, "paymentMethods", methodId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) setMethod(docSnap.data());
-            } catch (error) { toast.error("Failed to load"); }
+            } catch (error) { toast.error(t('failedLoad')); }
             finally { setLoading(false); }
         };
         fetchMethod();
@@ -45,7 +135,7 @@ function DigitalContent() {
 
     const handleCopy = (text: string, type: 'account' | 'name') => {
         navigator.clipboard.writeText(text);
-        toast.success("Copied!");
+        toast.success(t('copied'));
 
         if (type === 'account') {
             setCopiedAccount(true);
@@ -58,14 +148,14 @@ function DigitalContent() {
 
     const handleSubmit = async () => {
         if (!smsContent.trim()) {
-            toast.error("Please enter SMS content or FT code");
+            toast.error(t('enterSmsErr'));
             return;
         }
 
         try {
             const user = auth.currentUser;
             if (!user) {
-                toast.error("Please login first");
+                toast.error(t('loginFirst'));
                 return;
             }
             setSubmitting(true);
@@ -101,7 +191,7 @@ function DigitalContent() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Submission error:", error);
-            toast.error("Failed to submit. Please try again.");
+            toast.error(t('failedLoad'));
         } finally {
             setSubmitting(false);
         }
@@ -128,9 +218,9 @@ function DigitalContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">Recharge Submitted</h3>
+                                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 uppercase tracking-tight">{t('rechargeSubmitted')}</h3>
                                 <p className="text-amber-100/60 text-sm font-bold leading-relaxed px-2">
-                                    Your digital deposit request for <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} ETB</span> is currently under review.
+                                    {t('underReview')} <span className="text-amber-400 font-black">{Number(amount).toLocaleString()} {t('etb')}</span> {t('underReviewEnd')}
                                 </p>
                             </div>
 
@@ -139,9 +229,9 @@ function DigitalContent() {
                                     onClick={() => router.push("/users/welcome")}
                                     className="w-full py-5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
                                 >
-                                    Proceed to Home
+                                    {t('proceedToHome')}
                                 </button>
-                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">Transaction Secured by Turner</p>
+                                <p className="mt-6 text-[8px] font-black text-amber-500/30 uppercase tracking-[0.4em]">{t('securedBy')}</p>
                             </div>
                         </div>
                     </div>
@@ -156,7 +246,7 @@ function DigitalContent() {
                 </button>
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-cyan-500 rounded-full animate-ping"></div>
-                    <span className="text-cyan-500 font-bold tracking-widest uppercase text-sm">System Active</span>
+                    <span className="text-cyan-500 font-bold tracking-widest uppercase text-sm">{t('systemActive')}</span>
                 </div>
                 <Wifi size={20} className="text-cyan-500/50" />
             </header>
@@ -176,7 +266,7 @@ function DigitalContent() {
                     <div className="mb-3">
                         <label className="text-xs text-cyan-500 font-bold uppercase tracking-widest flex items-center gap-2">
                             <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
-                            Step 1 Copy account for payment
+                            {t('step1')} {t('step1Desc')}
                         </label>
                     </div>
                     <div className="bg-slate-900 border border-cyan-500/30 p-1 relative overflow-hidden group">
@@ -187,13 +277,13 @@ function DigitalContent() {
 
                         <div className="bg-black/50 p-6 space-y-6">
                             <div className="flex justify-between items-center text-xs text-cyan-500/50 uppercase tracking-widest">
-                                <span>Payment Protocol</span>
-                                <span>Secure // {methodId?.substring(0, 6)}</span>
+                                <span>{t('paymentProtocol')}</span>
+                                <span>{t('secure')} // {methodId?.substring(0, 6)}</span>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-xs text-cyan-600 block mb-1">Target Bank</label>
+                                    <label className="text-xs text-cyan-600 block mb-1">{t('targetBank')}</label>
                                     <div className="flex items-center gap-3 text-lg font-bold text-white">
                                         <div className="w-2 h-full bg-cyan-500/50"></div>
                                         {method?.bankName}
@@ -201,7 +291,7 @@ function DigitalContent() {
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-cyan-600 block mb-1">Account Name</label>
+                                    <label className="text-xs text-cyan-600 block mb-1">{t('accountName')}</label>
                                     <div className="flex justify-between items-center bg-cyan-950/30 p-3 border border-cyan-500/20 hover:border-cyan-500/50 transition-colors gap-3">
                                         <span className="text-cyan-100 flex-1">{method?.holderName}</span>
                                         <button
@@ -211,13 +301,13 @@ function DigitalContent() {
                                                 : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30'
                                                 }`}
                                         >
-                                            {copiedName ? 'Copied!' : 'copy'}
+                                            {copiedName ? t('copied') : t('copy')}
                                         </button>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-cyan-600 block mb-1">Account Number</label>
+                                    <label className="text-xs text-cyan-600 block mb-1">{t('accountNumber')}</label>
                                     <div className="flex justify-between items-center bg-cyan-950/30 p-3 border border-cyan-500/20 hover:border-cyan-500/50 transition-colors gap-3">
                                         <span className="text-xl tracking-widest text-cyan-400 font-bold">{method?.accountNumber}</span>
                                         <button
@@ -227,7 +317,7 @@ function DigitalContent() {
                                                 : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30'
                                                 }`}
                                         >
-                                            {copiedAccount ? 'Copied!' : 'copy'}
+                                            {copiedAccount ? t('copied') : t('copy')}
                                         </button>
                                     </div>
                                 </div>
@@ -238,15 +328,15 @@ function DigitalContent() {
 
                 {/* Amount */}
                 <div className="flex items-center justify-between border-b border-cyan-500/30 pb-2">
-                    <span className="text-cyan-600 uppercase text-xs">Processing Amount</span>
-                    <span className="text-2xl font-bold text-white">ETB {Number(amount).toLocaleString()}</span>
+                    <span className="text-cyan-600 uppercase text-xs">{t('processingAmount')}</span>
+                    <span className="text-2xl font-bold text-white">{t('etb')} {Number(amount).toLocaleString()}</span>
                 </div>
 
                 {/* Input Console */}
                 <div className="space-y-3">
                     <label className="text-xs text-cyan-500 font-bold uppercase tracking-widest flex items-center gap-2">
                         <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
-                        PASTE PAYMENT SMS OR ENTER TID: FT*****
+                        {t('step2Desc')}
                     </label>
                     <div className="relative">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
@@ -254,12 +344,10 @@ function DigitalContent() {
                             value={smsContent}
                             onChange={(e) => setSmsContent(e.target.value)}
                             className="relative w-full bg-slate-900/90 border border-cyan-500/50 text-cyan-300 p-5 h-36 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all font-mono text-xs rounded-lg"
-                            placeholder="> PASTE TRANSACTION SMS OR TID HERE...
-> EXAMPLE: FT123456789...
-> WAITING FOR DATA SIGNAL..."
+                            placeholder={t('smsPlaceholder')}
                         />
                         <div className="absolute bottom-2 right-2 text-[10px] text-cyan-700 animate-pulse">
-                            _CURSOR_ACTIVE
+                            {t('cursorActive')}
                         </div>
                     </div>
                 </div>
@@ -275,16 +363,16 @@ function DigitalContent() {
                         }`}
                 >
                     {submitting ? <Loader2 className="animate-spin" /> : <Zap size={18} fill="currentColor" />}
-                    {submitting ? "Initializing..." : "Initialize Transfer"}
+                    {submitting ? t('initializing') : t('initializeTransfer')}
                 </button>
             </footer>
 
-            <WelcomeNotification method={method} />
+            <WelcomeNotification t={t} method={method} />
         </div>
     );
 }
 
-function WelcomeNotification({ method }: { method: any }) {
+function WelcomeNotification({ t, method }: { t: any, method: any }) {
     const [show, setShow] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
 
@@ -316,23 +404,23 @@ function WelcomeNotification({ method }: { method: any }) {
                     </div>
 
                     <div className="space-y-4 relative z-10">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-widest glitch-text" data-text="SYSTEM READY">
-                            SYSTEM READY
+                        <h3 className="text-2xl font-black text-white uppercase tracking-widest glitch-text" data-text={t('systemReady')}>
+                            {t('systemReady')}
                         </h3>
                         <div className="h-[1px] w-full bg-cyan-900"></div>
                         <p className="text-cyan-400 text-xs font-mono leading-relaxed tracking-wide">
-                            {`> `}Welcome to <span className="text-white font-bold">Digital Turner</span>
+                            {`> `}{t('welcomeToDigital')}
                             <br />
-                            {`> `}Profitable Construction Company
+                            {`> `}{t('profitableCompany')}
                             <br />
-                            {`> `}Thank you for selecting the <span className="text-cyan-300 font-bold">Digital Payment Method</span>
+                            {`> `}{t('digitalPaymentSelected')}
                             <br />
                             <br />
-                            {`> `}GATEWAY: <span className="text-white font-bold">{method?.bankDetailType?.toUpperCase() || "DIGITAL"}</span>
+                            {`> `}{t('gateway')}: <span className="text-white font-bold">{method?.bankDetailType?.toUpperCase() || "DIGITAL"}</span>
                             <br />
-                            {`> `}STATUS: <span className="text-green-400 animate-pulse">ONLINE</span>
+                            {`> `}{t('status')}: <span className="text-green-400 animate-pulse">{t('online')}</span>
                             <br />
-                            {`> `}READY FOR EXECUTION...
+                            {`> `}{t('readyForExecution')}
                         </p>
                     </div>
 
@@ -340,7 +428,7 @@ function WelcomeNotification({ method }: { method: any }) {
                         onClick={handleDismiss}
                         className="w-full bg-cyan-500 text-black font-black h-14 uppercase tracking-widest text-sm transition-all hover:bg-white hover:shadow-[0_0_30px_rgba(34,211,238,0.8)] active:scale-95 flex items-center justify-center gap-2 group relative z-10 hover:skew-x-[-10deg]"
                     >
-                        <span>[ EXECUTE PROTOCOL ]</span>
+                        <span>{t('executeProtocol')}</span>
                     </button>
                 </div>
             </div>

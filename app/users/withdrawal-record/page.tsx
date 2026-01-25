@@ -29,6 +29,66 @@ export default function WithdrawalRecordPage() {
     const [loading, setLoading] = useState(true);
     const [records, setRecords] = useState<any[]>([]);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            myRecords: "My Records",
+            transactionHistory: "Transaction History",
+            withdrawn: "Withdrawn",
+            etb: "ETB",
+            inProcess: "In Process",
+            pendingReview: "Pending Review",
+            verificationHistory: "Verification History",
+            noActivityDetected: "No activity detected",
+            pending: "pending",
+            verified: "verified",
+            approved: "approved",
+            success: "success",
+            rejected: "rejected",
+            failed: "failed",
+            grossAmount: "Gross Amount",
+            serviceFee: "Service Fee",
+            targetAccount: "Target Account",
+            accountName: "Account Name",
+            settled: "Settled",
+            reviewing: "Reviewing"
+        },
+        amharic: {
+            myRecords: "የእኔ መዝገቦች",
+            transactionHistory: "የግብይት ታሪክ",
+            withdrawn: "የወጣ",
+            etb: "ብር",
+            inProcess: "በሂደት ላይ",
+            pendingReview: "በግምገማ ላይ",
+            verificationHistory: "የማረጋገጫ ታሪክ",
+            noActivityDetected: "ምንም እንቅስቃሴ አልተገኘም",
+            pending: "በመጠባበቅ ላይ",
+            verified: "ተረጋግጧል",
+            approved: "ፀድቋል",
+            success: "ተሳክቷል",
+            rejected: "ተቀባይነት አላገኘም",
+            failed: "አልተሳካም",
+            grossAmount: "ጠቅላላ መጠን",
+            serviceFee: "የአገልግሎት ክፍያ",
+            targetAccount: "የታለመ ሂሳብ",
+            accountName: "የሂሳብ ስም",
+            settled: "ተከፍሏል",
+            reviewing: "በመገምገም ላይ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
             if (!currentUser) {
@@ -107,10 +167,10 @@ export default function WithdrawalRecordPage() {
                         <ChevronLeft size={24} strokeWidth={3} />
                     </button>
                     <div>
-                        <h2 className="text-xl font-black text-slate-900 tracking-tighter leading-none mb-1">My Records</h2>
+                        <h2 className="text-xl font-black text-slate-900 tracking-tighter leading-none mb-1">{t("myRecords")}</h2>
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction History</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t("transactionHistory")}</span>
                         </div>
                     </div>
                 </div>
@@ -127,9 +187,9 @@ export default function WithdrawalRecordPage() {
                             <TrendingUp size={20} />
                         </div>
                         <div>
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Withdrawn</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("withdrawn")}</p>
                             <p className="text-xl font-black text-slate-900 tracking-tighter">
-                                {stats.totalSettled.toLocaleString()} <span className="text-[10px] text-slate-300 font-bold">ETB</span>
+                                {stats.totalSettled.toLocaleString()} <span className="text-[10px] text-slate-300 font-bold">{t("etb")}</span>
                             </p>
                         </div>
                     </div>
@@ -139,9 +199,9 @@ export default function WithdrawalRecordPage() {
                             <Clock size={20} className="animate-pulse" />
                         </div>
                         <div className="relative z-10">
-                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">In Process</p>
+                            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">{t("inProcess")}</p>
                             <p className="text-xl font-black text-white tracking-tighter">
-                                {stats.inPipeline.toLocaleString()} <span className="text-[10px] text-white/20 font-bold">ETB</span>
+                                {stats.inPipeline.toLocaleString()} <span className="text-[10px] text-white/20 font-bold">{t("etb")}</span>
                             </p>
                         </div>
                     </div>
@@ -155,12 +215,12 @@ export default function WithdrawalRecordPage() {
                                 <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
                                     <AlertCircle size={18} strokeWidth={3} />
                                 </div>
-                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Pending Review ({pending.length})</h3>
+                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">{t("pendingReview")} ({pending.length})</h3>
                                 <div className="flex-1 h-[1px] bg-amber-200/30"></div>
                             </div>
                             <div className="space-y-6">
                                 {pending.map(item => (
-                                    <UserWithdrawalCard key={item.id} item={item} status="pending" />
+                                    <UserWithdrawalCard key={item.id} item={item} status="pending" t={t} />
                                 ))}
                             </div>
                         </div>
@@ -172,13 +232,13 @@ export default function WithdrawalRecordPage() {
                             <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center">
                                 <History size={18} strokeWidth={3} />
                             </div>
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Verification History</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{t("verificationHistory")}</h3>
                             <div className="flex-1 h-[1px] bg-slate-100"></div>
                         </div>
                         {history.length > 0 ? (
                             <div className="space-y-6">
                                 {history.map(item => (
-                                    <UserWithdrawalCard key={item.id} item={item} status={item.status} />
+                                    <UserWithdrawalCard key={item.id} item={item} status={item.status} t={t} />
                                 ))}
                             </div>
                         ) : pending.length === 0 ? (
@@ -186,7 +246,7 @@ export default function WithdrawalRecordPage() {
                                 <div className="w-20 h-20 bg-white rounded-[2rem] shadow-xl flex items-center justify-center text-slate-100 border-2 border-slate-50">
                                     <Banknote size={32} />
                                 </div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No activity detected</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t("noActivityDetected")}</p>
                             </div>
                         ) : null}
                     </div>
@@ -196,7 +256,7 @@ export default function WithdrawalRecordPage() {
     );
 }
 
-function UserWithdrawalCard({ item, status }: any) {
+function UserWithdrawalCard({ item, status, t }: any) {
     const isPending = status === 'pending';
     const isSuccess = status === 'verified' || status === 'approved' || status === 'success';
     const isFailed = status === 'rejected' || status === 'failed';
@@ -221,13 +281,13 @@ function UserWithdrawalCard({ item, status }: any) {
                                 isSuccess ? 'bg-emerald-50 text-emerald-700 border-emerald-200/30' :
                                     'bg-red-100 text-red-700 border-red-300/30'}`}>
                             {isPending ? <Clock size={10} className="animate-pulse" /> : isSuccess ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                            {status}
+                            {t(status)}
                         </div>
                         <div className="flex items-baseline gap-1 mt-3">
                             <span className={`text-4xl font-black tracking-tighter ${isPending ? 'text-slate-900' : isSuccess ? 'text-emerald-600' : 'text-red-600'}`}>
                                 {Number(item.actualReceipt).toLocaleString()}
                             </span>
-                            <span className="text-xs font-black text-slate-300">ETB</span>
+                            <span className="text-xs font-black text-slate-300">{t("etb")}</span>
                         </div>
                     </div>
 
@@ -243,19 +303,19 @@ function UserWithdrawalCard({ item, status }: any) {
                 {/* Financial Grid */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white/60 backdrop-blur-xl rounded-[1.5rem] p-4 border border-white/80 shadow-sm">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Amount</p>
-                        <p className="text-xs font-black text-slate-700">{Number(item.amount).toLocaleString()} ETB</p>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("grossAmount")}</p>
+                        <p className="text-xs font-black text-slate-700">{Number(item.amount).toLocaleString()} {t("etb")}</p>
                     </div>
                     <div className="bg-white/60 backdrop-blur-xl rounded-[1.5rem] p-4 border border-white/80 shadow-sm">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Service Fee</p>
-                        <p className="text-xs font-black text-red-500">-{Number(item.fee).toLocaleString()} ETB</p>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("serviceFee")}</p>
+                        <p className="text-xs font-black text-red-500">-{Number(item.fee).toLocaleString()} {t("etb")}</p>
                     </div>
                 </div>
 
                 {/* Bank Account Logic (Admin Style - Static on User Side) */}
                 <div className="space-y-3">
                     <div className="flex justify-between items-center px-1 font-black text-[9px] uppercase tracking-widest">
-                        <span className="text-slate-400">Target Account</span>
+                        <span className="text-slate-400">{t("targetAccount")}</span>
                         <span className="text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{item.bankDetails?.bankName}</span>
                     </div>
                     <div
@@ -265,7 +325,7 @@ function UserWithdrawalCard({ item, status }: any) {
                             {item.bankDetails?.accountNumber}
                         </span>
                     </div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Account Name: <span className="text-slate-900">{item.bankDetails?.holderName}</span></p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">{t("accountName")}: <span className="text-slate-900">{item.bankDetails?.holderName}</span></p>
                 </div>
 
                 {/* Status Footer */}
@@ -279,17 +339,17 @@ function UserWithdrawalCard({ item, status }: any) {
                     {isSuccess ? (
                         <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl text-emerald-600">
                             <ShieldCheck size={14} strokeWidth={3} />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Settled</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">{t("settled")}</span>
                         </div>
                     ) : isPending ? (
                         <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl text-amber-600 animate-pulse">
                             <Clock size={14} strokeWidth={3} />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Reviewing</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">{t("reviewing")}</span>
                         </div>
                     ) : (
                         <div className="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-xl text-red-600">
                             <XCircle size={14} strokeWidth={3} />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Failed</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">{t("failed")}</span>
                         </div>
                     )}
                 </div>

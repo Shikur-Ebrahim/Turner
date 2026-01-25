@@ -56,6 +56,62 @@ function WelcomeContent() {
     const [platformNotif, setPlatformNotif] = useState<any>(null);
     const [showPlatformNotif, setShowPlatformNotif] = useState(false);
 
+    // Language State
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            welcome: "Welcome back,",
+            wallets: "Wallets",
+            mainOperations: "Main Operations",
+            recharge: "RECHARGE",
+            buyProduct: "BUY PRODUCT",
+            vipRules: "VIP RULES",
+            withdraw: "WITHDRAW",
+            tasks: "TASKS",
+            inviteFriends: "Invite Friends",
+            earnRewards: "Earn Multi-Level Rewards",
+            announcement: "Announcement",
+            noRecentActivity: "No recent activity",
+            notifications: "Notifications",
+            user: "User",
+            comingSoon: "This section is coming soon...",
+        },
+        amharic: {
+            welcome: "እንኳን በደህና መጡ፣",
+            wallets: "የኪስ ቦርሳዎች",
+            mainOperations: "ዋና ተግባራት",
+            recharge: "ገንዘብ ይሙሉ",
+            buyProduct: "ምርት ይግዙ",
+            vipRules: "ቪአይፒ ደንቦች",
+            withdraw: "ገንዘብ ያውጡ",
+            tasks: "ተግባራት",
+            inviteFriends: "ጓደኞችን ይጋብዙ",
+            earnRewards: "የብዙ ደረጃ ሽልማቶችን ያግኙ",
+            announcement: "ማስታወቂያ",
+            noRecentActivity: "ምንም የቅርብ ጊዜ እንቅስቃሴ የለም",
+            notifications: "ማሳወቂያዎች",
+            user: "ተጠቃሚ",
+            comingSoon: "ይህ ክፍል በቅርቡ ይመጣል።",
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const toggleLanguage = (lang: "english" | "amharic") => {
+        setLanguage(lang);
+        localStorage.setItem("appLanguage", lang);
+    };
+
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -309,320 +365,340 @@ function WelcomeContent() {
                         <img src="/logo.png" alt="Turner Logo" className="w-full h-full object-contain" />
                     </div>
                     <div>
-                        <p className="text-xs text-gray-500 font-medium leading-none">Welcome back,</p>
-                        <p className="text-sm font-bold text-gray-900">{userData?.email?.split('@')[0] || "User"}</p>
+                        <p className="text-xs text-gray-500 font-medium leading-none">{t('welcome')}</p>
+                        <p className="text-sm font-bold text-gray-900">{userData?.email?.split('@')[0] || t('user')}</p>
                     </div>
                 </div>
 
-                {/* Notification Bell with Dropdown */}
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
-                    <button
-                        onClick={() => {
-                            setShowNotifPanel(!showNotifPanel);
-                            // We don't verify all on click anymore, user must click specific items or we could add a "mark all read" later. 
-                            // But per standard UX, opening usually clears the "new" badge or we keep it until read.
-                            // For this specific request, the user wants to "track" them. 
-                            // Reviewing the prompt: "just unsee notiifcation just only red icon... justn number just just diplsyed the number"
-                            // I will keep the badge showing the count of unread items.
-                        }}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 relative hover:bg-gray-200 transition-colors"
-                    >
-                        <Bell size={20} className="text-gray-600" />
-                        {userNotifs.filter(n => !n.read).length > 0 && (
-                            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-in zoom-in px-1">
-                                {userNotifs.filter(n => !n.read).length > 9 ? '9+' : userNotifs.filter(n => !n.read).length}
-                            </span>
-                        )}
-                    </button>
+                <div className="flex items-center gap-3">
+                    {/* Language Toggle */}
+                    <div className="flex bg-gray-100 rounded-full p-1 border border-red-100 shadow-sm">
+                        <button
+                            onClick={() => toggleLanguage('english')}
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold transition-all ${language === 'english' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}`}
+                        >
+                            <img src="/Flag_of_the_United_States.png" alt="EN" className="w-4 h-3 object-contain" />
+                            EN
+                        </button>
+                        <button
+                            onClick={() => toggleLanguage('amharic')}
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold transition-all ${language === 'amharic' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}`}
+                        >
+                            <img src="/Ethiopia.png" alt="AM" className="w-4 h-3 object-contain" />
+                            AM
+                        </button>
+                    </div>
 
-                    {/* Notification Panel */}
-                    {showNotifPanel && (
-                        <div className="absolute top-full right-0 mt-3 w-80 bg-white/90 backdrop-blur-3xl rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-white p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                            <div className="p-4 border-b border-gray-100">
-                                <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">Notifications</h4>
-                            </div>
-                            <div className="max-h-80 overflow-y-auto p-2 space-y-2">
-                                {(() => {
-                                    // Combine and Sort All Notifications
-                                    const allNotifs: any[] = [...userNotifs];
-                                    if (latestRecharge && latestRecharge.status === 'verified') {
-                                        allNotifs.push({ ...latestRecharge, type: 'recharge' });
-                                    }
+                    {/* Notification Bell with Dropdown */}
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={() => {
+                                setShowNotifPanel(!showNotifPanel);
+                                // We don't verify all on click anymore, user must click specific items or we could add a "mark all read" later. 
+                                // But per standard UX, opening usually clears the "new" badge or we keep it until read.
+                                // For this specific request, the user wants to "track" them. 
+                                // Reviewing the prompt: "just unsee notiifcation just only red icon... justn number just just diplsyed the number"
+                                // I will keep the badge showing the count of unread items.
+                            }}
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 relative hover:bg-gray-200 transition-colors"
+                        >
+                            <Bell size={20} className="text-gray-600" />
+                            {userNotifs.filter(n => !n.read).length > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-in zoom-in px-1">
+                                    {userNotifs.filter(n => !n.read).length > 9 ? '9+' : userNotifs.filter(n => !n.read).length}
+                                </span>
+                            )}
+                        </button>
 
-                                    allNotifs.sort((a, b) => {
-                                        const timeA = (a.createdAt || a.timestamp)?.toMillis?.() || 0;
-                                        const timeB = (b.createdAt || b.timestamp)?.toMillis?.() || 0;
-                                        return timeB - timeA;
-                                    });
+                        {/* Notification Panel */}
+                        {showNotifPanel && (
+                            <div className="absolute top-full right-0 mt-3 w-80 bg-white/90 backdrop-blur-3xl rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-white p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="p-4 border-b border-gray-100">
+                                    <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">{t('notifications')}</h4>
+                                </div>
+                                <div className="max-h-80 overflow-y-auto p-2 space-y-2">
+                                    {(() => {
+                                        // Combine and Sort All Notifications
+                                        const allNotifs: any[] = [...userNotifs];
+                                        if (latestRecharge && latestRecharge.status === 'verified') {
+                                            allNotifs.push({ ...latestRecharge, type: 'recharge' });
+                                        }
 
-                                    if (allNotifs.length === 0) {
-                                        return (
-                                            <div className="py-8 text-center text-gray-400 text-[10px] uppercase font-bold tracking-widest">
-                                                No recent activity
-                                            </div>
-                                        );
-                                    }
+                                        allNotifs.sort((a, b) => {
+                                            const timeA = (a.createdAt || a.timestamp)?.toMillis?.() || 0;
+                                            const timeB = (b.createdAt || b.timestamp)?.toMillis?.() || 0;
+                                            return timeB - timeA;
+                                        });
 
-                                    return allNotifs.map((notif, idx) => {
-                                        if (notif.type === 'recharge' || (notif.amount && !notif.level && notif.type !== 'withdrawal' && notif.type !== 'withdrawal_verified')) {
-                                            // Render Recharge Style
+                                        if (allNotifs.length === 0) {
                                             return (
-                                                <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
-                                                    {notif.status === 'verified' ? (
-                                                        <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
-                                                            <img src="/logo.png" alt="Turner" className="w-full h-full object-contain" />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                                            <Loader2 size={18} className="text-blue-600 animate-spin" />
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className="text-xs font-bold text-gray-900 leading-tight">
-                                                            {notif.status === 'verified' ? 'Transaction verified successfully.' : 'Recharge Under Review'}
-                                                        </p>
-                                                        <p className="text-[10px] text-gray-500 font-medium">
-                                                            {Number(notif.amount).toLocaleString()} ETB
-                                                        </p>
-                                                    </div>
-
-                                                    {notif.status === 'verified' && (
-                                                        <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
-                                                    )}
-                                                </div>
-                                            );
-                                        } else if (notif.type === 'registration') {
-                                            // Render Registration Style
-                                            const levelMap: { [key: string]: string } = {
-                                                "Level A": "1",
-                                                "Level B": "2",
-                                                "Level C": "3",
-                                                "Level D": "4"
-                                            };
-                                            const levelNum = levelMap[notif.level] || "1";
-                                            const isUnread = notif.read === false;
-
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                                                        : "bg-slate-50 border-slate-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></div>
-                                                    )}
-
-                                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
-                                                        <img
-                                                            src={encodeURI(`/level ${levelNum}.jpg`)}
-                                                            alt={notif.level}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? "text-emerald-900" : "text-gray-900"}`}>
-                                                            {notif.level} Registered Successfully
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-emerald-600" : "text-gray-700"}`}>
-                                                            New Member Joined
-                                                        </p>
-                                                        <p className="text-[9px] text-gray-400 font-medium">
-                                                            from {notif.fromUser ? `${notif.fromUser.substring(0, 3)}***${notif.fromUser.substring(notif.fromUser.length - 4)}` : "Team Member"}
-                                                        </p>
-                                                    </div>
-                                                    <div className="absolute -right-2 -top-2 opacity-10">
-                                                        <Users size={40} className={isUnread ? "text-emerald-600" : "text-slate-400"} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else if (notif.type === 'withdrawal_verified') {
-                                            const isUnread = notif.read === false;
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                                                        : "bg-slate-50 border-slate-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></div>
-                                                    )}
-                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
-                                                        <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-black leading-tight ${isUnread ? "text-emerald-900" : "text-gray-900"} uppercase tracking-tight`}>
-                                                            Payout Authorized
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-emerald-600" : "text-gray-700"}`}>
-                                                            {Number(notif.amount).toLocaleString()} ETB Verified
-                                                        </p>
-                                                    </div>
-                                                    <div className="absolute -right-2 -top-2 opacity-10 text-emerald-600">
-                                                        <CheckCircle2 size={40} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else if (notif.type === 'withdrawal') {
-                                            const isUnread = notif.read === false;
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? "bg-indigo-50 border-indigo-100 shadow-[0_0_15px_rgba(79,70,229,0.1)]"
-                                                        : "bg-slate-50 border-slate-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)] z-20"></div>
-                                                    )}
-                                                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
-                                                        <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-black leading-tight ${isUnread ? "text-indigo-900" : "text-gray-900"} uppercase tracking-tight`}>
-                                                            Withdrawal Pending
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-indigo-600" : "text-gray-700"}`}>
-                                                            {Number(notif.amount).toLocaleString()} ETB Payout
-                                                        </p>
-                                                    </div>
-                                                    <div className="absolute -right-2 -top-2 opacity-10 text-indigo-600">
-                                                        <Wallet size={40} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else if (notif.type === 'password_change') {
-                                            const isUnread = notif.read === false;
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? "bg-blue-50 border-blue-100 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                                                        : "bg-slate-50 border-slate-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)] z-20"></div>
-                                                    )}
-
-                                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10">
-                                                        <Shield size={20} className="text-blue-600" />
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? "text-blue-900" : "text-gray-900"}`}>
-                                                            Security Update
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-blue-600" : "text-gray-700"}`}>
-                                                            {notif.message}
-                                                        </p>
-                                                    </div>
-                                                    <div className="absolute -right-2 -top-2 opacity-10 text-blue-600">
-                                                        <Shield size={40} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else if (notif.type === 'rate_update') {
-                                            const isUnread = notif.read === false;
-                                            const isCoin = notif.asset === 'coin';
-
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? isCoin ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-amber-50 border-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                                                        : "bg-slate-50 border-slate-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)] z-20 ${isCoin ? "bg-emerald-500" : "bg-amber-500"}`}></div>
-                                                    )}
-
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10 ${isCoin ? "bg-emerald-100" : "bg-amber-100"}`}>
-                                                        {isCoin ? (
-                                                            <Coins size={20} className={isUnread ? "text-emerald-600" : "text-emerald-500"} />
-                                                        ) : (
-                                                            <Star size={20} className={isUnread ? "text-amber-600" : "text-amber-500"} />
-                                                        )}
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? isCoin ? "text-emerald-900" : "text-amber-900" : "text-gray-900"}`}>
-                                                            {isCoin ? "Coin" : "Star"} Rate Updated
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? isCoin ? "text-emerald-600" : "text-amber-600" : "text-gray-700"}`}>
-                                                            New Rate: {notif.newRate} ETB
-                                                        </p>
-                                                        <p className="text-[9px] text-gray-400 font-medium">
-                                                            Previous: {notif.oldRate} ETB
-                                                        </p>
-                                                    </div>
-                                                    <div className={`absolute -right-2 -top-2 opacity-10 ${isCoin ? "text-emerald-600" : "text-amber-600"}`}>
-                                                        <TrendingUp size={40} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        } else {
-                                            // Render Reward Style
-                                            const levelMap: { [key: string]: string } = {
-                                                "Level A": "1",
-                                                "Level B": "2",
-                                                "Level C": "3",
-                                                "Level D": "4"
-                                            };
-                                            const levelNum = levelMap[notif.level] || "1";
-                                            const isUnread = notif.read === false;
-
-                                            return (
-                                                <div
-                                                    key={idx}
-                                                    onClick={() => handleMarkAsRead(notif)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
-                                                        ? "bg-red-50 border-red-100 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
-                                                        : "bg-indigo-50/50 border-indigo-100"
-                                                        }`}
-                                                >
-                                                    {isUnread && (
-                                                        <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)] z-20"></div>
-                                                    )}
-
-                                                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
-                                                        <img
-                                                            src={encodeURI(`/level ${levelNum}.jpg`)}
-                                                            alt={notif.level}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col relative z-10">
-                                                        <p className={`text-xs font-bold leading-tight ${isUnread ? "text-red-900" : "text-gray-900"}`}>
-                                                            {notif.level} Reward Earned
-                                                        </p>
-                                                        <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-red-600" : "text-gray-700"}`}>
-                                                            +{Number(notif.amount).toLocaleString()} ETB
-                                                        </p>
-                                                        <p className="text-[9px] text-gray-400 font-medium">
-                                                            from {notif.fromUser ? `${notif.fromUser.substring(0, 3)}***${notif.fromUser.substring(notif.fromUser.length - 4)}` : "Team Member"}
-                                                        </p>
-                                                    </div>
-                                                    <div className="absolute -right-2 -top-2 opacity-10">
-                                                        <TrendingUp size={40} className={isUnread ? "text-red-600" : "text-indigo-600"} />
-                                                    </div>
+                                                <div className="py-8 text-center text-gray-400 text-[10px] uppercase font-bold tracking-widest">
+                                                    {t('noRecentActivity')}
                                                 </div>
                                             );
                                         }
-                                    });
-                                })()}
+
+                                        return allNotifs.map((notif, idx) => {
+                                            if (notif.type === 'recharge' || (notif.amount && !notif.level && notif.type !== 'withdrawal' && notif.type !== 'withdrawal_verified')) {
+                                                // Render Recharge Style
+                                                return (
+                                                    <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
+                                                        {notif.status === 'verified' ? (
+                                                            <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-sm">
+                                                                <img src="/logo.png" alt="Turner" className="w-full h-full object-contain" />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                                                                <Loader2 size={18} className="text-blue-600 animate-spin" />
+                                                            </div>
+                                                        )}
+
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className="text-xs font-bold text-gray-900 leading-tight">
+                                                                {notif.status === 'verified' ? 'Transaction verified successfully.' : 'Recharge Under Review'}
+                                                            </p>
+                                                            <p className="text-[10px] text-gray-500 font-medium">
+                                                                {Number(notif.amount).toLocaleString()} ETB
+                                                            </p>
+                                                        </div>
+
+                                                        {notif.status === 'verified' && (
+                                                            <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            } else if (notif.type === 'registration') {
+                                                // Render Registration Style
+                                                const levelMap: { [key: string]: string } = {
+                                                    "Level A": "1",
+                                                    "Level B": "2",
+                                                    "Level C": "3",
+                                                    "Level D": "4"
+                                                };
+                                                const levelNum = levelMap[notif.level] || "1";
+                                                const isUnread = notif.read === false;
+
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                            : "bg-slate-50 border-slate-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></div>
+                                                        )}
+
+                                                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
+                                                            <img
+                                                                src={encodeURI(`/level ${levelNum}.jpg`)}
+                                                                alt={notif.level}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-bold leading-tight ${isUnread ? "text-emerald-900" : "text-gray-900"}`}>
+                                                                {notif.level} Registered Successfully
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-emerald-600" : "text-gray-700"}`}>
+                                                                New Member Joined
+                                                            </p>
+                                                            <p className="text-[9px] text-gray-400 font-medium">
+                                                                from {notif.fromUser ? `${notif.fromUser.substring(0, 3)}***${notif.fromUser.substring(notif.fromUser.length - 4)}` : "Team Member"}
+                                                            </p>
+                                                        </div>
+                                                        <div className="absolute -right-2 -top-2 opacity-10">
+                                                            <Users size={40} className={isUnread ? "text-emerald-600" : "text-slate-400"} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (notif.type === 'withdrawal_verified') {
+                                                const isUnread = notif.read === false;
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                            : "bg-slate-50 border-slate-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></div>
+                                                        )}
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
+                                                            <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-black leading-tight ${isUnread ? "text-emerald-900" : "text-gray-900"} uppercase tracking-tight`}>
+                                                                Payout Authorized
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-emerald-600" : "text-gray-700"}`}>
+                                                                {Number(notif.amount).toLocaleString()} ETB Verified
+                                                            </p>
+                                                        </div>
+                                                        <div className="absolute -right-2 -top-2 opacity-10 text-emerald-600">
+                                                            <CheckCircle2 size={40} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (notif.type === 'withdrawal') {
+                                                const isUnread = notif.read === false;
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? "bg-indigo-50 border-indigo-100 shadow-[0_0_15px_rgba(79,70,229,0.1)]"
+                                                            : "bg-slate-50 border-slate-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)] z-20"></div>
+                                                        )}
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-slate-100 shadow-sm relative z-10 p-1">
+                                                            <img src="/assets/withdrawal.png" alt="Withdrawal" className="w-full h-full object-contain" />
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-black leading-tight ${isUnread ? "text-indigo-900" : "text-gray-900"} uppercase tracking-tight`}>
+                                                                Withdrawal Pending
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-indigo-600" : "text-gray-700"}`}>
+                                                                {Number(notif.amount).toLocaleString()} ETB Payout
+                                                            </p>
+                                                        </div>
+                                                        <div className="absolute -right-2 -top-2 opacity-10 text-indigo-600">
+                                                            <Wallet size={40} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (notif.type === 'password_change') {
+                                                const isUnread = notif.read === false;
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? "bg-blue-50 border-blue-100 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
+                                                            : "bg-slate-50 border-slate-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.5)] z-20"></div>
+                                                        )}
+
+                                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10">
+                                                            <Shield size={20} className="text-blue-600" />
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-bold leading-tight ${isUnread ? "text-blue-900" : "text-gray-900"}`}>
+                                                                Security Update
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-blue-600" : "text-gray-700"}`}>
+                                                                {notif.message}
+                                                            </p>
+                                                        </div>
+                                                        <div className="absolute -right-2 -top-2 opacity-10 text-blue-600">
+                                                            <Shield size={40} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (notif.type === 'rate_update') {
+                                                const isUnread = notif.read === false;
+                                                const isCoin = notif.asset === 'coin';
+
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? isCoin ? "bg-emerald-50 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-amber-50 border-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                                                            : "bg-slate-50 border-slate-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)] z-20 ${isCoin ? "bg-emerald-500" : "bg-amber-500"}`}></div>
+                                                        )}
+
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10 ${isCoin ? "bg-emerald-100" : "bg-amber-100"}`}>
+                                                            {isCoin ? (
+                                                                <Coins size={20} className={isUnread ? "text-emerald-600" : "text-emerald-500"} />
+                                                            ) : (
+                                                                <Star size={20} className={isUnread ? "text-amber-600" : "text-amber-500"} />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-bold leading-tight ${isUnread ? isCoin ? "text-emerald-900" : "text-amber-900" : "text-gray-900"}`}>
+                                                                {isCoin ? "Coin" : "Star"} Rate Updated
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? isCoin ? "text-emerald-600" : "text-amber-600" : "text-gray-700"}`}>
+                                                                New Rate: {notif.newRate} ETB
+                                                            </p>
+                                                            <p className="text-[9px] text-gray-400 font-medium">
+                                                                Previous: {notif.oldRate} ETB
+                                                            </p>
+                                                        </div>
+                                                        <div className={`absolute -right-2 -top-2 opacity-10 ${isCoin ? "text-emerald-600" : "text-amber-600"}`}>
+                                                            <TrendingUp size={40} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else {
+                                                // Render Reward Style
+                                                const levelMap: { [key: string]: string } = {
+                                                    "Level A": "1",
+                                                    "Level B": "2",
+                                                    "Level C": "3",
+                                                    "Level D": "4"
+                                                };
+                                                const levelNum = levelMap[notif.level] || "1";
+                                                const isUnread = notif.read === false;
+
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleMarkAsRead(notif)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl relative overflow-hidden group transition-all duration-300 cursor-pointer border ${isUnread
+                                                            ? "bg-red-50 border-red-100 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                                                            : "bg-indigo-50/50 border-indigo-100"
+                                                            }`}
+                                                    >
+                                                        {isUnread && (
+                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)] z-20"></div>
+                                                        )}
+
+                                                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 overflow-hidden border-2 border-white shadow-sm relative z-10">
+                                                            <img
+                                                                src={encodeURI(`/level ${levelNum}.jpg`)}
+                                                                alt={notif.level}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col relative z-10">
+                                                            <p className={`text-xs font-bold leading-tight ${isUnread ? "text-red-900" : "text-gray-900"}`}>
+                                                                {notif.level} Reward Earned
+                                                            </p>
+                                                            <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? "text-red-600" : "text-gray-700"}`}>
+                                                                +{Number(notif.amount).toLocaleString()} ETB
+                                                            </p>
+                                                            <p className="text-[9px] text-gray-400 font-medium">
+                                                                from {notif.fromUser ? `${notif.fromUser.substring(0, 3)}***${notif.fromUser.substring(notif.fromUser.length - 4)}` : "Team Member"}
+                                                            </p>
+                                                        </div>
+                                                        <div className="absolute -right-2 -top-2 opacity-10">
+                                                            <TrendingUp size={40} className={isUnread ? "text-red-600" : "text-indigo-600"} />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                        });
+                                    })()}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -721,7 +797,7 @@ function WelcomeContent() {
                                     <div className="p-8 text-center relative z-10">
                                         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 mb-4">
                                             <Zap size={12} className="fill-white" />
-                                            {platformNotif.type || 'Announcement'}
+                                            {platformNotif.type || t('announcement')}
                                         </div>
                                         <h4 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-3">{platformNotif.title}</h4>
                                         <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
@@ -738,7 +814,7 @@ function WelcomeContent() {
                         <section className="space-y-6">
                             <div className="flex items-center gap-3 px-1">
                                 <div className="w-1.5 h-4 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.4)]"></div>
-                                <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">Main Operations</h3>
+                                <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">{t('mainOperations')}</h3>
                             </div>
 
                             {/* Premium Invite Banner */}
@@ -753,8 +829,8 @@ function WelcomeContent() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 to-transparent flex flex-col justify-center px-8">
                                     <div className="flex flex-col">
-                                        <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">Invite Friends</span>
-                                        <span className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">Earn Multi-Level Rewards</span>
+                                        <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">{t('inviteFriends')}</span>
+                                        <span className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{t('earnRewards')}</span>
                                     </div>
                                 </div>
                                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -770,7 +846,7 @@ function WelcomeContent() {
                                     <div className="w-20 h-20 relative group-hover:scale-110 transition-transform duration-500">
                                         <img src="/assets/recharge.png" alt="Recharge" className="w-full h-full object-contain drop-shadow-[0_12px_20px_rgba(249,115,22,0.25)]" />
                                     </div>
-                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase">RECHARGE</span>
+                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase">{t('recharge')}</span>
                                 </button>
 
                                 <button
@@ -781,16 +857,16 @@ function WelcomeContent() {
                                     <div className="w-20 h-20 relative group-hover:scale-110 transition-transform duration-500">
                                         <img src="/assets/buy_product.png" alt="Buy Product" className="w-full h-full object-contain drop-shadow-[0_12px_20px_rgba(16,185,129,0.25)]" />
                                     </div>
-                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase leading-none text-center">BUY PRODUCT</span>
+                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase leading-none text-center">{t('buyProduct')}</span>
                                 </button>
                             </div>
 
                             {/* Bottom Row: 3 Elite Mini Nodes */}
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { label: "VIP RULES", img: "/vip_rule_3d.png", color: "blue", action: () => router.push("/users/vip-rules") },
-                                    { label: "WITHDRAW", img: "/assets/withdrawal.png", color: "indigo", action: () => router.push("/users/withdraw") },
-                                    { label: "TASKS", icon: TrendingUp, color: "amber", special: true, action: () => router.push("/users/tasks") }
+                                    { label: t('vipRules'), img: "/vip_rule_3d.png", color: "blue", action: () => router.push("/users/vip-rules") },
+                                    { label: t('withdraw'), img: "/assets/withdrawal.png", color: "indigo", action: () => router.push("/users/withdraw") },
+                                    { label: t('tasks'), icon: TrendingUp, color: "amber", special: true, action: () => router.push("/users/tasks") }
                                 ].map((item: any, i: number) => (
                                     <button
                                         key={i}
@@ -818,7 +894,7 @@ function WelcomeContent() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-gray-400 italic">
                         <Ship size={48} className="mb-4 opacity-20" />
-                        <p>This section is coming soon...</p>
+                        <p>{t('comingSoon')}</p>
                     </div>
                 )}
             </main >

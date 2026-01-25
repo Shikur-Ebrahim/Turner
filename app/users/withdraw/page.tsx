@@ -45,6 +45,100 @@ export default function WithdrawalPage() {
         frequency: 1,
     });
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    const translations = {
+        english: {
+            requestAlert: "Request Alert",
+            okMatchRef: "OK, Matches Rule",
+            withdrawal: "Withdrawal",
+            withdrawalsClosed: "Withdrawals Closed",
+            nextWindow: "Next window:",
+            tomorrow: "tomorrow",
+            withdrawalsActive: "Withdrawals Active",
+            windowCloses: "Window Closes:",
+            withdrawalAmount: "Withdrawal Amount",
+            availableBalance: "Available Balance",
+            singleFee: "Single Fee",
+            actualReceipt: "Actual Receipt",
+            selectAccount: "Select Withdrawal Account",
+            account: "Account",
+            bank: "Bank",
+            holder: "Holder",
+            number: "Number",
+            noBank: "No Bank Linked",
+            tapConnect: "Tap to Connect Account",
+            withdrawalRules: "Withdrawal Rules",
+            rule1: "Withdrawal time is from",
+            to: "to",
+            rule2: "Single withdrawal is",
+            rule3: "Withdrawal frequency is every",
+            days_interval: "day(s). Reset at 0:00.",
+            rule4: "Withdrawal will arrive in your account in 2-72 hours.",
+            rule5: "One person can only use one bank card to withdraw money.",
+            withdrawFunds: "Withdraw Funds",
+            errConnectBank: "Please connect a bank account first.",
+            errValidAmount: "Please enter a valid amount.",
+            errMinAmount: "Minimum withdrawal amount is",
+            errMaxAmount: "Maximum single withdrawal is",
+            errClosedToday: "Withdrawals are not available today.",
+            errTimeWindow: "Withdrawals are only available between",
+            and: "and",
+            errInsufficient: "Insufficient balance to process request.",
+            etb: "ETB"
+        },
+        amharic: {
+            requestAlert: "የጥያቄ ማስጠንቀቂያ",
+            okMatchRef: "እሺ",
+            withdrawal: "ገንዘብ ማውጣት",
+            withdrawalsClosed: "ገንዘብ ማውጣት ተዘግቷል",
+            nextWindow: "ቀጣይ ክፍት ጊዜ:",
+            tomorrow: "ነገ",
+            withdrawalsActive: "ገንዘብ ማውጣት ይቻላል",
+            windowCloses: "መስኮቱ ይዘጋል:",
+            withdrawalAmount: "የማውጣት መጠን",
+            availableBalance: "ያለዎት ቀሪ ሂሳብ",
+            singleFee: "ነጠላ ክፍያ",
+            actualReceipt: "ትክክለኛ ደረሰኝ",
+            selectAccount: "የገንዘብ ማውጫ አካውንት ይምረጡ",
+            account: "አካውንት",
+            bank: "ባንክ",
+            holder: "ባለቤት",
+            number: "ቁጥር",
+            noBank: "ምንም ባንክ አልተገናኘም",
+            tapConnect: "አካውንት ለማገናኘት ይንኩ",
+            withdrawalRules: "የገንዘብ ማውጣት ህጎች",
+            rule1: "የገንዘብ ማውጣት ጊዜ ከ",
+            to: "እስከ",
+            rule2: "ነጠላ ማውጣት",
+            rule3: "የማውጣት ድግግሞሽ በየ",
+            days_interval: "ቀን(ናት)። በ0:00 ይጀምራል።",
+            rule4: "ማውጣት በ2-72 ሰዓታት ውስጥ ወደ ሂሳብዎ ይገባል።",
+            rule5: "አንድ ሰው ገንዘብ ለማውጣት አንድ የባንክ ካርድ ብቻ መጠቀም ይችላል።",
+            withdrawFunds: "ገንዘብ ማውጣት",
+            errConnectBank: "እባክዎ መጀመሪያ የባንክ ሂሳብ ያገናኙ።",
+            errValidAmount: "እባክዎ ትክክለኛ መጠን ያስገቡ።",
+            errMinAmount: "ዝቅተኛው የማውጣት መጠን",
+            errMaxAmount: "ከፍተኛው ነጠላ ማውጣት",
+            errClosedToday: "ዛሬ ገንዘብ ማውጣት አይቻልም።",
+            errTimeWindow: "ገንዘብ ማውጣት የሚቻለው በ",
+            and: "እና",
+            errInsufficient: "ጥያቄውን ለማስተናገድ በቂ ያልሆነ ቀሪ ሂሳብ።",
+            etb: "ብር"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
     // Error Modal State
     const [errorModal, setErrorModal] = useState<{ show: boolean, message: string } | null>(null);
 
@@ -120,22 +214,22 @@ export default function WithdrawalPage() {
 
 
         if (!linkedBank) {
-            setErrorModal({ show: true, message: "Please connect a bank account first." });
+            setErrorModal({ show: true, message: t("errConnectBank") });
             return;
         }
 
         if (!amount || isNaN(numAmount)) {
-            setErrorModal({ show: true, message: "Please enter a valid amount." });
+            setErrorModal({ show: true, message: t("errValidAmount") });
             return;
         }
 
         if (numAmount < withdrawalSettings.minAmount) {
-            setErrorModal({ show: true, message: `Minimum withdrawal amount is ${withdrawalSettings.minAmount} ETB.` });
+            setErrorModal({ show: true, message: `${t("errMinAmount")} ${withdrawalSettings.minAmount} ${t("etb")}.` });
             return;
         }
 
         if (numAmount > withdrawalSettings.maxAmount) {
-            setErrorModal({ show: true, message: `Maximum single withdrawal is ${withdrawalSettings.maxAmount.toLocaleString()} ETB.` });
+            setErrorModal({ show: true, message: `${t("errMaxAmount")} ${withdrawalSettings.maxAmount.toLocaleString()} ${t("etb")}.` });
             return;
         }
 
@@ -150,17 +244,17 @@ export default function WithdrawalPage() {
         const endTotal = endH * 60 + endM;
 
         if (!withdrawalSettings.activeDays.includes(currentDay)) {
-            setErrorModal({ show: true, message: "Withdrawals are not available today." });
+            setErrorModal({ show: true, message: t("errClosedToday") });
             return;
         }
 
         if (currentTime < startTotal || currentTime > endTotal) {
-            setErrorModal({ show: true, message: `Withdrawals are only available between ${withdrawalSettings.startTime} and ${withdrawalSettings.endTime}.` });
+            setErrorModal({ show: true, message: `${t("errTimeWindow")} ${withdrawalSettings.startTime} ${t("and")} ${withdrawalSettings.endTime}.` });
             return;
         }
 
         if (numAmount > balance) {
-            setErrorModal({ show: true, message: "Insufficient balance to process request." });
+            setErrorModal({ show: true, message: t("errInsufficient") });
             return;
         }
 
@@ -202,7 +296,7 @@ export default function WithdrawalPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Request Alert</h3>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">{t("requestAlert")}</h3>
                                 <p className="text-xs font-bold text-slate-500 leading-relaxed px-2">
                                     {errorModal.message}
                                 </p>
@@ -212,7 +306,7 @@ export default function WithdrawalPage() {
                                 onClick={() => setErrorModal(null)}
                                 className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 active:scale-95 transition-all"
                             >
-                                OK, Matches Rule
+                                {t("okMatchRef")}
                             </button>
                         </div>
                     </div>
@@ -227,7 +321,7 @@ export default function WithdrawalPage() {
                 >
                     <ChevronLeft size={24} className="text-slate-700" />
                 </button>
-                <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">Withdrawal</h1>
+                <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">{t("withdrawal")}</h1>
             </header>
 
             {/* Withdrawal Schedule Status */}
@@ -251,9 +345,9 @@ export default function WithdrawalPage() {
                                     <Clock size={20} />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Withdrawals Closed</p>
+                                    <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t("withdrawalsClosed")}</p>
                                     <p className="text-[10px] font-bold text-amber-600 uppercase">
-                                        Next window: {withdrawalSettings.startTime} tomorrow
+                                        {t("nextWindow")} {withdrawalSettings.startTime} {t("tomorrow")}
                                     </p>
                                 </div>
                             </div>
@@ -265,9 +359,9 @@ export default function WithdrawalPage() {
                                 <CheckCircle2 size={20} className="text-emerald-600" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Withdrawals Active</p>
+                                <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">{t("withdrawalsActive")}</p>
                                 <p className="text-[10px] font-bold text-emerald-600 uppercase">
-                                    Window Closes: {withdrawalSettings.endTime}
+                                    {t("windowCloses")} {withdrawalSettings.endTime}
                                 </p>
                             </div>
                         </div>
@@ -280,7 +374,7 @@ export default function WithdrawalPage() {
                 <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                    <p className="text-sm font-bold opacity-80 mb-4 uppercase tracking-wider">Withdrawal Amount</p>
+                    <p className="text-sm font-bold opacity-80 mb-4 uppercase tracking-wider">{t("withdrawalAmount")}</p>
                     <div className="relative">
                         <input
                             type="number"
@@ -297,19 +391,19 @@ export default function WithdrawalPage() {
                 {/* Info Card */}
                 <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 space-y-4">
                     <div className="flex justify-between items-center p-3 rounded-2xl bg-slate-50">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Available Balance</span>
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("availableBalance")}</span>
                         <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
                             {Number(userData?.balance || 0).toLocaleString()}
                         </span>
                     </div>
 
                     <div className="flex justify-between items-center px-2">
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Single Fee</span>
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">{t("singleFee")}</span>
                         <span className="text-xs font-black text-white bg-blue-400 px-2 py-0.5 rounded-md">5%</span>
                     </div>
 
                     <div className="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
-                        <span className="text-sm font-black text-slate-900 uppercase tracking-wide">Actual Receipt</span>
+                        <span className="text-sm font-black text-slate-900 uppercase tracking-wide">{t("actualReceipt")}</span>
                         <div className="flex items-center gap-1">
                             <div className="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center text-amber-900 font-bold text-xs">$</div>
                             <span className="text-2xl font-black text-indigo-700">{actualReceipt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -319,7 +413,7 @@ export default function WithdrawalPage() {
 
                 {/* Bank Selection */}
                 <div className="space-y-3">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide ml-2">Select Withdrawal Account</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide ml-2">{t("selectAccount")}</h3>
 
                     {linkedBank ? (
                         <div
@@ -334,7 +428,7 @@ export default function WithdrawalPage() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-lg font-black text-slate-900 truncate tracking-tight">{linkedBank.accountNumber} Account</h4>
+                                    <h4 className="text-lg font-black text-slate-900 truncate tracking-tight">{linkedBank.accountNumber} {t("account")}</h4>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{linkedBank.holderName}</p>
                                 </div>
                                 <div className="text-indigo-200">
@@ -345,15 +439,15 @@ export default function WithdrawalPage() {
                             {/* Permanently Visible Details */}
                             <div className="pt-4 border-t border-dashed border-indigo-100 space-y-3 bg-slate-50/50 -mx-5 -mb-5 p-5">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Bank</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("bank")}</span>
                                     <span className="text-[11px] font-bold text-slate-700">{linkedBank.bankName}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Holder</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("holder")}</span>
                                     <span className="text-[11px] font-bold text-slate-700">{linkedBank.holderName}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Number</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("number")}</span>
                                     <span className="text-[11px] font-bold text-slate-700 tracking-wider font-mono">{linkedBank.accountNumber}</span>
                                 </div>
                             </div>
@@ -364,8 +458,8 @@ export default function WithdrawalPage() {
                             className="bg-white rounded-[2rem] p-6 text-center border-2 border-dashed border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/10 transition-colors cursor-pointer"
                         >
                             <CreditCard className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                            <p className="text-xs font-bold text-gray-500 uppercase">No Bank Linked</p>
-                            <p className="text-[10px] text-indigo-600 font-black uppercase tracking-wider mt-1">Tap to Connect Account</p>
+                            <p className="text-xs font-bold text-gray-500 uppercase">{t("noBank")}</p>
+                            <p className="text-[10px] text-indigo-600 font-black uppercase tracking-wider mt-1">{t("tapConnect")}</p>
                         </div>
                     )}
                 </div>
@@ -374,28 +468,28 @@ export default function WithdrawalPage() {
                 <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
                     <div className="flex items-center gap-2 mb-4">
                         <AlertCircle size={18} className="text-slate-400" />
-                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Withdrawal Rules</h4>
+                        <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">{t("withdrawalRules")}</h4>
                     </div>
                     <ul className="space-y-3">
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">1.</span>
-                            Withdrawal time is from {withdrawalSettings.startTime} to {withdrawalSettings.endTime} ({withdrawalSettings.activeDays.map((d: number) => DAYS_MAP[d]).join(", ")}).
+                            {t("rule1")} {withdrawalSettings.startTime} {t("to")} {withdrawalSettings.endTime} ({withdrawalSettings.activeDays.map((d: number) => DAYS_MAP[d]).join(", ")}).
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">2.</span>
-                            Single withdrawal is {withdrawalSettings.minAmount}-{withdrawalSettings.maxAmount.toLocaleString()} Br.
+                            {t("rule2")} {withdrawalSettings.minAmount}-{withdrawalSettings.maxAmount.toLocaleString()} {t("etb")}.
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">3.</span>
-                            Withdrawal frequency is every {withdrawalSettings.frequency} day(s). Reset at 0:00.
+                            {t("rule3")} {withdrawalSettings.frequency} {t("days_interval")}
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">4.</span>
-                            Withdrawal will arrive in your account in 2-72 hours.
+                            {t("rule4")}
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">5.</span>
-                            One person can only use one bank card to withdraw money.
+                            {t("rule5")}
                         </li>
                     </ul>
                 </div>
@@ -408,7 +502,7 @@ export default function WithdrawalPage() {
                     className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                     <Lock size={16} />
-                    Withdraw Funds
+                    {t("withdrawFunds")}
                 </button>
             </div>
         </div>

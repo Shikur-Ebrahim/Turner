@@ -30,6 +30,66 @@ export default function ExchangePage() {
     const [exchangedETB, setExchangedETB] = useState(0);
     const [error, setError] = useState("");
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useState(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    });
+
+    const translations = {
+        english: {
+            exchange: "Exchange",
+            coinToEtb: "Coin to ETB",
+            currentRate: "Current Rate",
+            etb: "ETB",
+            perCoin: "Per Coin",
+            coin: "Coin",
+            availableCoins: "Available Coins",
+            exchangeAmount: "Exchange Amount",
+            coinsToExchange: "Coins to Exchange",
+            min: "Min",
+            youWillReceive: "You Will Receive",
+            processing: "Processing...",
+            exchangeNow: "Exchange Now",
+            exchangeSuccessful: "Exchange Successful!",
+            transactionCompleted: "Transaction completed successfully",
+            coins: "Coins",
+            ok: "OK",
+            minimumExchange: "Minimum exchange amount is 100 Coins",
+            insufficientBalance: "Insufficient Coin balance",
+            exchangeFailed: "Failed to process exchange. Please try again."
+        },
+        amharic: {
+            exchange: "ልውውጥ",
+            coinToEtb: "ሳንቲም ወደ ብር",
+            currentRate: "የአሁኑ ተመን",
+            etb: "ብር",
+            perCoin: "በአንድ ሳንቲም",
+            coin: "ሳንቲም",
+            availableCoins: "ያሉ ሳንቲሞች",
+            exchangeAmount: "የልውውጥ መጠን",
+            coinsToExchange: "ለመለዋወጥ ሳንቲሞች",
+            min: "ዝቅተኛ",
+            youWillReceive: "የሚያገኙት",
+            processing: "በማስኬድ ላይ...",
+            exchangeNow: "አሁን ይለዋወጡ",
+            exchangeSuccessful: "ልውውጥ ተሳክቷል!",
+            transactionCompleted: "ግብይት በተሳካ ሁኔታ ተጠናቅቋል",
+            coins: "ሳንቲሞች",
+            ok: "እሺ",
+            minimumExchange: "ዝቅተኛ የልውውጥ መጠን 100 ሳንቲሞች ነው",
+            insufficientBalance: "በቂ ያልሆነ የሳንቲም ሂሳብ",
+            exchangeFailed: "ልውውጥ ማስኬድ አልተቻለም። እባክዎ እንደገና ይሞክሩ።"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -79,12 +139,12 @@ export default function ExchangePage() {
 
         // Validation
         if (amount < 100) {
-            setError("Minimum exchange amount is 100 Coins");
+            setError(t("minimumExchange"));
             return;
         }
 
         if (amount > (userData.teamIncome || 0)) {
-            setError("Insufficient Coin balance");
+            setError(t("insufficientBalance"));
             return;
         }
 
@@ -112,7 +172,7 @@ export default function ExchangePage() {
 
         } catch (error) {
             console.error("Error exchanging coins:", error);
-            setError("Failed to process exchange. Please try again.");
+            setError(t("exchangeFailed"));
         } finally {
             setExchanging(false);
         }
@@ -137,8 +197,8 @@ export default function ExchangePage() {
                     <ChevronLeft size={20} />
                 </button>
                 <div className="flex flex-col items-center">
-                    <span className="text-sm font-bold text-slate-900 tracking-wide uppercase">Exchange</span>
-                    <span className="text-xs text-slate-500 font-medium">Coin to ETB</span>
+                    <span className="text-sm font-bold text-slate-900 tracking-wide uppercase">{t("exchange")}</span>
+                    <span className="text-xs text-slate-500 font-medium">{t("coinToEtb")}</span>
                 </div>
                 <div className="w-10" /> {/* Spacer for centering */}
             </header>
@@ -155,18 +215,18 @@ export default function ExchangePage() {
                                 <TrendingUp size={24} className="text-white" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-white/80 uppercase tracking-widest">Current Rate</p>
+                                <p className="text-xs font-bold text-white/80 uppercase tracking-widest">{t("currentRate")}</p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-2xl font-black text-white">{exchangeRate}</span>
-                                    <span className="text-sm font-bold text-white/80">ETB</span>
+                                    <span className="text-sm font-bold text-white/80">{t("etb")}</span>
                                 </div>
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs font-bold text-white/60 uppercase tracking-wider">Per Coin</p>
+                            <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t("perCoin")}</p>
                             <div className="flex items-center gap-1 justify-end mt-1">
                                 <Coins size={16} className="text-emerald-300" />
-                                <span className="text-sm font-bold text-white">1 Coin</span>
+                                <span className="text-sm font-bold text-white">1 {t("coin")}</span>
                             </div>
                         </div>
                     </div>
@@ -176,7 +236,7 @@ export default function ExchangePage() {
                 <section className="bg-white rounded-[2rem] p-6 shadow-lg border border-slate-100">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Available Coins</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t("availableCoins")}</p>
                             <div className="flex items-center gap-2">
                                 <Coins size={24} className="text-emerald-600" />
                                 <span className="text-3xl font-black text-slate-900">{Number(userData?.teamIncome || 0).toLocaleString()}</span>
@@ -190,25 +250,25 @@ export default function ExchangePage() {
 
                 {/* Exchange Form */}
                 <section className="bg-white rounded-[2rem] p-6 shadow-lg border border-slate-100 space-y-6">
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Exchange Amount</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">{t("exchangeAmount")}</h3>
 
                     {/* Coin Input */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Coins to Exchange</label>
-                            <span className="text-[10px] font-black text-violet-500 bg-violet-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Min: 100</span>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t("coinsToExchange")}</label>
+                            <span className="text-[10px] font-black text-violet-500 bg-violet-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">{t("min")}: 100</span>
                         </div>
                         <div className="relative">
                             <input
                                 type="number"
                                 value={coinAmount}
                                 onChange={(e) => setCoinAmount(e.target.value)}
-                                placeholder="Min 100"
+                                placeholder={`${t("min")} 100`}
                                 className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-4 text-2xl font-bold text-slate-900 focus:outline-none focus:border-emerald-500 transition-colors"
                             />
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-xl">
                                 <Coins size={18} className="text-emerald-600" />
-                                <span className="text-sm font-bold text-emerald-600">COIN</span>
+                                <span className="text-sm font-bold text-emerald-600">{t("coin").toUpperCase()}</span>
                             </div>
                         </div>
                     </div>
@@ -222,14 +282,14 @@ export default function ExchangePage() {
 
                     {/* ETB Preview */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">You Will Receive</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t("youWillReceive")}</label>
                         <div className="relative">
                             <div className="w-full bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-4 py-4">
                                 <div className="flex items-center justify-between">
                                     <span className="text-2xl font-black text-slate-900">{etbPreview.toLocaleString()}</span>
                                     <div className="flex items-center gap-2 bg-blue-100 px-3 py-1.5 rounded-xl">
                                         <Banknote size={18} className="text-blue-600" />
-                                        <span className="text-sm font-bold text-blue-600">ETB</span>
+                                        <span className="text-sm font-bold text-blue-600">{t("etb")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -253,12 +313,12 @@ export default function ExchangePage() {
                         {exchanging ? (
                             <>
                                 <Loader2 className="animate-spin" size={20} />
-                                <span>Processing...</span>
+                                <span>{t("processing")}</span>
                             </>
                         ) : (
                             <>
                                 <ArrowLeftRight size={20} />
-                                <span>Exchange Now</span>
+                                <span>{t("exchangeNow")}</span>
                             </>
                         )}
                     </button>
@@ -277,8 +337,8 @@ export default function ExchangePage() {
                                 {/* Title & Message */}
                                 <div className="space-y-4">
                                     <div>
-                                        <h3 className="text-2xl font-black text-slate-900 mb-2">Exchange Successful!</h3>
-                                        <p className="text-sm text-slate-500 font-medium">Transaction completed successfully</p>
+                                        <h3 className="text-2xl font-black text-slate-900 mb-2">{t("exchangeSuccessful")}</h3>
+                                        <p className="text-sm text-slate-500 font-medium">{t("transactionCompleted")}</p>
                                     </div>
 
                                     {/* Simplified Descriptive Message */}
@@ -287,12 +347,12 @@ export default function ExchangePage() {
                                         <div className="relative z-10 flex flex-col items-center gap-2">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xl font-black text-emerald-600">-{exchangedCoins.toLocaleString()}</span>
-                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Coins</span>
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("coins")}</span>
                                             </div>
                                             <div className="w-8 h-[2px] bg-slate-200 rounded-full"></div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-2xl font-black text-blue-600">+{exchangedETB.toLocaleString()}</span>
-                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ETB</span>
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("etb")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -303,7 +363,7 @@ export default function ExchangePage() {
                                     onClick={() => setShowSuccess(false)}
                                     className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-2xl py-4 font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/40 active:scale-95 transition-all"
                                 >
-                                    OK
+                                    {t("ok")}
                                 </button>
                             </div>
                         </div>

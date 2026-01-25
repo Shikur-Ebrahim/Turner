@@ -49,6 +49,92 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [hasRuleUpdates, setHasRuleUpdates] = useState(false);
 
+    const [language, setLanguage] = useState<"english" | "amharic">("english");
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
+
+    const translations = {
+        english: {
+            securityHub: "Security Hub",
+            member: "Member",
+            etb: "ETB",
+            vip: "VIP",
+            digitalAssets: "Digital Assets",
+            availableBalance: "Available Balance",
+            secureNode: "Secure Node: Active",
+            dataIntelligence: "Data Intelligence",
+            performanceAnalysis: "Performance Analysis",
+            active: "Active",
+            verified: "Verified",
+            totalRecharge: "Total Recharge",
+            teamIncome: "Team Income",
+            totalIncome: "Total Income",
+            totalWithdrawal: "Total Withdrawal",
+            teamSize: "Team Size",
+            todayIncome: "Today Income",
+            rules: "RULES",
+            download: "DOWNLOAD",
+            bank: "BANK",
+            service: "SERVICE",
+            systemManagement: "System Management",
+            fundingDetails: "FUNDING DETAILS",
+            transactionLogs: "TRANSACTION LOGS",
+            withdrawalRecord: "WITHDRAWAL RECORD",
+            paymentStatus: "PAYMENT STATUS",
+            loginPassword: "LOGIN PASSWORD",
+            securityProtocols: "SECURITY PROTOCOLS",
+            withdrawalPassword: "WITHDRAWAL PASSWORD",
+            assetProtection: "ASSET PROTECTION",
+            rechargeRecord: "RECHARGE RECORD",
+            creditAnalysis: "CREDIT ANALYSIS",
+            endSession: "End Session"
+        },
+        amharic: {
+            securityHub: "የደህንነት ማዕከል",
+            member: "አባል",
+            etb: "ብር",
+            vip: "ቪ.አይ.ፒ",
+            digitalAssets: "ዲጂታል ንብረቶች",
+            availableBalance: "ያለዎት ሂሳብ",
+            secureNode: "ደህንነቱ የተጠበቀ",
+            dataIntelligence: "የመረጃ ትንተና",
+            performanceAnalysis: "የአፈጻጸም ትንተና",
+            active: "ንቁ",
+            verified: "የተረጋገጠ",
+            totalRecharge: "ጠቅላላ የተሞላ",
+            teamIncome: "የቡድን ገቢ",
+            totalIncome: "ጠቅላላ ገቢ",
+            totalWithdrawal: "ጠቅላላ ወጪ",
+            teamSize: "የቡድን ብዛት",
+            todayIncome: "የዛሬ ገቢ",
+            rules: "ደንቦች",
+            download: "አውርድ",
+            bank: "ባንክ",
+            service: "አገልግሎት",
+            systemManagement: "የስርዓት አስተዳደር",
+            fundingDetails: "የገንዘብ ዝርዝሮች",
+            transactionLogs: "የግብይት መዝገቦች",
+            withdrawalRecord: "የወጪ መዝገብ",
+            paymentStatus: "የክፍያ ሁኔታ",
+            loginPassword: "የመግቢያ የይለፍ ቃል",
+            securityProtocols: "የደህንነት ፕሮቶኮሎች",
+            withdrawalPassword: "የወጪ የይለፍ ቃል",
+            assetProtection: "የንብረት ጥበቃ",
+            rechargeRecord: "የሞሉት መዝገብ",
+            creditAnalysis: "የሂሳብ ትንተና",
+            endSession: "ዛግተው ይውጡ"
+        }
+    };
+
+    const t = (key: keyof typeof translations.english) => {
+        return translations[language][key] || translations.english[key];
+    };
+
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -106,12 +192,12 @@ export default function ProfilePage() {
     };
 
     const stats = [
-        { label: "Total Recharge", value: userData?.totalRecharge || "0.00", icon: CreditCard, image: "/assets/recharge.png", color: "blue", trend: "+2.4%", category: "wallet" },
-        { label: "Team Income", value: userData?.teamIncome || "0.00", icon: Users, image: "/assets/invite.png", color: "purple", trend: "+15.8%", filter: "hue-rotate(240deg) saturate(1.5)", category: "team" },
-        { label: "Total Income", value: userData?.totalIncome || "0.00", icon: TrendingUp, image: "/assets/buy_product.png", color: "emerald", trend: "+8.2%", category: "earnings" },
-        { label: "Total Withdrawal", value: userData?.totalWithdrawal || "0.00", icon: ArrowUpRight, image: "/assets/withdrawal.png", color: "orange", trend: "0.0%", category: "wallet" },
-        { label: "Team Size", value: userData?.teamSize || "0", icon: Users, color: "indigo", trend: "+1", category: "team" },
-        { label: "Today Income", value: userData?.dailyIncome || "0.00", icon: Zap, image: "/assets/recharge.png", color: "amber", filter: "hue-rotate(300deg) saturate(2)", trend: "+24.3%", category: "earnings" },
+        { label: t("totalRecharge"), value: userData?.totalRecharge || "0.00", icon: CreditCard, image: "/assets/recharge.png", color: "blue", trend: "+2.4%", category: "wallet" },
+        { label: t("teamIncome"), value: userData?.teamIncome || "0.00", icon: Users, image: "/assets/invite.png", color: "purple", trend: "+15.8%", filter: "hue-rotate(240deg) saturate(1.5)", category: "team" },
+        { label: t("totalIncome"), value: userData?.totalIncome || "0.00", icon: TrendingUp, image: "/assets/buy_product.png", color: "emerald", trend: "+8.2%", category: "earnings" },
+        { label: t("totalWithdrawal"), value: userData?.totalWithdrawal || "0.00", icon: ArrowUpRight, image: "/assets/withdrawal.png", color: "orange", trend: "0.0%", category: "wallet" },
+        { label: t("teamSize"), value: userData?.teamSize || "0", icon: Users, color: "indigo", trend: "+1", category: "team" },
+        { label: t("todayIncome"), value: userData?.dailyIncome || "0.00", icon: Zap, image: "/assets/recharge.png", color: "amber", filter: "hue-rotate(300deg) saturate(2)", trend: "+24.3%", category: "earnings" },
     ];
 
     return (
@@ -126,7 +212,7 @@ export default function ProfilePage() {
                     >
                         <ChevronLeft className="text-white" size={24} />
                     </button>
-                    <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase">Security Hub</h1>
+                    <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase">{t("securityHub")}</h1>
                     <div className="w-10"></div> {/* Spacer for balance */}
                 </div>
             </header>
@@ -161,7 +247,7 @@ export default function ProfilePage() {
                         {/* Identity Details */}
                         <div className="flex-1 space-y-1.5 overflow-hidden">
                             <div className="space-y-0">
-                                <h2 className="text-2xl font-black text-gray-900 leading-tight tracking-tight uppercase truncate">Member</h2>
+                                <h2 className="text-2xl font-black text-gray-900 leading-tight tracking-tight uppercase truncate">{t("member")}</h2>
                                 <div className="flex items-center gap-2">
                                     <div className="px-2 py-0.5 bg-blue-50 rounded-md border border-blue-100/50">
                                         <span className="text-[10px] font-black text-blue-600 tracking-widest uppercase">UID: {userData?.uid?.substring(0, 6).toUpperCase() || "LLBSBV"}</span>
@@ -184,7 +270,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="flex items-center gap-2 bg-gradient-to-br from-amber-500 to-orange-600 px-3 py-1.5 rounded-2xl shadow-lg shadow-orange-500/20 border border-orange-400/30">
                                 <Shield size={10} className="text-white fill-current" />
-                                <span className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">VIP {userData?.vip || 0}</span>
+                                <span className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">{t("vip")} {userData?.vip || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -205,9 +291,9 @@ export default function ProfilePage() {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <Wallet size={16} className="text-blue-400" />
-                                        <span className="text-[10px] font-black text-blue-200/60 uppercase tracking-[0.3em]">Digital Assets</span>
+                                        <span className="text-[10px] font-black text-blue-200/60 uppercase tracking-[0.3em]">{t("digitalAssets")}</span>
                                     </div>
-                                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest pl-1">Available Balance</h3>
+                                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest pl-1">{t("availableBalance")}</h3>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
                                     <Coins size={20} className="text-blue-300" />
@@ -229,7 +315,7 @@ export default function ProfilePage() {
                                         </div>
                                     ))}
                                 </div>
-                                <span className="text-[9px] font-black text-blue-200/40 uppercase tracking-[0.2em]">Secure Node: Active</span>
+                                <span className="text-[9px] font-black text-blue-200/40 uppercase tracking-[0.2em]">{t("secureNode")}</span>
                             </div>
                         </div>
                     </div>
@@ -250,16 +336,16 @@ export default function ProfilePage() {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
                                         <div className="w-1.5 h-6 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)]"></div>
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] leading-none">Data Intelligence</h3>
+                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] leading-none">{t("dataIntelligence")}</h3>
                                     </div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] pl-4">Performance Analysis</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] pl-4">{t("performanceAnalysis")}</p>
                                 </div>
                                 <div className="flex items-center gap-2.5 px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-100/50 shadow-sm">
                                     <div className="relative flex items-center justify-center">
                                         <Activity size={12} className="text-emerald-500 relative z-10" />
                                         <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25 scale-150"></div>
                                     </div>
-                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active</span>
+                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t("active")}</span>
                                 </div>
                             </div>
 
@@ -294,7 +380,7 @@ export default function ProfilePage() {
                                             </p>
                                             <div className="flex items-center justify-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse"></div>
-                                                <span className="text-[8px] font-black text-blue-500/60 uppercase tracking-widest">Verified</span>
+                                                <span className="text-[8px] font-black text-blue-500/60 uppercase tracking-widest">{t("verified")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -307,10 +393,10 @@ export default function ProfilePage() {
                 {/* Advanced Core Services - Interaction Grid */}
                 <div className="grid grid-cols-4 gap-4 mb-12">
                     {[
-                        { label: "RULES", image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: "/users/rules", dark: false, icon: null },
-                        { label: "DOWNLOAD", image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false, icon: null },
-                        { label: "BANK", image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false, icon: null },
-                        { label: "SERVICE", image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false, icon: null },
+                        { label: t("rules"), image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: "/users/rules", dark: false, icon: null },
+                        { label: t("download"), image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false, icon: null },
+                        { label: t("bank"), image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false, icon: null },
+                        { label: t("service"), image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false, icon: null },
                     ].map((item: any, i) => (
                         <button
                             key={i}
@@ -329,7 +415,7 @@ export default function ProfilePage() {
                                     ) : null}
 
                                     {/* Red Notification Dot for RULES */}
-                                    {item.label === "RULES" && hasRuleUpdates && (
+                                    {item.label === t("rules") && hasRuleUpdates && (
                                         <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse z-20"></div>
                                     )}
                                 </div>
@@ -343,15 +429,15 @@ export default function ProfilePage() {
                 <div className="space-y-4 pb-12">
                     <div className="flex items-center gap-3 mb-6 px-1">
                         <div className="w-1.5 h-4 bg-gray-900 rounded-full"></div>
-                        <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">System Management</h3>
+                        <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">{t("systemManagement")}</h3>
                     </div>
 
                     {[
-                        { title: "FUNDING DETAILS", sub: "TRANSACTION LOGS", icon: Wallet, color: "blue", path: "/users/funding-details" },
-                        { title: "WITHDRAWAL RECORD", sub: "PAYMENT STATUS", icon: ArrowUpRight, color: "emerald", path: "/users/withdrawal-record" },
-                        { title: "LOGIN PASSWORD", sub: "SECURITY PROTOCOLS", icon: Key, color: "purple", path: "/users/change-password" },
-                        { title: "WITHDRAWAL PASSWORD", sub: "ASSET PROTECTION", icon: Lock, color: "indigo", path: "/users/change-withdrawal-password" },
-                        { title: "RECHARGE RECORD", sub: "CREDIT ANALYSIS", icon: History, color: "orange", path: "/users/recharge-records" },
+                        { title: t("fundingDetails"), sub: t("transactionLogs"), icon: Wallet, color: "blue", path: "/users/funding-details" },
+                        { title: t("withdrawalRecord"), sub: t("paymentStatus"), icon: ArrowUpRight, color: "emerald", path: "/users/withdrawal-record" },
+                        { title: t("loginPassword"), sub: t("securityProtocols"), icon: Key, color: "purple", path: "/users/change-password" },
+                        { title: t("withdrawalPassword"), sub: t("assetProtection"), icon: Lock, color: "indigo", path: "/users/change-withdrawal-password" },
+                        { title: t("rechargeRecord"), sub: t("creditAnalysis"), icon: History, color: "orange", path: "/users/recharge-records" },
                     ].map((item, i) => (
                         <button
                             key={i}
@@ -392,7 +478,7 @@ export default function ProfilePage() {
                                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
                                     <LogOut size={20} className="text-white" />
                                 </div>
-                                <span className="text-lg font-black text-white uppercase tracking-[0.2em]">End Session</span>
+                                <span className="text-lg font-black text-white uppercase tracking-[0.2em]">{t("endSession")}</span>
                             </div>
                             {/* Decorative highlights */}
                             <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-[45deg] translate-x-32 group-hover:translate-x-[-150%] transition-transform duration-1000"></div>
