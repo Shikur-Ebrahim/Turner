@@ -112,6 +112,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
         { id: "telegram", label: "Telegram Staff", icon: Send, path: "/admin/telegram" },
         { id: "chats", label: "Live Support", icon: MessageSquare, path: "/admin/chats" },
         { id: "guidelines", label: "Chat Guidelines", icon: BookOpen, path: "/admin/guidelines" },
+        { id: "platform-guidelines", label: "Platform Guidelines", icon: BookOpen, path: "/admin/guidelines" },
         { id: "rules", label: "Platform Rules", icon: BookOpen, path: "/admin/rules" },
         { id: "platform-notifications", label: "Platform Alerts", icon: Bell, path: "/admin/platform-notifications" },
         { id: "daily-tasks", label: "Daily Tasks", icon: Gamepad2, path: "/admin/daily-tasks" },

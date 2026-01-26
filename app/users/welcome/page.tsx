@@ -6,6 +6,7 @@ import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, writeBatch, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import {
+    AlertCircle,
     Home,
     Wallet,
     Ship,
@@ -21,7 +22,10 @@ import {
     PartyPopper,
     Zap,
     X,
-    XCircle
+    XCircle,
+    BookOpen,
+    ChevronLeft,
+    Info
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import VipCelebrationCard from "@/components/VipCelebrationCard";
@@ -56,6 +60,10 @@ function WelcomeContent() {
     const [platformNotif, setPlatformNotif] = useState<any>(null);
     const [showPlatformNotif, setShowPlatformNotif] = useState(false);
 
+    // Guidelines Overlay State
+    const [showGuidelines, setShowGuidelines] = useState(false);
+    const [platformGuidelines, setPlatformGuidelines] = useState<any[]>([]);
+
     // Language State
     const [language, setLanguage] = useState<"english" | "amharic">("english");
 
@@ -76,6 +84,20 @@ function WelcomeContent() {
             notifications: "Notifications",
             user: "User",
             comingSoon: "This section is coming soon...",
+            howToWork: "How to Work",
+            platformGuide: "Platform Guide",
+            discoveryCenter: "Discovery Center",
+            status: "Status",
+            official: "Official",
+            verify: "Verify",
+            secure: "Secure",
+            systemVerified: "System Verified",
+            guidelinesAuthenticated: "Guidelines Authenticated",
+            acknowledgeBack: "Acknowledge & Back",
+            summary: "Summary",
+            detailedDescription: "Detailed Description",
+            noGuidelines: "No guides available at the moment.",
+            workflowGuidelines: "Turner Workflow Guidelines"
         },
         amharic: {
             welcome: "እንኳን በደህና መጡ፣",
@@ -93,6 +115,20 @@ function WelcomeContent() {
             notifications: "ማሳወቂያዎች",
             user: "ተጠቃሚ",
             comingSoon: "ይህ ክፍል በቅርቡ ይመጣል።",
+            howToWork: "እንዴት እንደሚሰራ",
+            platformGuide: "የመድረክ መመሪያ",
+            discoveryCenter: "የግኝት ማዕከል",
+            status: "ሁኔታ",
+            official: "ይፋዊ",
+            verify: "አረጋግጥ",
+            secure: "ደህንነቱ የተጠበቀ",
+            systemVerified: "ስርዓቱ ተረጋግጧል",
+            guidelinesAuthenticated: "መመሪያዎች ተረጋግጠዋል",
+            acknowledgeBack: "ተረድቻለሁ እና ተመለስ",
+            summary: "ማጠቃለያ",
+            detailedDescription: "ዝርዝር መግለጫ",
+            noGuidelines: "በአሁኑ ጊዜ ምንም መመሪያዎች የሉም።",
+            workflowGuidelines: "የተርነር የሥራ ፍሰት መመሪያዎች"
         }
     };
 
@@ -293,11 +329,19 @@ function WelcomeContent() {
             console.error("Firestore onSnapshot error (PlatformNotifications):", error);
         });
 
+        // 4. Listen for Platform Guidelines
+        const qGuidelines = query(collection(db, "platform_guidelines"), orderBy("order", "asc"));
+        const unsubscribeGuidelines = onSnapshot(qGuidelines, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setPlatformGuidelines(data);
+        });
+
         return () => {
             unsubscribeAuth();
             unsubscribeBanners();
             unsubscribeNotifs();
             unsubscribePlatform();
+            unsubscribeGuidelines();
         };
     }, [router]);
 
@@ -813,8 +857,18 @@ function WelcomeContent() {
                         {/* Elite 5-Card Interactive Action Grid (2+3 Layout) */}
                         <section className="space-y-6">
                             <div className="flex items-center gap-3 px-1">
-                                <div className="w-1.5 h-4 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.4)]"></div>
                                 <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">{t('mainOperations')}</h3>
+                                <button
+                                    onClick={() => setShowGuidelines(true)}
+                                    className="ml-auto flex items-center gap-2.5 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl group hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 border border-white/20"
+                                >
+                                    <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                        <BookOpen size={14} className="text-white" />
+                                    </div>
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                                        {t('howToWork')}
+                                    </span>
+                                </button>
                             </div>
 
                             {/* Premium Invite Banner */}
@@ -933,7 +987,147 @@ function WelcomeContent() {
                     />
                 )
             }
-        </div >
+            {/* Premium Guidelines Overlay */}
+            {showGuidelines && (
+                <div className="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="absolute inset-x-0 bottom-0 top-[8%] bg-[#F8F9FD] rounded-t-[3.5rem] shadow-[0_-25px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col animate-in slide-in-from-bottom duration-500">
+                        {/* Drag Handle Container */}
+                        <div className="w-full flex justify-center pt-5 pb-1">
+                            <div className="w-14 h-1.5 bg-gray-200/80 rounded-full"></div>
+                        </div>
+
+                        {/* Top Bar */}
+                        <header className="px-8 py-6 flex items-center justify-between">
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-xl shadow-indigo-600/30">
+                                    <BookOpen size={28} className="text-white" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                                        {t('platformGuide')}
+                                    </h1>
+                                    <p className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em]">{t('discoveryCenter')}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowGuidelines(false)}
+                                className="w-12 h-12 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all active:scale-90 text-slate-400"
+                            >
+                                <X size={24} />
+                            </button>
+                        </header>
+
+                        {/* Scrollable Content */}
+                        <main className="flex-1 overflow-y-auto px-6 py-10 space-y-12 custom-scrollbar pb-40">
+                            {/* Visual Highlights */}
+                            <div className="px-2">
+                                <div className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm relative overflow-hidden group">
+                                    <div className="relative z-10 flex flex-col items-center text-center">
+                                        <h2 className="text-3xl font-black text-slate-900 leading-none italic tracking-tighter mb-1">
+                                            {t('workflowGuidelines')}
+                                        </h2>
+                                    </div>
+                                    <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                                        <Zap size={140} className="text-indigo-600 rotate-12" />
+                                    </div>
+                                    <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-indigo-500 to-transparent opacity-10"></div>
+                                </div>
+                            </div>
+
+                            {/* Guideline Cards */}
+                            <div className="space-y-12 px-2">
+                                {platformGuidelines.length === 0 ? (
+                                    <div className="py-24 text-center space-y-5">
+                                        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto opacity-50 relative">
+                                            <div className="absolute inset-0 bg-gray-200 rounded-full animate-ping opacity-20"></div>
+                                            <AlertCircle size={40} className="text-gray-400 relative z-10" />
+                                        </div>
+                                        <p className="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">{t('noGuidelines')}</p>
+                                    </div>
+                                ) : (
+                                    platformGuidelines.map((item: any, index: number) => (
+                                        <div key={item.id} className="relative group">
+                                            {/* Vertical Connect Line */}
+                                            {index !== platformGuidelines.length - 1 && (
+                                                <div className="absolute left-[23px] top-14 bottom-[-3.5rem] w-[2px] bg-gradient-to-b from-indigo-100/50 via-indigo-50/20 to-transparent"></div>
+                                            )}
+
+                                            <div className="flex gap-8">
+                                                {/* Step Number Circle */}
+                                                <div className="relative z-10 shrink-0">
+                                                    <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-50 shadow-sm flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500 group-hover:shadow-lg group-hover:shadow-indigo-600/20">
+                                                        <span className="text-xl font-black italic">{(index + 1).toString()}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-1 space-y-6 pt-1">
+                                                    <h3 className="text-xl font-black text-slate-900 tracking-tight leading-tight flex items-center gap-4">
+                                                        {item.title}
+                                                        <div className="h-[2px] flex-1 bg-gradient-to-r from-indigo-100/60 to-transparent rounded-full"></div>
+                                                    </h3>
+
+                                                    <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] space-y-8 relative overflow-hidden transition-all group-hover:shadow-lg group-hover:shadow-gray-200/50">
+                                                        {/* Side Accent */}
+                                                        <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-indigo-500 to-indigo-100 opacity-20"></div>
+
+                                                        {/* English Description */}
+                                                        <div className="space-y-3">
+                                                            <div className="flex items-center gap-2.5 mb-1">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                                                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">{t('summary')}</span>
+                                                            </div>
+                                                            <p className="text-slate-600 text-[14px] font-semibold leading-relaxed whitespace-pre-wrap pl-1">
+                                                                {item.description}
+                                                            </p>
+                                                        </div>
+
+                                                        {/* Amharic Description */}
+                                                        {item.descriptionAm && (
+                                                            <div className="space-y-3 pt-8 border-t border-gray-50 mt-2 relative">
+                                                                <div className="flex items-center gap-2.5 mb-1">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+                                                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">{t('detailedDescription')}</span>
+                                                                </div>
+                                                                <p className="text-slate-500 text-[14px] font-bold leading-relaxed whitespace-pre-wrap font-sans pl-1">
+                                                                    {item.descriptionAm}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            {/* Verification Badge */}
+                            <div className="px-2 pt-12">
+                                <div className="bg-white rounded-[3rem] p-10 border border-gray-100 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                                    <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-indigo-500 via-emerald-500 to-indigo-500"></div>
+                                    <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-2 shadow-inner relative">
+                                        <div className="absolute inset-0 bg-emerald-200 rounded-full animate-ping opacity-20"></div>
+                                        <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/30 relative z-10">
+                                            <CheckCircle2 size={32} className="text-white" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-2xl font-black text-slate-900 tracking-tight leading-none">{t('systemVerified')}</p>
+                                        <p className="text-[11px] font-black text-emerald-600 tracking-[0.25em]">{t('guidelinesAuthenticated')}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowGuidelines(false)}
+                                        className="w-full h-16 bg-indigo-600 text-white rounded-3xl font-black text-sm tracking-widest mt-6 shadow-2xl shadow-indigo-600/30 hover:scale-[1.02] active:scale-95 transition-all relative z-10 border border-white/20"
+                                    >
+                                        {t('acknowledgeBack')}
+                                    </button>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 
