@@ -267,6 +267,19 @@ export default function WithdrawalPage() {
     const fee = withdrawAmount * feePercent;
     const actualReceipt = withdrawAmount - fee;
 
+    // Helper for Ethiopian Time Display (Functionality stays 24h)
+    const formatToEthTime = (time24: string) => {
+        if (!time24) return "";
+        const [h, m] = time24.split(":").map(Number);
+        let ethH = h - 6;
+        if (ethH <= 0) ethH += 12;
+
+        const isMorning = h < 12;
+        const period = isMorning ? (language === "amharic" ? "ጥዋት " : "Morning ") : "";
+
+        return `${period}${ethH}:${m.toString().padStart(2, '0')}`;
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -347,7 +360,7 @@ export default function WithdrawalPage() {
                                 <div className="flex-1">
                                     <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">{t("withdrawalsClosed")}</p>
                                     <p className="text-[10px] font-bold text-amber-600 uppercase">
-                                        {t("nextWindow")} {withdrawalSettings.startTime} {t("tomorrow")}
+                                        {t("nextWindow")} {formatToEthTime(withdrawalSettings.startTime)} {t("tomorrow")}
                                     </p>
                                 </div>
                             </div>
@@ -361,7 +374,7 @@ export default function WithdrawalPage() {
                             <div className="flex-1">
                                 <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">{t("withdrawalsActive")}</p>
                                 <p className="text-[10px] font-bold text-emerald-600 uppercase">
-                                    {t("windowCloses")} {withdrawalSettings.endTime}
+                                    {t("windowCloses")} {formatToEthTime(withdrawalSettings.endTime)}
                                 </p>
                             </div>
                         </div>
@@ -473,7 +486,7 @@ export default function WithdrawalPage() {
                     <ul className="space-y-3">
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">1.</span>
-                            {t("rule1")} {withdrawalSettings.startTime} {t("to")} {withdrawalSettings.endTime} ({withdrawalSettings.activeDays.map((d: number) => DAYS_MAP[d]).join(", ")}).
+                            {t("rule1")} {formatToEthTime(withdrawalSettings.startTime)} {t("to")} {formatToEthTime(withdrawalSettings.endTime)} ({withdrawalSettings.activeDays.map((d: number) => DAYS_MAP[d]).join(", ")}).
                         </li>
                         <li className="flex gap-3 text-xs text-gray-500 font-medium">
                             <span className="font-bold text-slate-900">2.</span>
