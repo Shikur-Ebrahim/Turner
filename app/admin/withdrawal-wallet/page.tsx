@@ -34,7 +34,8 @@ import {
     TrendingUp,
     ShieldCheck,
     History,
-    AlertCircle
+    AlertCircle,
+    XCircle
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 import { toast } from "sonner";
@@ -46,7 +47,8 @@ export default function WithdrawalWalletPage() {
     const [verifying, setVerifying] = useState<string | null>(null);
     const [withdrawals, setWithdrawals] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [confirmAction, setConfirmAction] = useState<{ type: 'verify', data: any } | null>(null);
+    const [confirmAction, setConfirmAction] = useState<{ type: 'verify' | 'reject', data: any } | null>(null);
+    const [returnToBalance, setReturnToBalance] = useState(false);
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
     // Financial Check States
@@ -120,6 +122,51 @@ export default function WithdrawalWalletPage() {
         } catch (error) {
             console.error("Verification error:", error);
             toast.error(typeof error === 'string' ? error : "Failed to verify");
+        } finally {
+            setVerifying(null);
+        }
+    };
+
+    const handleReject = async (withdrawal: any) => {
+        if (verifying) return;
+        setVerifying(withdrawal.id);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const userDocRef = doc(db, "users", withdrawal.userId);
+                const withdrawalRef = doc(db, "Withdrawals", withdrawal.id);
+
+                const userDocSnap = await transaction.get(userDocRef);
+                if (!userDocSnap.exists()) throw "User does not exist!";
+
+                const amount = Number(withdrawal.amount);
+
+                transaction.delete(withdrawalRef);
+
+                if (returnToBalance) {
+                    transaction.update(userDocRef, {
+                        balance: increment(amount)
+                    });
+                }
+
+                // SEND NOTIFICATION TO USER
+                const notifRef = doc(collection(db, "UserNotifications"));
+                transaction.set(notifRef, {
+                    userId: withdrawal.userId,
+                    type: "withdrawal_rejected",
+                    amount: amount,
+                    status: "rejected",
+                    returnedToBalance: returnToBalance,
+                    read: false,
+                    createdAt: Timestamp.now()
+                });
+            });
+
+            toast.success(`Withdrawal of ETB ${withdrawal.amount} rejected! ${returnToBalance ? 'Amount returned to balance.' : ''}`);
+            setConfirmAction(null);
+        } catch (error) {
+            console.error("Rejection error:", error);
+            toast.error(typeof error === 'string' ? error : "Failed to reject");
         } finally {
             setVerifying(null);
         }
@@ -269,28 +316,60 @@ export default function WithdrawalWalletPage() {
                     <div className="w-full max-w-sm bg-white rounded-t-[3rem] sm:rounded-[3rem] p-8 shadow-2xl space-y-8 animate-in slide-in-from-bottom duration-300">
                         <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 sm:hidden"></div>
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="w-24 h-24 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center ring-[12px] ring-indigo-50/50">
-                                <ShieldCheck size={48} />
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center ring-[12px] 
+                                ${confirmAction.type === 'verify' ? 'bg-indigo-50 text-indigo-600 ring-indigo-50/50' : 'bg-rose-50 text-rose-600 ring-rose-50/50'}`}>
+                                {confirmAction.type === 'verify' ? <ShieldCheck size={48} /> : <XCircle size={48} />}
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 leading-tight">Authorize Payment?</h3>
+                            <h3 className="text-2xl font-black text-slate-900 leading-tight">
+                                {confirmAction.type === 'verify' ? 'Authorize Payment?' : 'Reject Request?'}
+                            </h3>
                             <p className="text-sm text-slate-500 font-medium px-4">
-                                Confirming <span className="text-indigo-600 font-black">ETB {Number(confirmAction.data.amount).toLocaleString()}</span> payout for {confirmAction.data.userPhone}.
+                                {confirmAction.type === 'verify' ? (
+                                    <>Confirming <span className="text-indigo-600 font-black">ETB {Number(confirmAction.data.amount).toLocaleString()}</span> payout for {confirmAction.data.userPhone}.</>
+                                ) : (
+                                    <>Are you sure you want to reject the <span className="text-rose-600 font-black">ETB {Number(confirmAction.data.amount).toLocaleString()}</span> request?</>
+                                )}
                             </p>
                         </div>
 
+                        {confirmAction.type === 'reject' && (
+                            <div className="bg-slate-50 p-6 rounded-3xl space-y-4 border border-slate-100">
+                                <label className="flex items-center gap-4 cursor-pointer group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={returnToBalance}
+                                            onChange={(e) => setReturnToBalance(e.target.checked)}
+                                            className="w-6 h-6 rounded-lg border-2 border-slate-300 checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer appearance-none"
+                                        />
+                                        {returnToBalance && <Check className="absolute left-1 text-white" size={16} strokeWidth={4} />}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-black text-slate-900">Return to Balance</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Funds will be added back to user wallet</span>
+                                    </div>
+                                </label>
+                            </div>
+                        )}
+
                         <div className="flex flex-col gap-3">
                             <button
-                                onClick={() => handleVerify(confirmAction.data)}
+                                onClick={() => confirmAction.type === 'verify' ? handleVerify(confirmAction.data) : handleReject(confirmAction.data)}
                                 disabled={verifying === confirmAction.data.id}
-                                className="w-full h-18 rounded-[1.8rem] bg-slate-900 hover:bg-black text-white font-black text-sm uppercase tracking-widest transition-all shadow-2xl active:scale-95 disabled:opacity-50 py-5 flex items-center justify-center gap-3"
+                                className={`w-full h-18 rounded-[1.8rem] text-white font-black text-sm uppercase tracking-widest transition-all shadow-2xl active:scale-95 disabled:opacity-50 py-5 flex items-center justify-center gap-3
+                                    ${confirmAction.type === 'verify' ? 'bg-slate-900 hover:bg-black' : 'bg-rose-600 hover:bg-rose-700'}`}
                             >
-                                {verifying === confirmAction.data.id ? <Loader2 className="animate-spin" size={24} /> : 'Process Payout Now'}
+                                {verifying === confirmAction.data.id ? (
+                                    <Loader2 className="animate-spin" size={24} />
+                                ) : (
+                                    confirmAction.type === 'verify' ? 'Process Payout Now' : 'Confirm Rejection'
+                                )}
                             </button>
                             <button
                                 onClick={() => setConfirmAction(null)}
                                 className="w-full h-14 rounded-2xl bg-white text-slate-400 font-bold text-sm tracking-tight hover:bg-slate-50 transition-all mb-4 sm:mb-0"
                             >
-                                Cancel Request
+                                Cancel Action
                             </button>
                         </div>
                     </div>
@@ -612,17 +691,26 @@ function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToCl
                 </div>
 
                 {isPending ? (
-                    <button
-                        onClick={() => setConfirmAction({ type: 'verify', data: item })}
-                        disabled={verifying === item.id}
-                        className="w-full h-18 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 transition-all group active:scale-95 py-5"
-                    >
-                        {verifying === item.id ? (
-                            <Loader2 className="animate-spin" size={24} />
-                        ) : (
-                            <>Authorize & Release <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} /></>
-                        )}
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={() => setConfirmAction({ type: 'verify', data: item })}
+                            disabled={verifying === item.id}
+                            className="w-full h-18 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl shadow-indigo-600/30 transition-all group active:scale-95 py-5"
+                        >
+                            {verifying === item.id ? (
+                                <Loader2 className="animate-spin" size={24} />
+                            ) : (
+                                <>Authorize & Release <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} /></>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setConfirmAction({ type: 'reject', data: item })}
+                            disabled={verifying === item.id}
+                            className="w-full h-12 rounded-2xl bg-white border border-rose-200 text-rose-600 font-bold text-[10px] uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center gap-2"
+                        >
+                            <XCircle size={14} /> Reject Request
+                        </button>
+                    </div>
                 ) : (
                     <div className="w-full h-18 rounded-[2rem] bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center gap-4 py-5 shadow-sm">
                         <ShieldCheck className="text-emerald-600" size={24} strokeWidth={2.5} />
