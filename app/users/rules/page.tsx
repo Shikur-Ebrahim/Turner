@@ -53,12 +53,12 @@ export default function UserRulesPage() {
 
     const [language, setLanguage] = useState<"english" | "amharic">("english");
 
-    useState(() => {
+    useEffect(() => {
         const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
         if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
             setLanguage(savedLang);
         }
-    });
+    }, []);
 
     const translations = {
         english: {

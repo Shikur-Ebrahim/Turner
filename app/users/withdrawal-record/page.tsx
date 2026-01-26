@@ -31,13 +31,6 @@ export default function WithdrawalRecordPage() {
 
     const [language, setLanguage] = useState<"english" | "amharic">("english");
 
-    useState(() => {
-        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
-        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
-            setLanguage(savedLang);
-        }
-    });
-
     const translations = {
         english: {
             myRecords: "My Records",
@@ -88,6 +81,13 @@ export default function WithdrawalRecordPage() {
     const t = (key: keyof typeof translations.english) => {
         return translations[language][key] || translations.english[key];
     };
+
+    useEffect(() => {
+        const savedLang = localStorage.getItem("appLanguage") as "english" | "amharic";
+        if (savedLang && (savedLang === "english" || savedLang === "amharic")) {
+            setLanguage(savedLang);
+        }
+    }, []);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
