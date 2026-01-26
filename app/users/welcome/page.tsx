@@ -1052,7 +1052,7 @@ function WelcomeContent() {
                                                 <div className="absolute left-[23px] top-14 bottom-[-3.5rem] w-[2px] bg-gradient-to-b from-indigo-100/50 via-indigo-50/20 to-transparent"></div>
                                             )}
 
-                                            <div className="flex gap-8">
+                                            <div className="flex gap-4">
                                                 {/* Step Number Circle */}
                                                 <div className="relative z-10 shrink-0">
                                                     <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-50 shadow-sm flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500 group-hover:shadow-lg group-hover:shadow-indigo-600/20">
@@ -1066,7 +1066,7 @@ function WelcomeContent() {
                                                         <div className="h-[2px] flex-1 bg-gradient-to-r from-indigo-100/60 to-transparent rounded-full"></div>
                                                     </h3>
 
-                                                    <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] space-y-8 relative overflow-hidden transition-all group-hover:shadow-lg group-hover:shadow-gray-200/50">
+                                                    <div className="bg-white rounded-[2.5rem] p-5 py-7 border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.04)] space-y-8 relative overflow-hidden transition-all group-hover:shadow-lg group-hover:shadow-gray-200/50">
                                                         {/* Side Accent */}
                                                         <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-indigo-500 to-indigo-100 opacity-20"></div>
 
@@ -1076,7 +1076,7 @@ function WelcomeContent() {
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
                                                                 <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">{t('summary')}</span>
                                                             </div>
-                                                            <p className="text-slate-600 text-[14px] font-semibold leading-relaxed whitespace-pre-wrap pl-1">
+                                                            <p className="text-slate-600 text-[14px] font-semibold leading-relaxed whitespace-pre-wrap">
                                                                 {item.description}
                                                             </p>
                                                         </div>
@@ -1088,7 +1088,7 @@ function WelcomeContent() {
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
                                                                     <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">{t('detailedDescription')}</span>
                                                                 </div>
-                                                                <p className="text-slate-500 text-[14px] font-bold leading-relaxed whitespace-pre-wrap font-sans pl-1">
+                                                                <p className="text-slate-500 text-[14px] font-bold leading-relaxed whitespace-pre-wrap font-sans">
                                                                     {item.descriptionAm}
                                                                 </p>
                                                             </div>
