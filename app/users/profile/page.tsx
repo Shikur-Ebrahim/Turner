@@ -58,6 +58,11 @@ export default function ProfilePage() {
         }
     }, []);
 
+    const toggleLanguage = (lang: "english" | "amharic") => {
+        setLanguage(lang);
+        localStorage.setItem("appLanguage", lang);
+    };
+
     const translations = {
         english: {
             securityHub: "Security Hub",
@@ -463,6 +468,26 @@ export default function ProfilePage() {
                             </div>
                         </button>
                     ))}
+
+                    {/* Language Toggle */}
+                    <div className="flex justify-center pt-4">
+                        <div className="flex bg-gray-100 rounded-full p-1 border border-red-100 shadow-sm">
+                            <button
+                                onClick={() => toggleLanguage('english')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${language === 'english' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}`}
+                            >
+                                <img src="/Flag_of_the_United_States.png" alt="EN" className="w-4 h-3 object-contain" />
+                                EN
+                            </button>
+                            <button
+                                onClick={() => toggleLanguage('amharic')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${language === 'amharic' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200'}`}
+                            >
+                                <img src="/Ethiopia.png" alt="AM" className="w-4 h-3 object-contain" />
+                                AM
+                            </button>
+                        </div>
+                    </div>
 
                     {/* Premium Security Exit Button */}
                     <div className="pt-6">
