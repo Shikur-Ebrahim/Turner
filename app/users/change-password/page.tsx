@@ -222,7 +222,7 @@ export default function ChangePasswordPage() {
                 <h1 className="text-xl font-black text-gray-900 uppercase tracking-tight">{t("changePassword")}</h1>
             </header>
 
-            <main className="px-6 py-8 max-w-md mx-auto">
+            <main className="px-6 py-8 pb-32 max-w-md mx-auto">
                 {/* Info Card */}
                 <div className="mb-8 bg-blue-50 rounded-2xl p-4 border border-blue-100">
                     <div className="flex items-start gap-3">
