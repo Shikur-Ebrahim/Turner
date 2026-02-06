@@ -343,28 +343,20 @@ export default function UserProductDetailPage() {
                     <div className="h-px bg-slate-50"></div>
 
                     {/* Row 2: Financial Forecast */}
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-1.5">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("contractPeriod")}</p>
                             <p className="text-xl font-black text-slate-900 leading-none">{product.contractPeriod} <span className="text-sm font-bold opacity-40">{t("day")}</span></p>
                         </div>
-                        <div className="space-y-1.5 border-x border-slate-100 px-4">
+                        <div className="space-y-1.5 border-l border-slate-100 pl-4 text-right">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("totalProfit")}</p>
                             <p className="text-xl font-black text-slate-900 leading-none">{product.totalProfit?.toLocaleString()} <span className="text-sm font-bold opacity-40">{t("br")}</span></p>
-                        </div>
-                        <div className="space-y-1.5 text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("principalIncome")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.principalIncome?.toLocaleString()} <span className="text-sm font-bold opacity-40">{t("br")}</span></p>
                         </div>
                     </div>
                 </div>
 
                 {/* Total Withdrawal Summary (New) */}
-                <div className="bg-white rounded-[2rem] p-8 shadow-[0_15px_45px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
-                    <p className="text-slate-600 text-sm font-bold leading-relaxed">
-                        {t("totalWithdrawal")}: {t("buyPrincipal")} {product.price?.toLocaleString()} + {t("productIncome")} {product.totalProfit?.toLocaleString()} = <span className="text-indigo-600 font-black text-xl">{product.principalIncome?.toLocaleString()} {t("br")}.</span>
-                    </p>
-                </div>
+
 
                 {/* Details Section */}
                 <div className="space-y-6 pt-4">
@@ -379,7 +371,7 @@ export default function UserProductDetailPage() {
                         </p>
 
                         <p>
-                            {t("detailsDesc2")} {product.price?.toLocaleString()} {t("etb")} {t("dailyIncome")}: {product.dailyIncome?.toLocaleString()} {t("etb")} {t("contractPeriod")}: {product.contractPeriod} {t("days")} {t("dailyRate")}: {product.dailyRate}% {t("totalProfit")}: {product.totalProfit?.toLocaleString()} {t("etb")} {t("totalWithdrawal")}: {t("buyPrincipal")}: {product.price?.toLocaleString()} {t("etb")} {t("productIncome")}: {product.totalProfit?.toLocaleString()} {t("etb")} Total: {product.principalIncome?.toLocaleString()} {t("etb")} {t("purchaseLimit")}: {t("itemsMax")}
+                            {t("detailsDesc2")} {product.price?.toLocaleString()} {t("etb")} {t("dailyIncome")}: {product.dailyIncome?.toLocaleString()} {t("etb")} {t("contractPeriod")}: {product.contractPeriod} {t("days")} {t("dailyRate")}: {product.dailyRate}% {t("totalProfit")}: {product.totalProfit?.toLocaleString()} {t("etb")} {t("purchaseLimit")}: {t("itemsMax")}
                         </p>
                     </div>
                 </div>
