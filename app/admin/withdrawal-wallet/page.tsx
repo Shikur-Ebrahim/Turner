@@ -35,9 +35,11 @@ import {
     ShieldCheck,
     History,
     AlertCircle,
-    XCircle
+    XCircle,
+    Pencil
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
+import EditWithdrawalModal from "@/components/EditWithdrawalModal";
 import { toast } from "sonner";
 
 export default function WithdrawalWalletPage() {
@@ -55,6 +57,9 @@ export default function WithdrawalWalletPage() {
     const [checkSearchTerm, setCheckSearchTerm] = useState("");
     const [checkLoading, setCheckLoading] = useState(false);
     const [checkResult, setCheckResult] = useState<any>(null);
+
+    // Edit State
+    const [editingWithdrawal, setEditingWithdrawal] = useState<any>(null);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -549,7 +554,16 @@ export default function WithdrawalWalletPage() {
                                 </div>
                                 <div className="space-y-6">
                                     {pending.map(item => (
-                                        <WithdrawalCard key={item.id} item={item} isPending={true} verifying={verifying} setConfirmAction={setConfirmAction} copyToClipboard={copyToClipboard} copiedId={copiedId} />
+                                        <WithdrawalCard
+                                            key={item.id}
+                                            item={item}
+                                            isPending={true}
+                                            verifying={verifying}
+                                            setConfirmAction={setConfirmAction}
+                                            copyToClipboard={copyToClipboard}
+                                            copiedId={copiedId}
+                                            onEdit={() => setEditingWithdrawal(item)}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -567,7 +581,16 @@ export default function WithdrawalWalletPage() {
                                 </div>
                                 <div className="space-y-6">
                                     {history.map(item => (
-                                        <WithdrawalCard key={item.id} item={item} isPending={false} verifying={verifying} setConfirmAction={setConfirmAction} copyToClipboard={copyToClipboard} copiedId={copiedId} />
+                                        <WithdrawalCard
+                                            key={item.id}
+                                            item={item}
+                                            isPending={false}
+                                            verifying={verifying}
+                                            setConfirmAction={setConfirmAction}
+                                            copyToClipboard={copyToClipboard}
+                                            copiedId={copiedId}
+                                            onEdit={() => setEditingWithdrawal(item)}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -586,13 +609,19 @@ export default function WithdrawalWalletPage() {
                         )}
                     </div>
                 </div>
+
+                <EditWithdrawalModal
+                    isOpen={!!editingWithdrawal}
+                    onClose={() => setEditingWithdrawal(null)}
+                    withdrawal={editingWithdrawal}
+                />
             </div>
         </div>
     );
 }
 
 // Sub-component for clarity and re-renders
-function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToClipboard, copiedId }: any) {
+function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToClipboard, copiedId, onEdit }: any) {
     return (
         <div
             className={`relative rounded-[3rem] overflow-hidden transition-all duration-700 animate-in fade-in slide-in-from-bottom-4 shadow-2xl border-2
@@ -610,6 +639,13 @@ function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToCl
                 <div className="flex justify-between items-start">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={onEdit}
+                                className="mr-2 p-1.5 bg-white rounded-lg hover:bg-indigo-50 hover:text-indigo-600 text-slate-400 transition-colors shadow-sm"
+                                title="Edit Amount"
+                            >
+                                <Pencil size={12} />
+                            </button>
                             <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border shadow-sm
                                 ${isPending ? 'bg-amber-100 text-amber-700 border-amber-300/50' : 'bg-emerald-50 text-emerald-700 border-emerald-200/50'}`}>
                                 {isPending ? '🔴 Action Required' : '🟢 Verified'}
@@ -620,6 +656,9 @@ function WithdrawalCard({ item, isPending, verifying, setConfirmAction, copyToCl
                                 {Number(item.actualReceipt).toLocaleString()}
                             </span>
                             <span className="text-xs font-black text-slate-300">ETB</span>
+                        </div>
+                        <div className="text-[10px] uppercase font-black text-slate-300 tracking-wider">
+                            Amount: {Number(item.amount).toLocaleString()} ETB | Fee: {Number(item.fee).toLocaleString()} ETB
                         </div>
                     </div>
 

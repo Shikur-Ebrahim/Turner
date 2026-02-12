@@ -22,9 +22,11 @@ import {
     Search,
     ChevronDown,
     ChevronUp,
-    Filter
+    Filter,
+    Pencil // Import Pencil icon
 } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
+import EditOrderModal from "@/components/EditOrderModal"; // Import the modal
 
 export default function AdminSalesTrackingPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -33,6 +35,9 @@ export default function AdminSalesTrackingPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+
+    // Add state for editing
+    const [editingOrder, setEditingOrder] = useState<any>(null);
 
     useEffect(() => {
         // 1. Fetch Users phone numbers map
@@ -180,7 +185,14 @@ export default function AdminSalesTrackingPage() {
                                 return (
                                     <div key={order.id} className="bg-white rounded-[2rem] p-6 md:p-8 border border-slate-100 hover:border-indigo-100 transition-all group relative overflow-hidden">
                                         {/* Status Tag */}
-                                        <div className="absolute top-0 right-0">
+                                        <div className="absolute top-0 right-0 flex items-start">
+                                            <button
+                                                onClick={() => setEditingOrder(order)}
+                                                className="mr-3 mt-3 p-2 bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-xl transition-colors z-20"
+                                                title="Edit Order"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
                                             <div className={`px-6 py-2 rounded-bl-[1.5rem] text-[10px] font-black uppercase tracking-widest text-white shadow-lg ${order.status === 'active' ? 'bg-indigo-600 shadow-indigo-600/20' : 'bg-slate-400 shadow-slate-400/20'}`}>
                                                 {order.status}
                                             </div>
@@ -267,6 +279,13 @@ export default function AdminSalesTrackingPage() {
                         )}
                     </div>
                 </div>
+
+                {/* Edit Modal */}
+                <EditOrderModal
+                    isOpen={!!editingOrder}
+                    onClose={() => setEditingOrder(null)}
+                    order={editingOrder}
+                />
             </main>
         </div>
     );
