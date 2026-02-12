@@ -30,7 +30,8 @@ import {
     CheckCircle2,
     XCircle,
     Copy,
-    ArrowRight
+    ArrowRight,
+    Key
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -196,6 +197,14 @@ export default function AdminSettings() {
             icon: ShieldAlert,
             color: "bg-rose-50 text-rose-600",
             action: () => setActiveTab("security")
+        },
+        {
+            id: "reset-password",
+            title: "Password Reset",
+            desc: "Reset user login credentials",
+            icon: Key,
+            color: "bg-purple-50 text-purple-600",
+            path: "/admin/settings/reset-password"
         }
     ];
 
