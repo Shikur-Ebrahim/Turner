@@ -61,7 +61,7 @@ function SecureContent() {
             encryptionNote: "All transaction data is encrypted with 256-bit security.",
             enterSecureZone: "Enter Secure Zone",
             loginFirst: "Please login first",
-            enterSmsErr: "Please enter SMS content or FT code",
+            enterSmsErr: "Please upload a payment screenshot",
             failedLoad: "Failed to load",
             encrypted256: "Encrypted 256-bit",
         },

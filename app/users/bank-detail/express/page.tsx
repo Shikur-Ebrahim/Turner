@@ -58,7 +58,7 @@ function ExpressContent() {
             enterNow: "ENTER NOW",
             failedLoad: "Failed to load",
             loginFirst: "Please login first",
-            enterSmsErr: "Please enter SMS content or FT code",
+            enterSmsErr: "Please upload a payment screenshot",
             etb: "ETB"
         },
         amharic: {
@@ -89,6 +89,9 @@ function ExpressContent() {
             fastTrackReady: "ወደ ትርፋማነት የሚያደርሱዎት ፈጣን መንገድ ዝግጁ ነው።",
             thankYouSelected: "ኤክስፕረስ የክፍያ ዘዴን ስለመረጡ እናመሰግናለን።",
             enterNow: "አሁን ይግቡ",
+            uploading: "በመጫን ላይ...",
+            uploadSuccess: "ተሳክቷል!",
+            uploadErr: "እባክዎ የክፍያዎን ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             failedLoad: "መጫን አልተቻለም",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
             enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",

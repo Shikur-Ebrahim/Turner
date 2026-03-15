@@ -58,7 +58,7 @@ function PremiumContent() {
             securedBy: "Transaction Secured by Turner",
             failedLoad: "Failed to load payment details",
             loginFirst: "Please login first",
-            enterSmsErr: "Please enter SMS content or FT code",
+            enterSmsErr: "Please upload a payment screenshot",
             etb: "ETB"
         },
         amharic: {
@@ -94,7 +94,7 @@ function PremiumContent() {
             securedBy: "ግብይቱ በ Turner የተጠበቀ ነው",
             failedLoad: "የክፍያ ዝርዝሮችን መጫን አልተቻለም",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
-            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             etb: "ብር"
         }
     };

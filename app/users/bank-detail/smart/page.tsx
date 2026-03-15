@@ -89,9 +89,12 @@ function SmartContent() {
             protocolInit: "ፕሮቶኮል ተጀምሯል።",
             welcomeFuture: "ወደ ቱርነር ኮንስትራክሽን ክፍያዎች የወደፊት ጊዜ እንኳን ደህና መጡ።",
             getStarted: "ይጀምሩ",
+            uploading: "በመጫን ላይ...",
+            uploadSuccess: "ተሳክቷል!",
+            uploadErr: "እባክዎ የክፍያዎን ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             failedLoad: "መጫን አልተቻለም",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
-            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             etb: "ብር"
         }
     };
@@ -387,7 +390,7 @@ function SmartContent() {
                                                 : 'bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30'
                                                 }`}
                                         >
-                                            {copiedName ? 'Copied!' : 'copy'}
+                                            {copiedName ? t('copied') : t('copy')}
                                         </button>
                                     </div>
                                 </div>
@@ -414,7 +417,7 @@ function SmartContent() {
                                     <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                         <label className="cursor-pointer bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-xl">
-                                            Update Image
+                                            {language === 'amharic' ? 'ምስል ቀይር' : 'Update Image'}
                                             <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
                                         </label>
                                     </div>
@@ -451,10 +454,10 @@ function SmartContent() {
                         }`}
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <span className={`pl-6 font-bold tracking-wider text-sm uppercase relative z-10 ${!smsContent.trim() || submitting ? 'text-white/40' : 'text-white'}`}>
+                    <span className={`pl-6 font-bold tracking-wider text-sm uppercase relative z-10 ${!screenshotUrl || submitting ? 'text-white/40' : 'text-white'}`}>
                         {submitting ? t('processing') : t('confirmTransaction')}
                     </span>
-                    <div className={`h-12 w-16 rounded-[1.5rem] flex items-center justify-center shadow-lg relative z-10 group-active:scale-95 transition-transform ${!smsContent.trim() || submitting ? 'bg-white/10 text-white/20' : 'bg-white text-purple-600'}`}>
+                    <div className={`h-12 w-16 rounded-[1.5rem] flex items-center justify-center shadow-lg relative z-10 group-active:scale-95 transition-transform ${!screenshotUrl || submitting ? 'bg-white/10 text-white/20' : 'bg-white text-purple-600'}`}>
                         {submitting ? <Loader2 className="animate-spin" size={20} /> : <ArrowRightLeft size={20} />}
                     </div>
                 </button>
