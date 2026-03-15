@@ -25,7 +25,8 @@ import {
     XCircle,
     BookOpen,
     ChevronLeft,
-    Info
+    Info,
+    ArrowRightLeft
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import VipCelebrationCard from "@/components/VipCelebrationCard";
@@ -72,11 +73,11 @@ function WelcomeContent() {
             welcome: "Welcome back,",
             wallets: "Wallets",
             mainOperations: "Main Operations",
-            recharge: "RECHARGE",
-            buyProduct: "BUY PRODUCT",
-            vipRules: "VIP RULES",
-            withdraw: "WITHDRAW",
-            tasks: "TASKS",
+            recharge: "Deposit",
+            buyProduct: "Buy Product",
+            vipRules: "Vip Rules",
+            withdraw: "Withdraw",
+            transfer: "Transfer",
             inviteFriends: "Invite Friends",
             earnRewards: "Earn Multi-Level Rewards",
             announcement: "Announcement",
@@ -107,7 +108,7 @@ function WelcomeContent() {
             buyProduct: "ምርት ይግዙ",
             vipRules: "ቪአይፒ ደንቦች",
             withdraw: "ገንዘብ ያውጡ",
-            tasks: "ተግባራት",
+            transfer: "ማስተላለፍ",
             inviteFriends: "ጓደኞችን ይጋብዙ",
             earnRewards: "የብዙ ደረጃ ሽልማቶችን ያግኙ",
             announcement: "ማስታወቂያ",
@@ -456,9 +457,9 @@ function WelcomeContent() {
 
                         {/* Notification Panel */}
                         {showNotifPanel && (
-                            <div className="absolute top-full right-0 mt-3 w-80 bg-white/90 backdrop-blur-3xl rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-white p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                            <div className="absolute top-full right-0 mt-3 w-80 bg-white/90 backdrop-blur-3xl rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-white p-2 z-[150] animate-in fade-in zoom-in-95 duration-200">
                                 <div className="p-4 border-b border-gray-100">
-                                    <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">{t('notifications')}</h4>
+                                    <h4 className="text-xs font-black text-gray-900 tracking-widest">{t('notifications')}</h4>
                                 </div>
                                 <div className="max-h-80 overflow-y-auto p-2 space-y-2">
                                     {(() => {
@@ -476,7 +477,7 @@ function WelcomeContent() {
 
                                         if (allNotifs.length === 0) {
                                             return (
-                                                <div className="py-8 text-center text-gray-400 text-[10px] uppercase font-bold tracking-widest">
+                                                <div className="py-8 text-center text-gray-400 text-[10px] font-bold tracking-widest">
                                                     {t('noRecentActivity')}
                                                 </div>
                                             );
@@ -516,8 +517,7 @@ function WelcomeContent() {
                                                 const levelMap: { [key: string]: string } = {
                                                     "Level A": "1",
                                                     "Level B": "2",
-                                                    "Level C": "3",
-                                                    "Level D": "4"
+                                                    "Level C": "3"
                                                 };
                                                 const levelNum = levelMap[notif.level] || "1";
                                                 const isUnread = notif.read === false;
@@ -694,8 +694,7 @@ function WelcomeContent() {
                                                 const levelMap: { [key: string]: string } = {
                                                     "Level A": "1",
                                                     "Level B": "2",
-                                                    "Level C": "3",
-                                                    "Level D": "4"
+                                                    "Level C": "3"
                                                 };
                                                 const levelNum = levelMap[notif.level] || "1";
                                                 const isUnread = notif.read === false;
@@ -857,7 +856,7 @@ function WelcomeContent() {
                         {/* Elite 5-Card Interactive Action Grid (2+3 Layout) */}
                         <section className="space-y-6">
                             <div className="flex items-center gap-3 px-1">
-                                <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">{t('mainOperations')}</h3>
+                                <h3 className="text-[10px] font-black text-gray-900 tracking-[0.3em]">{t('mainOperations')}</h3>
                                 <button
                                     onClick={() => setShowGuidelines(true)}
                                     className="ml-auto flex items-center gap-2.5 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl group hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 border border-white/20"
@@ -865,7 +864,7 @@ function WelcomeContent() {
                                     <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                                         <BookOpen size={14} className="text-white" />
                                     </div>
-                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                                    <span className="text-[10px] font-black text-white tracking-widest">
                                         {t('howToWork')}
                                     </span>
                                 </button>
@@ -884,7 +883,7 @@ function WelcomeContent() {
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 to-transparent flex flex-col justify-center px-8">
                                     <div className="flex flex-col">
                                         <span className="text-white font-black text-xl tracking-tight leading-none drop-shadow-md">{t('inviteFriends')}</span>
-                                        <span className="text-white/80 text-[10px] font-black uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{t('earnRewards')}</span>
+                                        <span className="text-white/80 text-[10px] font-black tracking-[0.2em] mt-1 drop-shadow-sm">{t('earnRewards')}</span>
                                     </div>
                                 </div>
                                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -900,7 +899,7 @@ function WelcomeContent() {
                                     <div className="w-20 h-20 relative group-hover:scale-110 transition-transform duration-500">
                                         <img src="/assets/recharge.png" alt="Recharge" className="w-full h-full object-contain drop-shadow-[0_12px_20px_rgba(249,115,22,0.25)]" />
                                     </div>
-                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase">{t('recharge')}</span>
+                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em]">{t('recharge')}</span>
                                 </button>
 
                                 <button
@@ -911,7 +910,7 @@ function WelcomeContent() {
                                     <div className="w-20 h-20 relative group-hover:scale-110 transition-transform duration-500">
                                         <img src="/assets/buy_product.png" alt="Buy Product" className="w-full h-full object-contain drop-shadow-[0_12px_20px_rgba(16,185,129,0.25)]" />
                                     </div>
-                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] uppercase leading-none text-center">{t('buyProduct')}</span>
+                                    <span className="text-xs font-black text-gray-900 tracking-[0.1em] leading-none text-center">{t('buyProduct')}</span>
                                 </button>
                             </div>
 
@@ -920,7 +919,7 @@ function WelcomeContent() {
                                 {[
                                     { label: t('vipRules'), img: "/vip_rule_3d.png", color: "blue", action: () => router.push("/users/vip-rules") },
                                     { label: t('withdraw'), img: "/assets/withdrawal.png", color: "indigo", action: () => router.push("/users/withdraw") },
-                                    { label: t('tasks'), icon: TrendingUp, color: "amber", special: true, action: () => router.push("/users/tasks") }
+                                    { label: t('transfer'), icon: ArrowRightLeft, color: "amber", special: true, action: () => router.push("/users/exchange") }
                                 ].map((item: any, i: number) => (
                                     <button
                                         key={i}
@@ -939,7 +938,7 @@ function WelcomeContent() {
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-[9px] font-black text-gray-600 tracking-tighter uppercase">{item.label}</span>
+                                        <span className="text-[9px] font-black text-gray-600 tracking-tighter">{item.label}</span>
                                     </button>
                                 ))}
                             </div>

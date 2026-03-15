@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, Sparkles, Wand2, CreditCard, Wallet, ArrowRightLeft, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Copy, Loader2, Sparkles, Wand2, CreditCard, Wallet, ArrowRightLeft, CheckCircle2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 function SmartContent() {
@@ -16,7 +16,9 @@ function SmartContent() {
     const [loading, setLoading] = useState(true);
     const [method, setMethod] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(600);
-    const [smsContent, setSmsContent] = useState("");
+    const [screenshotUrl, setScreenshotUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -33,9 +35,12 @@ function SmartContent() {
             beneficiaryName: "Beneficiary Name",
             copied: "Copied!",
             copy: "copy",
-            pasteSMSLabel: "Paste payment sms Or enter TID: FT*****",
-            consolePlaceholder: "Processing console active...",
-            waitingInput: "WAITING FOR INPUT",
+            pasteSMSLabel: "Upload payment screenshot",
+            consolePlaceholder: "Waiting for screenshot upload...",
+            uploading: "Uploading...",
+            uploadSuccess: "Upload Successful!",
+            uploadErr: "Please upload payment proof",
+            waitingInput: "WAITING FOR UPLOAD",
             confirmTransaction: "Confirm Transaction",
             processing: "Processing...",
             rechargeSubmitted: "Recharge Submitted",
@@ -53,7 +58,7 @@ function SmartContent() {
             getStarted: "Get Started",
             failedLoad: "Failed to load",
             loginFirst: "Please login first",
-            enterSmsErr: "Please enter SMS content or FT code",
+            enterSmsErr: "Please upload a payment screenshot",
             etb: "ETB"
         },
         amharic: {
@@ -66,9 +71,9 @@ function SmartContent() {
             beneficiaryName: "የሂሳብ ስም",
             copied: "ተገልብጧል!",
             copy: "ቅዳ",
-            pasteSMSLabel: "የክፍያ SMS ይለጥፉ ወይም FT ኮድ ያስገቡ",
-            consolePlaceholder: "የማቀናበሪያ ኮንሶል ሂደቱን ጀምሯል...",
-            waitingInput: "ግብዓት በመጠበቅ ላይ",
+            pasteSMSLabel: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
+            consolePlaceholder: "የቅጽበታዊ ገጽ እይታ ስቀላን በመጠባበቅ ላይ...",
+            waitingInput: "መጫን በመጠባበቅ ላይ",
             confirmTransaction: "ግብይቱን ያረጋግጡ",
             processing: "በማ ሂደት ላይ...",
             rechargeSubmitted: "ክፍያዎ ገብቷል",
@@ -138,8 +143,42 @@ function SmartContent() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus(t('uploading'));
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setScreenshotUrl(data.secure_url);
+                setUploadStatus(t('uploadSuccess'));
+                toast.success(t('uploadSuccess'));
+            } else {
+                setUploadStatus("Failed");
+                toast.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error");
+            toast.error("Error occurred during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!smsContent.trim()) {
+        if (!screenshotUrl) {
             toast.error(t('enterSmsErr'));
             return;
         }
@@ -162,7 +201,8 @@ function SmartContent() {
                 bankName: method?.bankName || "",
                 phoneNumber: userPhone || user.phoneNumber || "",
                 amount: Number(amount),
-                FTcode: smsContent,
+                FTcode: "Screenshot Uploaded",
+                screenshotUrl: screenshotUrl,
                 accountHolderName: method?.holderName || "",
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
@@ -368,19 +408,32 @@ function SmartContent() {
 
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl opacity-20 group-hover:opacity-40 transitionduration-500 blur"></div>
-                        <div className="relative bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-1">
-                            <textarea
-                                value={smsContent}
-                                onChange={(e) => setSmsContent(e.target.value)}
-                                placeholder={t('consolePlaceholder')}
-                                className="w-full h-32 bg-transparent rounded-xl p-4 text-sm text-purple-100 placeholder:text-slate-600 focus:outline-none resize-none font-mono leading-relaxed"
-                            />
-                            <div className="flex justify-end p-2 border-t border-white/5">
-                                <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                                    <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
-                                    {t('waitingInput')}
-                                </span>
-                            </div>
+                        <div className="relative bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 min-h-[160px] flex flex-col items-center justify-center gap-4 transition-all overflow-hidden">
+                            {screenshotUrl ? (
+                                <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-white/5">
+                                    <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <label className="cursor-pointer bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-xl">
+                                            Update Image
+                                            <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                        </label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <label className="w-full h-full flex flex-col items-center justify-center gap-4 cursor-pointer py-4">
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isUploading ? 'bg-purple-500/20 text-purple-400 animate-spin' : 'bg-white/5 text-slate-500 group-hover:bg-purple-500/20 group-hover:text-purple-400'}`}>
+                                        <UploadCloud size={28} />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-bold text-purple-100 uppercase tracking-wider text-[10px]">{uploadStatus || t('consolePlaceholder')}</p>
+                                        <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center justify-center gap-1">
+                                            <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
+                                            {t('waitingInput')}
+                                        </p>
+                                    </div>
+                                </label>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -391,8 +444,8 @@ function SmartContent() {
             <div className="fixed bottom-24 left-6 right-6 z-[100] max-w-md mx-auto">
                 <button
                     onClick={handleSubmit}
-                    disabled={!smsContent.trim() || submitting}
-                    className={`w-full h-16 rounded-[2rem] backdrop-blur-xl border flex items-center justify-between px-2 transition-all group overflow-hidden relative ${!smsContent.trim() || submitting
+                    disabled={!screenshotUrl || submitting || isUploading}
+                    className={`w-full h-16 rounded-[2rem] backdrop-blur-xl border flex items-center justify-between px-2 transition-all group overflow-hidden relative ${!screenshotUrl || submitting || isUploading
                         ? 'bg-white/5 border-white/5 cursor-not-allowed grayscale'
                         : 'bg-white/10 border-white/20 shadow-2xl hover:bg-white/15'
                         }`}

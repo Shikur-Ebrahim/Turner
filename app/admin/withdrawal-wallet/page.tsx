@@ -227,14 +227,13 @@ export default function WithdrawalWalletPage() {
 
             // 4. Fetch Referral Rates
             const referralSnap = await getDoc(doc(db, "settings", "referral"));
-            const rates = referralSnap.exists() ? referralSnap.data() : { levelA: 12, levelB: 7, levelC: 4, levelD: 2 };
+            const rates = referralSnap.exists() ? referralSnap.data() : { levelA: 12, levelB: 7, levelC: 4 };
 
             // 5. Calculate Team Income (Fetch all levels)
             const levels = [
                 { key: 'inviterA', pct: (rates.levelA || 12) / 100 },
                 { key: 'inviterB', pct: (rates.levelB || 7) / 100 },
-                { key: 'inviterC', pct: (rates.levelC || 4) / 100 },
-                { key: 'inviterD', pct: (rates.levelD || 2) / 100 }
+                { key: 'inviterC', pct: (rates.levelC || 4) / 100 }
             ];
 
             let rawTeamIncome = 0;

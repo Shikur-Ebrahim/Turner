@@ -61,11 +61,10 @@ export default function UserProductDetailPage() {
             productIncome: "Product Income",
             details: "Details",
             detailsDesc1: "Details: This product is designed as a stable and high-yield investment opportunity, offering reliable daily income throughout the contract period. Investors can withdraw their daily earnings at any time and receive their full principal together with accumulated profit upon completion of the contract cycle.",
-            detailsDesc2: "【Product Information】 Price:",
             purchaseLimit: "Purchase quantity limit",
             times: "times",
-            buy: "BUY",
-            confirm: "CONFIRM",
+            buy: "Buy",
+            confirm: "Confirm",
             confirmOrder: "Confirm Order",
             systemAlert: "System Alert",
             insufficientFunds: "Insufficient balance! Please recharge. 💳",
@@ -77,7 +76,6 @@ export default function UserProductDetailPage() {
             transactionFailed: "Transaction Failed",
             limitReached: "Limit reached",
             itemsMax: "items max",
-            operationSecured: "Operation secured by Turner Construction End-to-End Encryption",
             br: "Br",
             etb: "ETB",
             day: "Day",
@@ -100,7 +98,6 @@ export default function UserProductDetailPage() {
             productIncome: "የምርት ገቢ",
             details: "ዝርዝሮች",
             detailsDesc1: "ዝርዝሮች፡ ይህ ምርት የተረጋጋ እና ከፍተኛ ትርፍ የሚያስገኝ የኢንቨስትመንት ዕድል ሆኖ የተነደፈ ሲሆን በኮንትራቱ ጊዜ ውስጥ አስተማማኝ የቀን ገቢ ይሰጣል። ባለሀብቶች የቀን ገቢያቸውን በማንኛውም ጊዜ ማውጣት የሚችሉ ሲሆን ከኮንትራቱ ማብቂያ በኋላ ዋና ገንዘባቸውን ከተጠራቀመ ትርፍ ጋር ይቀበላሉ።",
-            detailsDesc2: "【የምርት መረጃ】 ዋጋ፡",
             purchaseLimit: "የግዢ መጠን ገደብ",
             times: "ጊዜ",
             buy: "ግዛ",
@@ -116,7 +113,6 @@ export default function UserProductDetailPage() {
             transactionFailed: "ግብይቱ አልተሳካም",
             limitReached: "ገደቡ ላይ ደርሷል",
             itemsMax: "ንጥሎች ቢበዛ",
-            operationSecured: "ክዋኔው በ Turner Construction End-to-End Encryption የተጠበቀ ነው",
             br: "ብር",
             etb: "ብር",
             day: "ቀን",
@@ -263,7 +259,7 @@ export default function UserProductDetailPage() {
                     <div className="absolute inset-0 border-4 border-indigo-600/20 rounded-full"></div>
                     <div className="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                <p className="mt-6 text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">{t("loadingSync")}</p>
+                <p className="mt-6 text-slate-400 font-bold tracking-widest text-xs animate-pulse">{t("loadingSync")}</p>
             </div>
         );
     }
@@ -276,7 +272,7 @@ export default function UserProductDetailPage() {
                 <p className="text-slate-500 max-w-xs mb-8">{t("nodeError")}</p>
                 <button
                     onClick={() => router.back()}
-                    className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+                    className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
                 >
                     {t("reconnect")}
                 </button>
@@ -309,13 +305,13 @@ export default function UserProductDetailPage() {
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-4">
                                 <Award size={64} strokeWidth={1} />
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em]">{t("premiumInfra")}</span>
+                                <span className="text-[10px] font-black tracking-[0.3em]">{t("premiumInfra")}</span>
                             </div>
                         )}
 
                         {/* Overlay Badge */}
                         <div className="absolute top-6 left-6">
-                            <div className="px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-2xl">
+                            <div className="px-5 py-2.5 bg-indigo-600 text-white text-[10px] font-black tracking-widest rounded-2xl shadow-2xl">
                                 {product.category || "Active Node"}
                             </div>
                         </div>
@@ -323,34 +319,34 @@ export default function UserProductDetailPage() {
                 </div>
 
                 {/* Unified Metrics Block */}
-                <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 space-y-8">
+                <div className="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 space-y-6 sm:space-y-8">
                     {/* Row 1: Primary Metrics */}
-                    <div className="grid grid-cols-3 gap-6">
-                        <div className="space-y-1.5">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("productPrice")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.price?.toLocaleString()} <span className="text-sm font-bold opacity-40">{t("br")}</span></p>
+                    <div className="grid grid-cols-3 gap-4 sm:gap-6">
+                        <div className="space-y-1.5 flex flex-col items-center sm:items-start text-center sm:text-left">
+                            <p className="text-[10px] font-bold text-slate-400 tracking-widest leading-none mb-1">{t("productPrice")}</p>
+                            <p className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{product.price?.toLocaleString()} <span className="text-xs sm:text-sm font-bold opacity-40">{t("br")}</span></p>
                         </div>
-                        <div className="space-y-1.5 border-x border-slate-100 px-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("dailyRate")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.dailyRate}%</p>
+                        <div className="space-y-1.5 border-x border-slate-100 px-2 sm:px-4 flex flex-col items-center text-center">
+                            <p className="text-[10px] font-bold text-slate-400 tracking-widest leading-none mb-1">{t("dailyRate")}</p>
+                            <p className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{product.dailyRate}%</p>
                         </div>
-                        <div className="space-y-1.5 text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("dailyIncome")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.dailyIncome?.toLocaleString()} <span className="text-sm font-bold opacity-40">{t("br")}</span></p>
+                        <div className="space-y-1.5 flex flex-col items-center sm:items-end text-center sm:text-right">
+                            <p className="text-[10px] font-bold text-slate-400 tracking-widest leading-none mb-1">{t("dailyIncome")}</p>
+                            <p className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{product.dailyIncome?.toLocaleString()} <span className="text-xs sm:text-sm font-bold opacity-40">{t("br")}</span></p>
                         </div>
                     </div>
 
                     <div className="h-px bg-slate-50"></div>
 
                     {/* Row 2: Financial Forecast */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-1.5">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("contractPeriod")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.contractPeriod} <span className="text-sm font-bold opacity-40">{t("day")}</span></p>
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                        <div className="space-y-1.5 flex flex-col items-center sm:items-start text-center sm:text-left">
+                            <p className="text-[10px] font-bold text-slate-400 tracking-widest leading-none mb-1">{t("contractPeriod")}</p>
+                            <p className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{product.contractPeriod} <span className="text-xs sm:text-sm font-bold opacity-40">{t("day")}</span></p>
                         </div>
-                        <div className="space-y-1.5 border-l border-slate-100 pl-4 text-right">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{t("totalProfit")}</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{product.totalProfit?.toLocaleString()} <span className="text-sm font-bold opacity-40">{t("br")}</span></p>
+                        <div className="space-y-1.5 border-l border-slate-100 pl-2 sm:pl-4 flex flex-col items-center sm:items-end text-center sm:text-right">
+                            <p className="text-[10px] font-bold text-slate-400 tracking-widest leading-none mb-1">{t("totalProfit")}</p>
+                            <p className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{product.totalProfit?.toLocaleString()} <span className="text-xs sm:text-sm font-bold opacity-40">{t("br")}</span></p>
                         </div>
                     </div>
                 </div>
@@ -369,16 +365,12 @@ export default function UserProductDetailPage() {
                         <p>
                             {t("detailsDesc1")}
                         </p>
-
-                        <p>
-                            {t("detailsDesc2")} {product.price?.toLocaleString()} {t("etb")} {t("dailyIncome")}: {product.dailyIncome?.toLocaleString()} {t("etb")} {t("contractPeriod")}: {product.contractPeriod} {t("days")} {t("dailyRate")}: {product.dailyRate}% {t("totalProfit")}: {product.totalProfit?.toLocaleString()} {t("etb")} {t("purchaseLimit")}: {t("itemsMax")}
-                        </p>
                     </div>
                 </div>
 
                 {/* Purchase Quantity Limit Footer (Moved below Details) */}
-                <div className="bg-slate-50/50 rounded-3xl p-6 flex items-center justify-between border border-slate-100">
-                    <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{t("purchaseLimit")}</span>
+                <div className="bg-slate-50/50 rounded-3xl p-5 sm:p-6 flex items-center justify-between border border-slate-100">
+                    <span className="text-sm font-bold text-slate-900 tracking-tight">{t("purchaseLimit")}</span>
                     <div className="px-5 py-2.5 bg-white border border-blue-100 text-blue-600 text-sm font-black rounded-xl shadow-sm">
                         {product.purchaseLimit || 1} {t("times")}
                     </div>
@@ -392,7 +384,7 @@ export default function UserProductDetailPage() {
                     <button
                         onClick={() => setShowConfirmModal(true)}
                         disabled={isBuying}
-                        className={`w-full py-5 rounded-[2rem] font-black text-lg tracking-[0.1em] uppercase shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-4 ${isBuying
+                        className={`w-full py-5 rounded-[2rem] font-black text-lg tracking-[0.1em] shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-4 ${isBuying
                             ? "bg-slate-200 text-slate-400 shadow-none cursor-wait"
                             : "bg-indigo-600 text-white shadow-indigo-600/30 hover:bg-indigo-700 hover:shadow-indigo-600/40"
                             }`}
@@ -406,9 +398,6 @@ export default function UserProductDetailPage() {
                             </>
                         )}
                     </button>
-                    <p className="text-center text-[9px] font-black text-slate-300 uppercase tracking-widest mt-4">
-                        {t("operationSecured")}
-                    </p>
                 </div>
             </div>
 
@@ -443,7 +432,7 @@ export default function UserProductDetailPage() {
                                                     <X className="text-white" size={24} strokeWidth={3} />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-white text-xs font-black uppercase tracking-[0.2em] leading-none mb-1 opacity-80">{t("systemAlert")}</h3>
+                                                    <h3 className="text-white text-xs font-bold tracking-[0.2em] leading-none mb-1 opacity-80">{t("systemAlert")}</h3>
                                                     <p className="text-white text-sm font-bold leading-tight">
                                                         {t("insufficientFunds")}
                                                     </p>
@@ -460,16 +449,16 @@ export default function UserProductDetailPage() {
                                                 <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
                                                     <Award className="text-white" size={32} strokeWidth={2.5} />
                                                 </div>
-                                                <h3 className="text-white text-lg font-black uppercase tracking-tight mb-2">{t("congrats")}</h3>
+                                                <h3 className="text-white text-lg font-bold tracking-tight mb-2">{t("congrats")}</h3>
                                                 <p className="text-indigo-50 text-xs font-bold leading-relaxed">
                                                     {t("partnerMsg")} <span className="text-white font-black">{t("turner")}</span>.
                                                 </p>
                                                 <div className="mt-6 pt-5 border-t border-white/10 w-full flex flex-col items-center gap-6">
-                                                    <p className="text-indigo-200 text-[9px] font-black uppercase tracking-[0.2em]">{t("inviteMsg")}</p>
+                                                    <p className="text-indigo-200 text-[9px] font-bold tracking-[0.2em]">{t("inviteMsg")}</p>
 
                                                     <button
                                                         onClick={() => router.push("/users/welcome")}
-                                                        className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-indigo-50 active:scale-95 transition-all"
+                                                        className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-bold text-sm tracking-widest shadow-xl shadow-black/10 hover:bg-indigo-50 active:scale-95 transition-all"
                                                     >
                                                         {t("ok")}
                                                     </button>
@@ -488,39 +477,18 @@ export default function UserProductDetailPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-8 animate-in fade-in duration-500">
-                                    {/* Order Summary Grid */}
-                                    <div className="space-y-4">
-                                        {[
-                                            { label: "PRODUCT NAME", value: product.name, bold: true },
-                                            { label: "PRODUCT PRICE", value: `${product.price?.toLocaleString()} ${t("br")}`, bold: true },
-                                            { label: "DAILY INCOME", value: `${product.dailyIncome?.toLocaleString()} ${t("br")}`, color: "text-emerald-500" },
-                                            { label: "CONTRACT PERIOD", value: `${product.contractPeriod} ${t("day")}` },
-                                            { label: "TOTAL PROFIT", value: `${product.totalProfit?.toLocaleString()} ${t("br")}`, bold: true },
-                                        ].map((item, idx) => (
-                                            <div key={idx} className="flex justify-between items-center text-[11px]">
-                                                {/* @ts-ignore */}
-                                                <span className="font-black text-slate-400 uppercase tracking-wider">{t(item.label) || item.label}</span>
-                                                <span className={`font-black ${item.color || "text-slate-900"} ${item.bold ? "text-sm" : ""}`}>{item.value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="h-px bg-slate-100"></div>
-
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center text-[11px]">
-                                            <span className="font-black text-slate-400 uppercase tracking-wider">DISCOUNT</span>
-                                            <span className="font-black text-slate-900">-0.00 {t("br")}</span>
+                                    <div className="flex flex-col items-center justify-center p-6 text-center space-y-4">
+                                        <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                                            <Zap size={32} className="text-indigo-600" />
                                         </div>
-
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-lg font-black text-slate-900">Pay Amount</span>
-                                            <span className="text-xl font-black text-indigo-600">{product.price?.toLocaleString()} {t("br")}</span>
-                                        </div>
-
-                                        <p className="text-blue-500 text-[11px] font-bold">
-                                            The upper limit is {product.purchaseLimit || 1} times
+                                        <p className="text-lg font-black text-slate-900 tracking-tight">
+                                            {product.name}
                                         </p>
+                                        <div className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 rounded-full">
+                                            <span className="text-xl font-black text-indigo-600">
+                                                {product.price?.toLocaleString()} {t("br")}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -531,7 +499,7 @@ export default function UserProductDetailPage() {
                             <button
                                 onClick={handlePurchase}
                                 disabled={isBuying}
-                                className="w-full py-5 bg-indigo-600 text-white rounded-[1.8rem] font-black text-lg uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                className="w-full py-5 bg-indigo-600 text-white rounded-[1.8rem] font-bold text-lg tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                             >
                                 {isBuying ? <Loader2 className="animate-spin" size={24} /> : t("confirm")}
                             </button>

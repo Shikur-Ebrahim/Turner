@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Home, Ship, Users, Wallet, Shield } from "lucide-react";
+import { Home, Ship, Users, Shield } from "lucide-react";
 import { useEffect, useState, Suspense } from "react";
 import { syncDailyIncome } from "@/lib/sync";
 import { auth } from "@/lib/firebase";
@@ -27,11 +27,11 @@ function BottomNavContent() {
 
     const translations = {
         english: {
-            home: "HOME",
-            market: "MARKET",
-            teams: "TEAMS",
-            wallets: "WALLETS",
-            me: "ME"
+            home: "Home",
+            market: "Market",
+            teams: "Teams",
+            wallets: "Wallets",
+            me: "Me"
         },
         amharic: {
             home: "መነሻ",
@@ -70,8 +70,6 @@ function BottomNavContent() {
             setActiveTab("me");
         } else if (pathname.includes("/users/team")) {
             setActiveTab("team");
-        } else if (pathname === "/users/wallet") {
-            setActiveTab("wallet");
         }
     }, [pathname, searchParams, mounted]);
 
@@ -83,7 +81,6 @@ function BottomNavContent() {
         { id: "home", icon: Home, label: t("home"), path: "/users/welcome?tab=home" },
         { id: "product", icon: Ship, label: t("market"), path: "/users/product" },
         { id: "team", icon: Users, label: t("teams"), path: "/users/team" },
-        { id: "wallet", icon: Wallet, label: t("wallets"), path: "/users/wallet" },
         { id: "me", icon: Shield, label: t("me"), path: "/users/profile" },
     ];
 
@@ -108,7 +105,7 @@ function BottomNavContent() {
                             )}
                         </div>
                         <span
-                            className={`text-[8px] font-black uppercase tracking-tighter transition-colors leading-none truncate ${activeTab === item.id ? "text-blue-500" : "text-gray-500"
+                            className={`text-[8px] font-black tracking-tighter transition-colors leading-none truncate ${activeTab === item.id ? "text-blue-500" : "text-gray-500"
                                 }`}
                         >
                             {item.label}

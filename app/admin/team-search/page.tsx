@@ -43,7 +43,6 @@ interface TeamData {
     A: TeamMember[];
     B: TeamMember[];
     C: TeamMember[];
-    D: TeamMember[];
 }
 
 export default function AdminTeamSearch() {
@@ -54,17 +53,17 @@ export default function AdminTeamSearch() {
     const [searchPhone, setSearchPhone] = useState("");
     const [searchResult, setSearchResult] = useState<any>(null);
 
-    const [activeTab, setActiveTab] = useState<'A' | 'B' | 'C' | 'D'>('A');
-    const [teamData, setTeamData] = useState<TeamData>({ A: [], B: [], C: [], D: [] });
+    const [activeTab, setActiveTab] = useState<'A' | 'B' | 'C'>('A');
+    const [teamData, setTeamData] = useState<TeamData>({ A: [], B: [], C: [] });
     const [stats, setStats] = useState({
         totalMembers: 0,
         totalCommission: 0,
         totalTeamRecharge: 0,
         todayJoined: 0,
-        levelCounts: { A: 0, B: 0, C: 0, D: 0 },
-        levelAssets: { A: 0, B: 0, C: 0, D: 0 }
+        levelCounts: { A: 0, B: 0, C: 0 },
+        levelAssets: { A: 0, B: 0, C: 0 }
     });
-    const [rates, setRates] = useState({ levelA: 12, levelB: 7, levelC: 4, levelD: 2 });
+    const [rates, setRates] = useState({ levelA: 12, levelB: 7, levelC: 4 });
 
     const [viewMode, setViewMode] = useState<'team' | 'products'>('team');
     const [userOrders, setUserOrders] = useState<any[]>([]);
@@ -101,7 +100,7 @@ export default function AdminTeamSearch() {
 
         setIsSearching(true);
         setSearchResult(null);
-        setTeamData({ A: [], B: [], C: [], D: [] });
+        setTeamData({ A: [], B: [], C: [] });
         setUserOrders([]);
 
         try {
@@ -155,8 +154,7 @@ export default function AdminTeamSearch() {
             const levels = [
                 { key: 'inviterA', pct: (rates.levelA || 12) / 100, label: 'A' },
                 { key: 'inviterB', pct: (rates.levelB || 7) / 100, label: 'B' },
-                { key: 'inviterC', pct: (rates.levelC || 4) / 100, label: 'C' },
-                { key: 'inviterD', pct: (rates.levelD || 2) / 100, label: 'D' }
+                { key: 'inviterC', pct: (rates.levelC || 4) / 100, label: 'C' }
             ];
 
             const promises = levels.map(async (level) => {
@@ -187,8 +185,8 @@ export default function AdminTeamSearch() {
             let teamRecharge = 0;
             let todayCount = 0;
 
-            const levelCounts = { A: 0, B: 0, C: 0, D: 0 };
-            const levelAssets = { A: 0, B: 0, C: 0, D: 0 };
+            const levelCounts = { A: 0, B: 0, C: 0 };
+            const levelAssets = { A: 0, B: 0, C: 0 };
             const todayStr = new Date().toISOString().split('T')[0];
 
             results.forEach(res => {
@@ -245,8 +243,7 @@ export default function AdminTeamSearch() {
     const tabs = [
         { id: 'A', label: 'Level 1', pct: `${rates.levelA}%` },
         { id: 'B', label: 'Level 2', pct: `${rates.levelB}%` },
-        { id: 'C', label: 'Level 3', pct: `${rates.levelC}%` },
-        { id: 'D', label: 'Level 4', pct: `${rates.levelD}%` },
+        { id: 'C', label: 'Level 3', pct: `${rates.levelC}%` }
     ];
 
     const currentMembers = teamData[activeTab] || [];

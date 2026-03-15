@@ -41,6 +41,7 @@ export default function RechargeVerificationPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [vipRules, setVipRules] = useState<any[]>([]);
     const [confirmAction, setConfirmAction] = useState<{ type: 'verify' | 'reject', data: any } | null>(null);
+    const [viewImage, setViewImage] = useState<string | null>(null);
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -115,20 +116,18 @@ export default function RechargeVerificationPage() {
 
                 // 2. Fetch Referral Settings (Dynamic)
                 const settingsSnap = await transaction.get(doc(db, "settings", "referral"));
-                const defaults = { levelA: 12, levelB: 7, levelC: 4, levelD: 2 };
+                const defaults = { levelA: 12, levelB: 7, levelC: 4 };
                 const dbRates = settingsSnap.exists() ? settingsSnap.data() : {};
                 const rates = { ...defaults, ...dbRates };
 
                 const pctA = Number(rates.levelA) / 100;
                 const pctB = Number(rates.levelB) / 100;
                 const pctC = Number(rates.levelC) / 100;
-                const pctD = Number(rates.levelD) / 100;
 
                 const inviterUids = [
                     { uid: userData.inviterA, pct: pctA },
                     { uid: userData.inviterB, pct: pctB },
-                    { uid: userData.inviterC, pct: pctC },
-                    { uid: userData.inviterD, pct: pctD }
+                    { uid: userData.inviterC, pct: pctC }
                 ].filter(i => i.uid);
 
                 const inviterRefs = inviterUids.map(i => ({
@@ -179,7 +178,7 @@ export default function RechargeVerificationPage() {
                             }
 
                             // Notification
-                            const levelLabels = ["Level A", "Level B", "Level C", "Level D"];
+                            const levelLabels = ["Level A", "Level B", "Level C"];
                             const notifRef = doc(collection(db, "UserNotifications"));
                             transaction.set(notifRef, {
                                 userId: snap.id,
@@ -281,6 +280,18 @@ export default function RechargeVerificationPage() {
                                 {verifying === confirmAction.data.id ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Confirm'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Image Viewer Modal */}
+            {viewImage && (
+                <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[110] flex items-center justify-center p-4 lg:p-10 animate-in fade-in duration-300">
+                    <button onClick={() => setViewImage(null)} className="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all">
+                        <XCircle size={24} />
+                    </button>
+                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                        <img src={viewImage} alt="Payment Proof" className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
                     </div>
                 </div>
             )}
@@ -409,12 +420,24 @@ export default function RechargeVerificationPage() {
                                                     </div>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <p className="text-[10px] font-black text-slate-400 leading-none">FT</p>
-                                                    <div className="bg-slate-50/80 backdrop-blur-md border border-slate-100 p-4 rounded-3xl transition-all duration-500 group-hover:bg-white group-hover:border-blue-200 group-hover:shadow-lg group-hover:shadow-blue-500/5 group-hover:-translate-y-1">
-                                                        <p className="text-xs font-mono font-bold text-slate-600 break-all leading-relaxed tracking-wider">
-                                                            {recharge.FTcode}
-                                                        </p>
-                                                    </div>
+                                                    <p className="text-[10px] font-black text-slate-400 leading-none">Proof of Payment</p>
+                                                    {recharge.screenshotUrl ? (
+                                                        <div 
+                                                            onClick={() => setViewImage(recharge.screenshotUrl)}
+                                                            className="relative w-full aspect-video rounded-3xl overflow-hidden border border-slate-100 cursor-zoom-in hover:border-blue-300 transition-all group/img"
+                                                        >
+                                                            <img src={recharge.screenshotUrl} alt="Proof" className="w-full h-full object-cover" />
+                                                            <div className="absolute inset-0 bg-blue-600/0 group-hover/img:bg-blue-600/10 transition-all flex items-center justify-center">
+                                                                <Search size={20} className="text-white opacity-0 group-hover/img:opacity-100 transition-all" />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-slate-50/80 backdrop-blur-md border border-slate-100 p-4 rounded-3xl">
+                                                            <p className="text-xs font-mono font-bold text-slate-600 break-all leading-relaxed tracking-wider">
+                                                                {recharge.FTcode}
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="space-y-3">
                                                     <p className="text-[10px] font-black text-slate-400 leading-none">Auth Channel</p>

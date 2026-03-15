@@ -29,12 +29,11 @@ export default function ReferralSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Default Rates (12%, 7%, 4%, 2%)
+    // Default Rates (12%, 7%, 4%)
     const [rates, setRates] = useState({
         levelA: 12,
         levelB: 7,
-        levelC: 4,
-        levelD: 2
+        levelC: 4
     });
 
     useEffect(() => {
@@ -174,25 +173,6 @@ export default function ReferralSettingsPage() {
                                     <Percent className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors" size={20} />
                                 </div>
                                 <p className="text-xs text-gray-400 font-medium pl-2">Third level (Default: 4%)</p>
-                            </div>
-
-                            {/* Level D */}
-                            <div className="space-y-3">
-                                <label className="flex items-center gap-2 text-sm font-black text-gray-700 uppercase tracking-wider">
-                                    <div className="w-6 h-6 bg-pink-100 text-pink-600 rounded-lg flex items-center justify-center text-xs">D</div>
-                                    Inviter Level D
-                                </label>
-                                <div className="relative group">
-                                    <input
-                                        type="number"
-                                        value={rates.levelD}
-                                        onChange={(e) => setRates({ ...rates, levelD: Number(e.target.value) })}
-                                        className="w-full py-4 pl-6 pr-12 bg-gray-50 rounded-2xl font-bold text-gray-800 border-2 border-transparent focus:bg-white focus:border-purple-600 focus:outline-none transition-all"
-                                        placeholder="2"
-                                    />
-                                    <Percent className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors" size={20} />
-                                </div>
-                                <p className="text-xs text-gray-400 font-medium pl-2">Fourth level (Default: 2%)</p>
                             </div>
                         </div>
 

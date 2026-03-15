@@ -229,8 +229,8 @@ export default function AdminVipUpgradePage() {
             const leaderData = { uid: leaderDoc.id, ...leaderDoc.data() } as any;
 
             // 2. Fetch all levels in parallel
-            const levels = ['inviterA', 'inviterB', 'inviterC', 'inviterD'];
-            const teamStats: any = { A: [], B: [], C: [], D: [] };
+            const levels = ['inviterA', 'inviterB', 'inviterC'];
+            const teamStats: any = { A: [], B: [], C: [] };
             let totalActiveAssets = 0;
             let totalActiveMembers = 0;
 
@@ -358,8 +358,8 @@ export default function AdminVipUpgradePage() {
                                     </div>
 
                                     {/* Level Breakdown Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        {['A', 'B', 'C', 'D'].map((level) => (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {['A', 'B', 'C'].map((level) => (
                                             <div key={level} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
                                                 <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                                                     <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">Level {level}</h4>

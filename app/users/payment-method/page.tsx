@@ -25,7 +25,7 @@ function PaymentMethodContent() {
             br: "Br",
             selectMethod: "Select payment method",
             noMethods: "No payment methods available",
-            rechargeButton: "Recharge",
+            rechargeButton: "Pay Now",
             selectMethodAlert: "Please select a payment method",
         },
         amharic: {
@@ -34,7 +34,7 @@ function PaymentMethodContent() {
             br: "ብር",
             selectMethod: "የክፍያ ዘዴ ይምረጡ",
             noMethods: "ምንም የክፍያ ዘዴዎች የሉም",
-            rechargeButton: "ገንዘብ ይሙሉ",
+            rechargeButton: "አሁን ይክፈሉ",
             selectMethodAlert: "እባክዎ የክፍያ ዘዴ ይምረጡ",
         }
     };
@@ -104,14 +104,14 @@ function PaymentMethodContent() {
                 >
                     <ChevronLeft size={20} />
                 </button>
-                <h1 className="text-lg font-black tracking-tight uppercase">{t('rechargeTitle')}</h1>
+                <h1 className="text-lg font-black tracking-tight">{t('rechargeTitle')}</h1>
                 <div className="w-10" />
             </header>
 
             <main className="pt-28 px-6 max-w-lg mx-auto space-y-12">
                 {/* Amount Display Section */}
                 <div className="text-center space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('theAmount')}</p>
+                    <p className="text-xs font-bold text-slate-400 tracking-widest">{t('theAmount')}</p>
                     <div className="flex items-center justify-center gap-3">
                         <span className="text-6xl font-black text-indigo-600 tracking-tighter">
                             {Number(amount).toLocaleString()}
@@ -124,7 +124,7 @@ function PaymentMethodContent() {
                 <div className="space-y-6">
                     <div className="flex items-center gap-2 px-1">
                         <div className="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">{t('selectMethod')}</h2>
+                        <h2 className="text-sm font-black text-slate-900 tracking-widest leading-none">{t('selectMethod')}</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -163,7 +163,7 @@ function PaymentMethodContent() {
                         {paymentMethods.length === 0 && (
                             <div className="py-20 text-center space-y-4 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100">
                                 <Building2 size={48} className="mx-auto text-slate-200" />
-                                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{t('noMethods')}</p>
+                                <p className="text-slate-400 font-bold tracking-widest text-[10px]">{t('noMethods')}</p>
                             </div>
                         )}
                     </div>
@@ -176,7 +176,7 @@ function PaymentMethodContent() {
                     <button
                         onClick={handleRecharge}
                         disabled={!selectedMethod}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white h-20 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/30 active:scale-95 transition-all text-sm"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white h-20 rounded-[2rem] font-black tracking-[0.2em] shadow-2xl shadow-indigo-600/30 active:scale-95 transition-all text-sm"
                     >
                         {t('rechargeButton')}
                     </button>

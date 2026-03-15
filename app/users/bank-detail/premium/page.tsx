@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, Crown, ShieldCheck, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronLeft, Copy, Loader2, Crown, ShieldCheck, Clock, CheckCircle2, AlertCircle, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 function PremiumContent() {
@@ -16,7 +16,9 @@ function PremiumContent() {
     const [loading, setLoading] = useState(true);
     const [method, setMethod] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(600);
-    const [smsContent, setSmsContent] = useState("");
+    const [screenshotUrl, setScreenshotUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -34,8 +36,11 @@ function PremiumContent() {
             accountNumber: "Account Number",
             copied: "Copied to clipboard",
             copy: "copy",
-            pasteSMS: "Paste payment sms or enter TID: FT*****",
-            pastePlaceholder: "Paste your official transaction confirmation message or TID (FT...) here for priority processing...",
+            pasteSMS: "Upload payment screenshot",
+            pastePlaceholder: "Waiting for screenshot upload...",
+            uploading: "Processing Upload...",
+            uploadSuccess: "Upload Verified!",
+            uploadErr: "Please upload premium payment proof",
             secureInput: "Secure Input",
             verifiedDetails: "Only verified details will be processed",
             confirmPayment: "Confirm Payment",
@@ -67,8 +72,11 @@ function PremiumContent() {
             accountNumber: "የሂሳብ ቁጥር",
             copied: "ተገልብጧል",
             copy: "ቅዳ",
-            pasteSMS: "የክፍያ SMS ይለጥፉ ወይም FT ኮድ ያስገቡ",
-            pastePlaceholder: "ትክክለኛ የግብይት ማረጋገጫ መልእክት ወይም TID (FT...) ለቅድሚያ አገልግሎት እዚህ ይለጥፉ...",
+            pasteSMS: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
+            pastePlaceholder: "የቅጽበታዊ ገጽ እይታ ስቀላን በመጠባበቅ ላይ...",
+            uploading: "በመጫን ላይ...",
+            uploadSuccess: "ተሳክቷል!",
+            uploadErr: "እባክዎ የክፍያዎን ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             secureInput: "ደህንነቱ የተጠበቀ ማስገቢያ",
             verifiedDetails: "የተረጋገጡ ዝርዝሮች ብቻ ይስተናገዳሉ",
             confirmPayment: "ክፍያውን ያረጋግጡ",
@@ -144,8 +152,42 @@ function PremiumContent() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus(t('uploading'));
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setScreenshotUrl(data.secure_url);
+                setUploadStatus(t('uploadSuccess'));
+                toast.success(t('uploadSuccess'));
+            } else {
+                setUploadStatus("Failed");
+                toast.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error");
+            toast.error("Error occurred during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!smsContent.trim()) {
+        if (!screenshotUrl) {
             toast.error(t('enterSmsErr'));
             return;
         }
@@ -168,7 +210,8 @@ function PremiumContent() {
                 bankName: method?.bankName || "",
                 phoneNumber: userPhone || user.phoneNumber || "",
                 amount: Number(amount),
-                FTcode: smsContent,
+                FTcode: "Screenshot Uploaded",
+                screenshotUrl: screenshotUrl,
                 accountHolderName: method?.holderName || "",
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
@@ -347,17 +390,30 @@ function PremiumContent() {
                         </h2>
                     </div>
 
-                    <div className="relative group rounded-2xl p-[1px] bg-gradient-to-b from-amber-500/50 to-amber-900/10">
-                        <div className="bg-slate-900 rounded-2xl p-1">
-                            <textarea
-                                value={smsContent}
-                                onChange={(e) => setSmsContent(e.target.value)}
-                                placeholder={t('pastePlaceholder')}
-                                className="w-full h-36 p-5 rounded-xl bg-slate-950/50 border border-amber-500/10 text-amber-100 placeholder:text-amber-500/30 focus:outline-none focus:bg-slate-900 focus:border-amber-500/30 transition-all resize-none text-sm font-serif leading-relaxed"
-                            />
-                        </div>
-                        <div className="absolute -top-3 left-4 bg-slate-950 px-2 text-[10px] text-amber-500 border border-amber-500/20 rounded uppercase tracking-wider">
-                            {t('secureInput')}
+                    <div className="relative group rounded-2xl p-[1px] bg-gradient-to-b from-amber-500/50 to-amber-900/10 shadow-2xl overflow-hidden">
+                        <div className="bg-slate-900 rounded-2xl p-4 min-h-[160px] flex flex-col items-center justify-center gap-4 relative">
+                            {screenshotUrl ? (
+                                <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-amber-500/10">
+                                    <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <label className="cursor-pointer bg-amber-500 text-slate-950 px-6 py-2 rounded-lg font-black text-[10px] tracking-widest uppercase">
+                                            Change Proof
+                                            <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                        </label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <label className="w-full h-full flex flex-col items-center justify-center gap-4 cursor-pointer py-4 group/upload">
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    <div className={`w-16 h-16 rounded-full border border-amber-500/20 flex items-center justify-center transition-all ${isUploading ? 'bg-amber-500/10 animate-pulse' : 'bg-white/5 group-hover/upload:bg-amber-500/10'}`}>
+                                        {isUploading ? <Loader2 className="animate-spin text-amber-500" /> : <UploadCloud size={32} className="text-amber-500/40 group-hover/upload:text-amber-500" />}
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-amber-100 font-medium text-xs tracking-wide">{uploadStatus || t('pastePlaceholder')}</p>
+                                        <p className="text-[10px] text-amber-500/30 font-black uppercase mt-1 tracking-widest">{t('secureInput')}</p>
+                                    </div>
+                                </label>
+                            )}
                         </div>
                     </div>
                     <p className="text-[10px] text-amber-500/40 text-center uppercase tracking-widest">
@@ -371,8 +427,8 @@ function PremiumContent() {
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}
-                        disabled={!smsContent.trim() || submitting}
-                        className={`w-full h-14 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${!smsContent.trim() || submitting
+                        disabled={!screenshotUrl || submitting || isUploading}
+                        className={`w-full h-14 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${!screenshotUrl || submitting || isUploading
                             ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
                             : 'bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-950 shadow-lg shadow-amber-900/20 hover:shadow-amber-500/20 active:scale-[0.98]'
                             }`}

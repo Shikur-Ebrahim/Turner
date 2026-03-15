@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, ArrowRight, Zap, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Copy, Loader2, ArrowRight, Zap, CheckCircle2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 function ExpressContent() {
@@ -16,7 +16,9 @@ function ExpressContent() {
     const [loading, setLoading] = useState(true);
     const [method, setMethod] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(600);
-    const [smsContent, setSmsContent] = useState("");
+    const [screenshotUrl, setScreenshotUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -34,9 +36,12 @@ function ExpressContent() {
             copy: "copy",
             totalPayment: "Total Payment",
             step2: "Step 2",
-            pasteSMS: "Paste payment SMS",
-            orEnterTID: "or enter TID: FT*****",
-            smsPlaceholder: "Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc...",
+            pasteSMS: "Upload payment screenshot",
+            orEnterTID: "waiting for upload...",
+            smsPlaceholder: "Click to upload your payment screenshot for instant processing...",
+            uploading: "Uploading Proof...",
+            uploadSuccess: "Screenshot Verified!",
+            uploadErr: "Please upload proof of transfer",
             iHaveTransferred: "I Have Transferred",
             initializing: "Initializing...",
             rechargeSubmitted: "Recharge Submitted",
@@ -67,9 +72,9 @@ function ExpressContent() {
             copy: "ቅዳ",
             totalPayment: "ጠቅላላ ክፍያ",
             step2: "ደረጃ 2",
-            pasteSMS: "የክፍያ SMS ይለጥፉ",
-            orEnterTID: "ወይም FT ኮድ ያስገቡ",
-            smsPlaceholder: "ውድ ደንበኛ ሂሳብ ቁጥር 1*********1122 በ 200.00 ብር ቀንሷል... ወዘተ",
+            pasteSMS: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
+            orEnterTID: "መጫን በመጠባበቅ ላይ...",
+            smsPlaceholder: "ለቅጽበታዊ ሂደቱ እባክዎ የክፍያዎን ቅጽበታዊ ገጽ እይታ እዚህ ይስቀሉ...",
             iHaveTransferred: "ክፍያ ፈጽሜያለሁ",
             initializing: "በመጀመር ላይ...",
             rechargeSubmitted: "ክፍያዎ ገብቷል",
@@ -86,7 +91,7 @@ function ExpressContent() {
             enterNow: "አሁን ይግቡ",
             failedLoad: "መጫን አልተቻለም",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
-            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             etb: "ብር"
         }
     };
@@ -138,8 +143,42 @@ function ExpressContent() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus(t('uploading'));
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setScreenshotUrl(data.secure_url);
+                setUploadStatus(t('uploadSuccess'));
+                toast.success(t('uploadSuccess'));
+            } else {
+                setUploadStatus("Failed");
+                toast.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error");
+            toast.error("Error occurred during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!smsContent.trim()) {
+        if (!screenshotUrl) {
             toast.error(t('enterSmsErr'));
             return;
         }
@@ -163,7 +202,8 @@ function ExpressContent() {
                 bankName: method?.bankName || "",
                 phoneNumber: userPhone || user.phoneNumber || "",
                 amount: Number(amount),
-                FTcode: smsContent,
+                FTcode: "Screenshot Uploaded",
+                screenshotUrl: screenshotUrl,
                 accountHolderName: method?.holderName || "",
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
@@ -302,17 +342,35 @@ function ExpressContent() {
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm flex-shrink-0">2</div>
                         <h2 className="font-bold text-base sm:text-lg leading-tight">
-                            <span className="text-red-500">{t('pasteSMS')}</span> <span className="text-slate-500 font-normal text-sm">{t('orEnterTID')}</span>
+                            <span className="text-emerald-600">{t('pasteSMS')}</span>
                         </h2>
                     </div>
 
-                    <div className="relative">
-                        <textarea
-                            value={smsContent}
-                            onChange={(e) => setSmsContent(e.target.value)}
-                            placeholder={t('smsPlaceholder')}
-                            className="w-full h-36 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl p-4 resize-none transition-all outline-none font-medium text-slate-700 placeholder:text-slate-400 text-sm leading-relaxed shadow-sm"
-                        />
+                    <div className="relative group">
+                        <div className="w-full min-h-[160px] bg-slate-50 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-all overflow-hidden group-hover:bg-slate-100/50">
+                            {screenshotUrl ? (
+                                <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md">
+                                    <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <label className="cursor-pointer bg-white text-black px-6 py-2 rounded-full font-bold text-sm shadow-xl">
+                                            Change Proof
+                                            <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                        </label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <label className="w-full h-full flex flex-col items-center justify-center gap-3 cursor-pointer py-4">
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isUploading ? 'bg-emerald-50 text-emerald-600 animate-pulse' : 'bg-white text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 shadow-sm'}`}>
+                                        <UploadCloud size={28} />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-bold text-slate-700 text-sm">{uploadStatus || t('smsPlaceholder')}</p>
+                                        <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-bold opacity-60">{t('orEnterTID')}</p>
+                                    </div>
+                                </label>
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>
@@ -322,8 +380,8 @@ function ExpressContent() {
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}
-                        disabled={!smsContent.trim() || submitting}
-                        className={`w-full h-14 rounded-full font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${!smsContent.trim() || submitting
+                        disabled={!screenshotUrl || submitting || isUploading}
+                        className={`w-full h-14 rounded-full font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${!screenshotUrl || submitting || isUploading
                             ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-70 shadow-none'
                             : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-200'
                             }`}

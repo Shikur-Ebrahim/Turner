@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ChevronLeft, Building2, Copy, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronLeft, Building2, Copy, Loader2, CheckCircle2, AlertCircle, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 function RegularBankDetailContent() {
@@ -16,7 +16,9 @@ function RegularBankDetailContent() {
     const [loading, setLoading] = useState(true);
     const [method, setMethod] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
-    const [smsContent, setSmsContent] = useState("");
+    const [screenshotUrl, setScreenshotUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -39,8 +41,11 @@ function RegularBankDetailContent() {
             copied: "Copied!",
             copy: "copy",
             step2: "Step 2",
-            step2Desc: "Paste payment sms Or enter TID: FT*****",
-            smsPlaceholder: "Dear Mr your Account 1*********1122 has been debited wth ETB 200.00. Your Current Balance is ETB 44.76 Thank you for Banking with CBE! etc...",
+            step2Desc: "Upload payment screenshot",
+            smsPlaceholder: "Waiting for screenshot upload...",
+            uploading: "Uploading...",
+            uploadSuccess: "Upload Successful!",
+            uploadErr: "Please upload payment proof",
             submitButton: "I HAVE TRANSFERRED",
             rechargeSubmitted: "Recharge Submitted",
             underReview: "Your deposit request for",
@@ -53,7 +58,7 @@ function RegularBankDetailContent() {
             tapBelow: "Tap below to access your profitable partnership dashboard.",
             getStarted: "GET STARTED",
             loginFirst: "Please login first",
-            enterSmsErr: "Please enter SMS content or FT code",
+            enterSmsErr: "Please upload payment screenshot",
             failedLoad: "Failed to load payment details",
         },
         amharic: {
@@ -72,8 +77,11 @@ function RegularBankDetailContent() {
             copied: "ተገልብጧል!",
             copy: "ቅዳ",
             step2: "ደረጃ 2",
-            step2Desc: "የከፈሉበትን SMS እዚህ ይለጥፉ ወይም FT ኮድ ያስገቡ",
-            smsPlaceholder: "ውድ ደንበኛ ቁጥር 1*********1122 በ ETB 200.00 ተቀንሷል። ቀሪ ሂሳብዎ ETB 44.76 ነው። ወዘተ...",
+            step2Desc: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
+            smsPlaceholder: "የቅጽበታዊ ገጽ እይታ ስቀላን በመጠባበቅ ላይ...",
+            uploading: "በመጫን ላይ...",
+            uploadSuccess: "በተሳካ ሁኔታ ተጭኗል!",
+            uploadErr: "እባክዎ የክፍያ ማረጋገጫ ይስቀሉ",
             submitButton: "ገንዘቡን አስተላልፌያለሁ",
             rechargeSubmitted: "ክፍያዎ ገብቷል",
             underReview: "የመሙያ ጥያቄዎ",
@@ -86,7 +94,7 @@ function RegularBankDetailContent() {
             tapBelow: "ወደ ዳሽቦርድዎ ለመግባት ከታች ያለውን ይጫኑ።",
             getStarted: "ጀምር",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
-            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             failedLoad: "የክፍያ መረጃን መጫን አልተቻለም",
         }
     };
@@ -154,8 +162,42 @@ function RegularBankDetailContent() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus(t('uploading'));
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setScreenshotUrl(data.secure_url);
+                setUploadStatus(t('uploadSuccess'));
+                toast.success(t('uploadSuccess'));
+            } else {
+                setUploadStatus("Failed");
+                toast.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error");
+            toast.error("Error occurred during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!smsContent.trim()) {
+        if (!screenshotUrl) {
             toast.error(t('enterSmsErr'));
             return;
         }
@@ -178,7 +220,8 @@ function RegularBankDetailContent() {
                 bankName: method?.bankName || "",
                 phoneNumber: userPhone || user.phoneNumber || "",
                 amount: Number(amount),
-                FTcode: smsContent,
+                FTcode: "Screenshot Uploaded",
+                screenshotUrl: screenshotUrl,
                 accountHolderName: method?.holderName || "",
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
@@ -366,14 +409,35 @@ function RegularBankDetailContent() {
                         <span className="text-red-500">{t('step2Desc')}</span>
                     </h2>
 
-                    <div className="relative">
-                        <textarea
-                            value={smsContent}
-                            onChange={(e) => setSmsContent(e.target.value)}
-                            placeholder={t('smsPlaceholder')}
-                            className="w-full h-32 p-4 rounded-xl border border-slate-200/60 bg-white/70 backdrop-blur-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none text-sm leading-relaxed shadow-lg shadow-purple-100/30"
-                        />
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-slate-200 rounded-full opacity-50"></div>
+                    <div className="relative group">
+                        <div className="w-full min-h-[160px] p-6 rounded-2xl border-2 border-dashed border-slate-200 bg-white/50 backdrop-blur-xl flex flex-col items-center justify-center gap-4 transition-all hover:border-purple-300 group-hover:bg-white/80 overflow-hidden shadow-lg shadow-purple-100/30">
+                            {screenshotUrl ? (
+                                <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md">
+                                    <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <label className="cursor-pointer bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-sm shadow-xl">
+                                            Change Proof
+                                            <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                        </label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <label className="w-full h-full flex flex-col items-center justify-center gap-3 cursor-pointer py-4">
+                                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${isUploading ? 'bg-purple-50 text-purple-600 animate-pulse' : 'bg-slate-50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-600'}`}>
+                                        {isUploading ? (
+                                            <Loader2 size={32} className="animate-spin" />
+                                        ) : (
+                                            <UploadCloud size={32} />
+                                        )}
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-bold text-slate-700">{uploadStatus || t('smsPlaceholder')}</p>
+                                        <p className="text-xs text-slate-400 mt-1">Tap to select image from your device</p>
+                                    </div>
+                                </label>
+                            )}
+                        </div>
                     </div>
                 </section>
             </main>
@@ -383,8 +447,8 @@ function RegularBankDetailContent() {
                 <div className="max-w-lg mx-auto">
                     <button
                         onClick={handleSubmit}
-                        disabled={!smsContent.trim() || submitting}
-                        className={`w-full h-14 rounded-xl font-bold transition-all shadow-lg ${!smsContent.trim() || submitting
+                        disabled={!screenshotUrl || submitting || isUploading}
+                        className={`w-full h-14 rounded-xl font-bold transition-all shadow-lg ${!screenshotUrl || submitting || isUploading
                             ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-70 shadow-none'
                             : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 active:scale-[0.98] shadow-purple-300/50'
                             }`}

@@ -39,7 +39,9 @@ import {
     ArrowUp,
     TrendingDown,
     Activity,
-    CreditCard
+    CreditCard,
+    X,
+    Send
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -48,6 +50,8 @@ export default function ProfilePage() {
     const [userData, setUserData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [hasRuleUpdates, setHasRuleUpdates] = useState(false);
+    const [showSupportModal, setShowSupportModal] = useState(false);
+    const [telegramLinks, setTelegramLinks] = useState({ channel: "", team: "" });
 
     const [language, setLanguage] = useState<"english" | "amharic">("english");
 
@@ -65,39 +69,45 @@ export default function ProfilePage() {
 
     const translations = {
         english: {
-            securityHub: "Security Hub",
-            member: "Member",
+            securityHub: "Security",
+            member: "Client",
             etb: "ETB",
             vip: "VIP",
-            digitalAssets: "Digital Assets",
-            availableBalance: "Available Balance",
-            secureNode: "Secure Node: Active",
-            dataIntelligence: "Data Intelligence",
-            performanceAnalysis: "Performance Analysis",
+            digitalAssets: "Assets",
+            availableBalance: "Balance",
+            secureNode: "Node: Active",
+            dataIntelligence: "Data",
+            performanceAnalysis: "Performance",
             active: "Active",
             verified: "Verified",
-            totalRecharge: "Total Recharge",
+            totalRecharge: "Total Deposit",
             teamIncome: "Team Income",
             totalIncome: "Total Income",
             totalWithdrawal: "Total Withdrawal",
             teamSize: "Team Size",
-            todayIncome: "Today Income",
-            rules: "RULES",
-            download: "DOWNLOAD",
-            bank: "BANK",
-            service: "SERVICE",
-            systemManagement: "System Management",
-            fundingDetails: "FUNDING DETAILS",
-            transactionLogs: "TRANSACTION LOGS",
-            withdrawalRecord: "WITHDRAWAL RECORD",
-            paymentStatus: "PAYMENT STATUS",
-            loginPassword: "LOGIN PASSWORD",
-            securityProtocols: "SECURITY PROTOCOLS",
-            withdrawalPassword: "WITHDRAWAL PASSWORD",
-            assetProtection: "ASSET PROTECTION",
-            rechargeRecord: "RECHARGE RECORD",
-            creditAnalysis: "CREDIT ANALYSIS",
-            endSession: "End Session"
+            todayIncome: "Today's Income",
+            fund: "Fund",
+            download: "Download",
+            bank: "Bank",
+            service: "Support",
+            systemManagement: "System",
+            fundingDetails: "Funding",
+            transactionLogs: "Logs",
+            withdrawalRecord: "Withdrawal Record",
+            paymentStatus: "Status",
+            loginPassword: "Login Password",
+            securityProtocols: "Security",
+            withdrawalPassword: "Withdraw Password",
+            assetProtection: "Protection",
+            rechargeRecord: "Deposit Record",
+            creditAnalysis: "Record",
+            endSession: "End Session",
+            officialChannel: "Official Channel",
+            teamSupport: "Team Support",
+            joinChannel: "Join Channel",
+            contactTeam: "Contact Team",
+            supportHub: "Support Center",
+            supportDesc: "Connect with our official channels for assistance"
         },
         amharic: {
             securityHub: "የደህንነት ማዕከል",
@@ -117,10 +127,10 @@ export default function ProfilePage() {
             totalWithdrawal: "ጠቅላላ ወጪ",
             teamSize: "የቡድን ብዛት",
             todayIncome: "የዛሬ ገቢ",
-            rules: "ደንቦች",
+            fund: "ፈንድ",
             download: "አውርድ",
             bank: "ባንክ",
-            service: "አገልግሎት",
+            service: "ድጋፍ",
             systemManagement: "የስርዓት አስተዳደር",
             fundingDetails: "የገንዘብ ዝርዝሮች",
             transactionLogs: "የግብይት መዝገቦች",
@@ -132,7 +142,13 @@ export default function ProfilePage() {
             assetProtection: "የንብረት ጥበቃ",
             rechargeRecord: "የሞሉት መዝገብ",
             creditAnalysis: "የሂሳብ ትንተና",
-            endSession: "ዛግተው ይውጡ"
+            endSession: "ዛግተው ይውጡ",
+            officialChannel: "ይፋዊ ቻናል",
+            teamSupport: "የቡድን ድጋፍ",
+            joinChannel: "ቻናል ይቀላቀሉ",
+            contactTeam: "ቡድንን ያነጋግሩ",
+            supportHub: "የድጋፍ ማዕከል",
+            supportDesc: "ለእርዳታ ከይፋዊ ቻናሎቻችን ጋር ይገናኙ"
         }
     };
 
@@ -187,6 +203,24 @@ export default function ProfilePage() {
 
         return () => unsubscribe();
     }, [userData]);
+ 
+    useEffect(() => {
+        const fetchTelegramLinks = async () => {
+            try {
+                const docRef = doc(db, "telegram_links", "active");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setTelegramLinks({
+                        channel: docSnap.data().channelLink || "",
+                        team: docSnap.data().teamLink || ""
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching telegram links:", error);
+            }
+        };
+        fetchTelegramLinks();
+    }, []);
 
 
     // Format phone number: 251***44444
@@ -217,7 +251,7 @@ export default function ProfilePage() {
                     >
                         <ChevronLeft className="text-white" size={24} />
                     </button>
-                    <h1 className="text-lg font-black text-white tracking-[0.2em] uppercase">{t("securityHub")}</h1>
+                    <h1 className="text-lg font-black text-white tracking-[0.2em]">{t("securityHub")}</h1>
                     <div className="w-10"></div> {/* Spacer for balance */}
                 </div>
             </header>
@@ -252,12 +286,7 @@ export default function ProfilePage() {
                         {/* Identity Details */}
                         <div className="flex-1 space-y-1.5 overflow-hidden">
                             <div className="space-y-0">
-                                <h2 className="text-2xl font-black text-gray-900 leading-tight tracking-tight uppercase truncate">{t("member")}</h2>
-                                <div className="flex items-center gap-2">
-                                    <div className="px-2 py-0.5 bg-blue-50 rounded-md border border-blue-100/50">
-                                        <span className="text-[10px] font-black text-blue-600 tracking-widest uppercase">UID: {userData?.uid?.substring(0, 6).toUpperCase() || "LLBSBV"}</span>
-                                    </div>
-                                </div>
+                                <h2 className="text-2xl font-black text-gray-900 leading-tight tracking-tight truncate">{t("member")}</h2>
                             </div>
                             <div className="flex items-center gap-2 px-1">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
@@ -271,11 +300,11 @@ export default function ProfilePage() {
                         <div className="flex flex-col items-end gap-2.5">
                             <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-sm border border-gray-100/50">
                                 <img src="/Ethiopia.png" alt="Ethiopia" className="w-5 h-3.5 object-cover rounded-sm" />
-                                <span className="text-[9px] font-black text-gray-800 uppercase tracking-widest leading-none">ETH</span>
+                                <span className="text-[9px] font-black text-gray-800 tracking-widest leading-none">ETH</span>
                             </div>
                             <div className="flex items-center gap-2 bg-gradient-to-br from-amber-500 to-orange-600 px-3 py-1.5 rounded-2xl shadow-lg shadow-orange-500/20 border border-orange-400/30">
                                 <Shield size={10} className="text-white fill-current" />
-                                <span className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">{t("vip")} {userData?.vip || 0}</span>
+                                <span className="text-[10px] font-black text-white tracking-tighter leading-none">{t("vip")} {userData?.vip || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -294,11 +323,7 @@ export default function ProfilePage() {
                         <div className="relative z-10 flex flex-col gap-6">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <Wallet size={16} className="text-blue-400" />
-                                        <span className="text-[10px] font-black text-blue-200/60 uppercase tracking-[0.3em]">{t("digitalAssets")}</span>
-                                    </div>
-                                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest pl-1">{t("availableBalance")}</h3>
+                                    <h3 className="text-xs font-bold text-white/40 tracking-widest pl-1">{t("availableBalance")}</h3>
                                 </div>
                                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
                                     <Coins size={20} className="text-blue-300" />
@@ -309,18 +334,10 @@ export default function ProfilePage() {
                                 <span className="text-4xl font-black text-white tracking-tighter drop-shadow-md">
                                     {userData?.balance?.toLocaleString() || "0.00"}
                                 </span>
-                                <span className="text-base font-black text-blue-400 uppercase tracking-widest">ETB</span>
+                                <span className="text-base font-black text-blue-400 tracking-widest">ETB</span>
                             </div>
 
                             <div className="flex items-center gap-3 pt-2">
-                                <div className="flex -space-x-2">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-slate-900 bg-blue-500/20 flex items-center justify-center overflow-hidden backdrop-blur-sm">
-                                            <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <span className="text-[9px] font-black text-blue-200/40 uppercase tracking-[0.2em]">{t("secureNode")}</span>
                             </div>
                         </div>
                     </div>
@@ -341,19 +358,10 @@ export default function ProfilePage() {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
                                         <div className="w-1.5 h-6 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)]"></div>
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] leading-none">{t("dataIntelligence")}</h3>
+                                        <h3 className="text-sm font-black text-gray-900 tracking-[0.2em] leading-none">{t("dataIntelligence")}</h3>
                                     </div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] pl-4">{t("performanceAnalysis")}</p>
-                                </div>
-                                <div className="flex items-center gap-2.5 px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-100/50 shadow-sm">
-                                    <div className="relative flex items-center justify-center">
-                                        <Activity size={12} className="text-emerald-500 relative z-10" />
-                                        <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-25 scale-150"></div>
-                                    </div>
-                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{t("active")}</span>
                                 </div>
                             </div>
-
                             <div className="grid grid-cols-3 gap-y-12 gap-x-5">
                                 {stats.map((stat, i) => (
                                     <div key={i} className="flex flex-col gap-4 group active:scale-95 transition-all">
@@ -377,7 +385,7 @@ export default function ProfilePage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter leading-none">{stat.label}</span>
+                                            <span className="text-[9px] font-black text-gray-400 tracking-tighter leading-none">{stat.label}</span>
                                         </div>
                                         <div className="space-y-1.5 text-center px-1">
                                             <p className="text-xl font-black text-gray-900 tracking-tighter leading-none break-all drop-shadow-sm">
@@ -385,7 +393,7 @@ export default function ProfilePage() {
                                             </p>
                                             <div className="flex items-center justify-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse"></div>
-                                                <span className="text-[8px] font-black text-blue-500/60 uppercase tracking-widest">{t("verified")}</span>
+                                                <span className="text-[8px] font-black text-blue-500/60 tracking-widest">{t("verified")}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -398,14 +406,20 @@ export default function ProfilePage() {
                 {/* Advanced Core Services - Interaction Grid */}
                 <div className="grid grid-cols-4 gap-4 mb-12">
                     {[
-                        { label: t("rules"), image: "/rules_icon.png", color: "blue", iconColor: "text-blue-600", path: "/users/rules", dark: false, icon: null },
+                        { label: t("fund"), icon: Wallet, color: "blue", iconColor: "text-blue-600", path: "/users/funding-details", dark: false, image: null },
                         { label: t("download"), image: "/app logo.png", color: "indigo", iconColor: "text-white", path: "/users/download", dark: false, icon: null },
                         { label: t("bank"), image: "/bank_icon.png", color: "emerald", iconColor: "text-emerald-600", path: "/users/bank", dark: false, icon: null },
-                        { label: t("service"), image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", path: "/users/service", dark: false, icon: null },
+                        { label: t("service"), image: "/service_icon.png", color: "purple", iconColor: "text-purple-600", onClick: () => setShowSupportModal(true), dark: false, icon: null },
                     ].map((item: any, i) => (
                         <button
                             key={i}
-                            onClick={() => item.path && router.push(item.path)}
+                            onClick={() => {
+                                if (item.onClick) {
+                                    item.onClick();
+                                } else if (item.path) {
+                                    router.push(item.path);
+                                }
+                            }}
                             className="flex flex-col items-center gap-2.5 group"
                         >
                             <div className={`w-16 h-16 rounded-[1.5rem] bg-white shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center relative overflow-hidden group-hover:scale-110 group-active:scale-95 transition-all duration-300`}>
@@ -419,13 +433,10 @@ export default function ProfilePage() {
                                         <item.icon size={22} className={item.dark ? "text-white" : item.iconColor} />
                                     ) : null}
 
-                                    {/* Red Notification Dot for RULES */}
-                                    {item.label === t("rules") && hasRuleUpdates && (
-                                        <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-[0_0_8px_rgba(239,68,68,0.5)] animate-pulse z-20"></div>
-                                    )}
+                                    {/* Red Notification Dot Removed */}
                                 </div>
                             </div>
-                            <span className="text-[9px] font-black text-gray-500 tracking-widest uppercase text-center leading-none">{item.label}</span>
+                            <span className="text-[9px] font-black text-gray-500 tracking-widest text-center leading-none">{item.label}</span>
                         </button>
                     ))}
                 </div>
@@ -434,11 +445,10 @@ export default function ProfilePage() {
                 <div className="space-y-4 pb-12">
                     <div className="flex items-center gap-3 mb-6 px-1">
                         <div className="w-1.5 h-4 bg-gray-900 rounded-full"></div>
-                        <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">{t("systemManagement")}</h3>
+                        <h3 className="text-[10px] font-black text-gray-900 tracking-[0.3em]">{t("systemManagement")}</h3>
                     </div>
 
                     {[
-                        { title: t("fundingDetails"), sub: t("transactionLogs"), icon: Wallet, color: "blue", path: "/users/funding-details" },
                         { title: t("withdrawalRecord"), sub: t("paymentStatus"), icon: ArrowUpRight, color: "emerald", path: "/users/withdrawal-record" },
                         { title: t("loginPassword"), sub: t("securityProtocols"), icon: Key, color: "purple", path: "/users/change-password" },
                         { title: t("withdrawalPassword"), sub: t("assetProtection"), icon: Lock, color: "indigo", path: "/users/change-withdrawal-password" },
@@ -458,8 +468,8 @@ export default function ProfilePage() {
                                         <item.icon size={22} className="relative z-10" />
                                     </div>
                                     <div className="text-left space-y-0.5">
-                                        <h3 className="text-sm font-black text-gray-900 tracking-tight uppercase">{item.title}</h3>
-                                        <p className="text-[9px] font-bold text-blue-500/60 uppercase tracking-widest">{item.sub}</p>
+                                        <h3 className="text-sm font-black text-gray-900 tracking-tight">{item.title}</h3>
+                                        <p className="text-[9px] font-bold text-blue-500/60 tracking-widest">{item.sub}</p>
                                     </div>
                                 </div>
                                 <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
@@ -503,15 +513,69 @@ export default function ProfilePage() {
                                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
                                     <LogOut size={20} className="text-white" />
                                 </div>
-                                <span className="text-lg font-black text-white uppercase tracking-[0.2em]">{t("endSession")}</span>
+                                <span className="text-lg font-black text-white tracking-[0.2em]">{t("endSession")}</span>
                             </div>
                             {/* Decorative highlights */}
                             <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-[45deg] translate-x-32 group-hover:translate-x-[-150%] transition-transform duration-1000"></div>
                         </button>
                     </div>
                 </div>
-            </main >
+            </main>
 
-        </div >
+            {/* Premium Support Modal */}
+            {showSupportModal && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowSupportModal(false)}></div>
+                    <div className="relative w-full max-w-sm bg-white rounded-[3rem] p-6 sm:p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 max-h-[90vh] overflow-y-auto invisible-scrollbar">
+                        <button
+                            onClick={() => setShowSupportModal(false)}
+                            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <div className="text-center space-y-6 mb-8">
+                            <div className="w-20 h-20 bg-indigo-600 rounded-[2.2rem] mx-auto flex items-center justify-center shadow-xl shadow-indigo-500/30 transform rotate-3">
+                                <Send size={32} className="text-white" />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-black text-gray-900 tracking-tight">{t("supportHub")}</h3>
+                                <p className="text-xs text-gray-400 font-bold leading-relaxed px-4">
+                                    {t("supportDesc")}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => telegramLinks.channel && window.open(telegramLinks.channel.startsWith("http") ? telegramLinks.channel : `https://t.me/${telegramLinks.channel.replace("@", "")}`, "_blank")}
+                                className="group w-full p-5 bg-blue-50 hover:bg-blue-100 rounded-[2rem] border border-blue-100 transition-all flex items-center gap-5 active:scale-95"
+                            >
+                                <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                                    <Send size={20} className="text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="text-sm font-black text-gray-900">{t("officialChannel")}</h4>
+                                    <p className="text-[10px] text-blue-600 font-bold">{t("joinChannel")}</p>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => telegramLinks.team && window.open(telegramLinks.team.startsWith("http") ? telegramLinks.team : `https://t.me/${telegramLinks.team.replace("@", "")}`, "_blank")}
+                                className="group w-full p-5 bg-indigo-50 hover:bg-indigo-100 rounded-[2rem] border border-indigo-100 transition-all flex items-center gap-5 active:scale-95"
+                            >
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                                    <Users size={20} className="text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="text-sm font-black text-gray-900">{t("teamSupport")}</h4>
+                                    <p className="text-[10px] text-indigo-600 font-bold">{t("contactTeam")}</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

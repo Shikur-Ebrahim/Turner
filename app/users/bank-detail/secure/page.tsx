@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ChevronLeft, Copy, Loader2, ShieldCheck, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronLeft, Copy, Loader2, ShieldCheck, Lock, CheckCircle2, AlertCircle, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 function SecureContent() {
@@ -16,7 +16,9 @@ function SecureContent() {
     const [loading, setLoading] = useState(true);
     const [method, setMethod] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(600);
-    const [smsContent, setSmsContent] = useState("");
+    const [screenshotUrl, setScreenshotUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
     const [copiedName, setCopiedName] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -38,9 +40,12 @@ function SecureContent() {
             copy: "copy",
             exactAmountTip: "Please ensure exact amount transfer to avoid delays.",
             step2: "Step 2",
-            step2Desc: "Paste payment sms Or enter TID: FT*****",
-            smsPlaceholder: "// Paste transaction ID or SMS confirmation here...",
-            encryptedInputZone: "ENCRYPTED INPUT ZONE",
+            step2Desc: "Upload payment screenshot",
+            smsPlaceholder: "Waiting for encrypted screenshot upload...",
+            uploading: "Uploading Proof...",
+            uploadSuccess: "Upload Verified!",
+            uploadErr: "Please upload payment proof",
+            encryptedInputZone: "ENCRYPTED UPLOAD ZONE",
             confirmSecureTransaction: "Confirm Secure Transaction",
             rechargeSubmitted: "Recharge Submitted",
             underReview: "Your secure deposit request for",
@@ -75,8 +80,11 @@ function SecureContent() {
             copy: "ቅዳ",
             exactAmountTip: "እባክዎ መዘግየትን ለማስወገድ ትክክለኛውን መጠን ማስተላለፍዎን ያረጋግጡ።",
             step2: "ደረጃ 2",
-            step2Desc: "የከፈሉበትን SMS እዚህ ይለጥፉ ወይም FT ኮድ ያስገቡ",
-            smsPlaceholder: "// እባክዎ የግብይት መታወቂያውን ወይም የSMS ማረጋገጫውን እዚህ ይለጥፉ...",
+            step2Desc: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
+            smsPlaceholder: "የተመሰጠረ ቅጽበታዊ ገጽ እይታ ስቀላን በመጠባበቅ ላይ...",
+            uploading: "በመጫን ላይ...",
+            uploadSuccess: "ተሳክቷል!",
+            uploadErr: "እባክዎ የክፍያዎን ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             encryptedInputZone: "የተመሰጠረ የግቤት ዞን",
             confirmSecureTransaction: "ደህንነቱ የተጠበቀ ግብይቱን አረጋግጥ",
             rechargeSubmitted: "ክፍያዎ ገብቷል",
@@ -93,7 +101,7 @@ function SecureContent() {
             encryptionNote: "ሁሉም የግብይት መረጃዎች በ256-ቢት ደህንነት የተመሰጠሩ ናቸው።",
             enterSecureZone: "ደህንነቱ የተጠበቀ ዞን ይግቡ",
             loginFirst: "እባክዎ መጀመሪያ ይግቡ",
-            enterSmsErr: "እባክዎ የSMS ይዘትን ወይም FT ኮዱን ያስገቡ",
+            enterSmsErr: "እባክዎ የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ",
             failedLoad: "መጫን አልተቻለም",
             encrypted256: "በ256-ቢት የተመሰጠረ",
         }
@@ -146,8 +154,42 @@ function SecureContent() {
         }
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadStatus(t('uploading'));
+
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default");
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                { method: "POST", body: uploadData }
+            );
+            const data = await response.json();
+            if (data.secure_url) {
+                setScreenshotUrl(data.secure_url);
+                setUploadStatus(t('uploadSuccess'));
+                toast.success(t('uploadSuccess'));
+            } else {
+                setUploadStatus("Failed");
+                toast.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            setUploadStatus("Error");
+            toast.error("Error occurred during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!smsContent.trim()) {
+        if (!screenshotUrl) {
             toast.error(t('enterSmsErr'));
             return;
         }
@@ -170,7 +212,8 @@ function SecureContent() {
                 bankName: method?.bankName || "",
                 phoneNumber: userPhone || user.phoneNumber || "",
                 amount: Number(amount),
-                FTcode: smsContent,
+                FTcode: "Screenshot Uploaded",
+                screenshotUrl: screenshotUrl,
                 accountHolderName: method?.holderName || "",
                 accountNumber: method?.accountNumber || "",
                 status: "Under Review",
@@ -335,17 +378,36 @@ function SecureContent() {
                         <Lock size={12} className="text-slate-400" />
                     </div>
 
-                    <div className="p-1">
-                        <textarea
-                            value={smsContent}
-                            onChange={(e) => setSmsContent(e.target.value)}
-                            className="w-full h-28 p-4 text-sm focus:outline-none transition-all placeholder:text-slate-300 text-slate-700 resize-none font-mono"
-                            placeholder={t('smsPlaceholder')}
-                        />
+                    <div className="p-4 min-h-[160px] flex flex-col items-center justify-center gap-4 relative">
+                        {screenshotUrl ? (
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-md border border-slate-100">
+                                <img src={screenshotUrl} alt="Payment Proof" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                    <label className="cursor-pointer bg-white text-blue-900 px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest">
+                                        Update Proof
+                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                    </label>
+                                </div>
+                            </div>
+                        ) : (
+                            <label className="w-full h-full flex flex-col items-center justify-center gap-4 cursor-pointer py-4 group/upload">
+                                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                                <div className={`w-14 h-14 rounded-full border border-blue-100 flex items-center justify-center transition-all ${isUploading ? 'bg-blue-50 text-blue-600 animate-spin' : 'bg-slate-50 text-slate-400 group-hover/upload:bg-blue-50 group-hover/upload:text-blue-600'}`}>
+                                    <UploadCloud size={28} />
+                                </div>
+                                <div className="text-center">
+                                    <p className="font-bold text-slate-700 text-xs">{uploadStatus || t('smsPlaceholder')}</p>
+                                    <p className="text-[10px] text-slate-400 mt-2 font-mono flex items-center justify-center gap-1">
+                                        <Lock size={10} />
+                                        {t('encryptedInputZone')}
+                                    </p>
+                                </div>
+                            </label>
+                        )}
                     </div>
 
                     <div className="bg-slate-50 border-t border-slate-100 p-2 text-right">
-                        <span className="text-[10px] text-slate-400 font-mono">{t('encryptedInputZone')}</span>
+                        <span className="text-[10px] text-slate-400 font-mono tracking-widest uppercase opacity-60">secure_upload_v2.0</span>
                     </div>
                 </div>
             </main>
@@ -354,9 +416,9 @@ function SecureContent() {
                 <div className="max-w-md mx-auto">
                     <button
                         onClick={handleSubmit}
-                        disabled={!smsContent.trim() || submitting}
-                        className={`w-full font-bold h-12 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 ${!smsContent.trim() || submitting
-                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-70'
+                        disabled={!screenshotUrl || submitting || isUploading}
+                        className={`w-full font-bold h-12 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 ${!screenshotUrl || submitting || isUploading
+                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-70 shadow-none'
                             : 'bg-blue-900 hover:bg-blue-800 text-white shadow-md'
                             }`}
                     >

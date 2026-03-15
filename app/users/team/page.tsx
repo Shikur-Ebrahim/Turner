@@ -21,24 +21,23 @@ interface TeamData {
     A: TeamMember[];
     B: TeamMember[];
     C: TeamMember[];
-    D: TeamMember[];
 }
 
 export default function TeamPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
-    const [activeTab, setActiveTab] = useState<'all' | 'A' | 'B' | 'C' | 'D'>('A');
-    const [teamData, setTeamData] = useState<TeamData>({ A: [], B: [], C: [], D: [] });
+    const [activeTab, setActiveTab] = useState<'all' | 'A' | 'B' | 'C'>('A');
+    const [teamData, setTeamData] = useState<TeamData>({ A: [], B: [], C: [] });
     const [stats, setStats] = useState({
         totalMembers: 0,
         totalCommission: 0,
         totalTeamRecharge: 0,
         todayJoined: 0,
-        levelCounts: { A: 0, B: 0, C: 0, D: 0 },
-        levelAssets: { A: 0, B: 0, C: 0, D: 0 }
+        levelCounts: { A: 0, B: 0, C: 0 },
+        levelAssets: { A: 0, B: 0, C: 0 }
     });
-    const [rates, setRates] = useState({ levelA: 12, levelB: 7, levelC: 4, levelD: 2 });
+    const [rates, setRates] = useState({ levelA: 12, levelB: 7, levelC: 4 });
 
     useEffect(() => {
         setMounted(true);
@@ -65,7 +64,6 @@ export default function TeamPage() {
             level1: "Level 1",
             level2: "Level 2",
             level3: "Level 3",
-            level4: "Level 4",
             recharge: "Recharge:",
             reward: "REWARD",
             noMembers: "No members found",
@@ -82,7 +80,6 @@ export default function TeamPage() {
             level1: "ደረጃ 1",
             level2: "ደረጃ 2",
             level3: "ደረጃ 3",
-            level4: "ደረጃ 4",
             recharge: "የሞሉት:",
             reward: "ሽልማት",
             noMembers: "ምንም አባላት አልተገኘም",
@@ -105,15 +102,14 @@ export default function TeamPage() {
             try {
                 // 1. Fetch Dynamic Settings
                 const settingsSnap = await getDoc(doc(db, "settings", "referral"));
-                const fetchedRates = settingsSnap.exists() ? settingsSnap.data() : { levelA: 12, levelB: 7, levelC: 4, levelD: 2 };
+                const fetchedRates = settingsSnap.exists() ? settingsSnap.data() : { levelA: 12, levelB: 7, levelC: 4 };
                 setRates(fetchedRates as any);
 
-                // 2. Fetch all 4 levels in parallel using fetched rates
+                // 2. Fetch all levels in parallel using fetched rates
                 const levels = [
                     { key: 'inviterA', pct: (fetchedRates.levelA || 12) / 100, label: 'A' },
                     { key: 'inviterB', pct: (fetchedRates.levelB || 7) / 100, label: 'B' },
-                    { key: 'inviterC', pct: (fetchedRates.levelC || 4) / 100, label: 'C' },
-                    { key: 'inviterD', pct: (fetchedRates.levelD || 2) / 100, label: 'D' }
+                    { key: 'inviterC', pct: (fetchedRates.levelC || 4) / 100, label: 'C' }
                 ];
 
                 const promises = levels.map(async (level) => {
@@ -144,8 +140,8 @@ export default function TeamPage() {
                 let teamRecharge = 0;
                 let todayCount = 0;
 
-                const levelCounts = { A: 0, B: 0, C: 0, D: 0 };
-                const levelAssets = { A: 0, B: 0, C: 0, D: 0 };
+                const levelCounts = { A: 0, B: 0, C: 0 };
+                const levelAssets = { A: 0, B: 0, C: 0 };
 
                 // Get today's date string
                 const todayStr = new Date().toISOString().split('T')[0];
@@ -200,7 +196,6 @@ export default function TeamPage() {
         { id: 'A', label: t("level1"), pct: `${rates.levelA}%` },
         { id: 'B', label: t("level2"), pct: `${rates.levelB}%` },
         { id: 'C', label: t("level3"), pct: `${rates.levelC}%` },
-        { id: 'D', label: t("level4"), pct: `${rates.levelD}%` },
     ];
 
     const formatPhone = (phone: string) => {
@@ -217,7 +212,7 @@ export default function TeamPage() {
     }
 
     const currentMembers = activeTab === 'all'
-        ? [...teamData.A, ...teamData.B, ...teamData.C, ...teamData.D]
+        ? [...teamData.A, ...teamData.B, ...teamData.C]
         : teamData[activeTab];
 
     return (
@@ -399,7 +394,7 @@ export default function TeamPage() {
                                         <div className="w-16 h-16 rounded-full p-1 bg-white border border-indigo-100 shrink-0 relative shadow-sm">
                                             <div className="w-full h-full rounded-full overflow-hidden border border-indigo-200">
                                                 <img
-                                                    src={encodeURI(`/level ${member.level === 'A' ? 1 : member.level === 'B' ? 2 : member.level === 'C' ? 3 : 4}.jpg`)}
+                                                    src={encodeURI(`/level ${member.level === 'A' ? 1 : member.level === 'B' ? 2 : 3}.jpg`)}
                                                     alt="Avatar"
                                                     className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                                                 />
