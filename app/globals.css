@@ -45,6 +45,15 @@ body {
     }
   }
 
+  @keyframes verticalMarquee {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-33.333%);
+    }
+  }
+
   @keyframes shimmer {
     0% {
       transform: translateX(-100%);
@@ -57,6 +66,10 @@ body {
 
   .animate-horizontal-scroll {
     animation: marqueeMotion 90s linear infinite;
+  }
+
+  .animate-vertical-scroll {
+    animation: verticalMarquee 20s linear infinite;
   }
 
   .animate-shimmer {

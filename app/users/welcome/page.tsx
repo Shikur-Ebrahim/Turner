@@ -802,15 +802,15 @@ function WelcomeContent() {
                                     <Bell size={18} className="animate-bounce" />
                                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
                                 </div>
-                                <div className="flex-1 overflow-hidden relative">
+                                <div className="flex-1 overflow-hidden relative h-10">
                                     {/* Side fades for premium look */}
-                                    <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-                                    <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+                                    <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
+                                    <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
 
-                                    <div className="flex flex-nowrap gap-12 animate-horizontal-scroll whitespace-nowrap w-max min-w-full py-1">
+                                    <div className="flex flex-col gap-4 animate-vertical-scroll w-full py-1">
                                         {/* Multiplying items to ensure the marquee is dense and hard to track */}
                                         {[...notifications, ...notifications, ...notifications].map((notif, i) => (
-                                            <div key={i} className="flex items-center gap-2 shrink-0">
+                                            <div key={i} className="flex items-center gap-2 shrink-0 h-8">
                                                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full shrink-0"></span>
                                                 <span className="text-sm font-bold text-gray-900 whitespace-nowrap">{notif.text}</span>
                                             </div>
