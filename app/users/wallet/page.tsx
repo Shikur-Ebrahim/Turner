@@ -58,7 +58,7 @@ export default function WalletPage() {
             turnerStars: "Turner Stars",
             exchangeRates: "Exchange Rates",
             updated: "Updated!",
-            coin: "Coin",
+            coin: "Birr",
             star: "Star"
         },
         amharic: {
@@ -376,7 +376,7 @@ export default function WalletPage() {
                                     <div className="w-6 h-6 relative perspective-1000">
                                         <img
                                             src="/assets/advanced_3d_coin.png"
-                                            alt="Coin"
+                                            alt="Birr"
                                             className="w-full h-full object-contain animate-[spin_3s_linear_infinite] drop-shadow-sm"
                                         />
                                     </div>

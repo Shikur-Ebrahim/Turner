@@ -308,8 +308,8 @@ export default function TeamPage() {
                                         {stats.totalCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                     </p>
                                     <div className="relative">
-                                        <div className="absolute inset-0 bg-amber-400 blur-md opacity-40 animate-pulse"></div>
-                                        <Coins size={36} className="text-amber-500 fill-amber-300 drop-shadow-[0_4px_4px_rgba(245,158,11,0.5)] animate-[bounce_3s_infinite]" strokeWidth={2.5} />
+                                        <div className="absolute inset-0 bg-amber-400 blur-md opacity-40 animate-pulse rounded-xl"></div>
+                                        <span className="relative px-3 py-1.5 bg-amber-500 text-white text-sm font-black rounded-xl shadow-[0_4px_8px_rgba(245,158,11,0.5)] animate-[bounce_3s_infinite] tracking-wide">Birr</span>
                                     </div>
                                 </div>
                             </div>

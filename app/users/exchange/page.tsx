@@ -42,24 +42,24 @@ export default function ExchangePage() {
     const translations = {
         english: {
             exchange: "Exchange",
-            coinToEtb: "Coin to ETB",
+            coinToEtb: "Birr to ETB",
             currentRate: "Current Rate",
             etb: "ETB",
-            perCoin: "Per Coin",
-            coin: "Coin",
-            availableCoins: "Available Coins",
+            perCoin: "Per Birr",
+            coin: "Birr",
+            availableCoins: "Available Birr",
             exchangeAmount: "Exchange Amount",
-            coinsToExchange: "Coins to Exchange",
+            coinsToExchange: "Birr to Exchange",
             min: "Min",
             youWillReceive: "You Will Receive",
             processing: "Processing...",
             exchangeNow: "Exchange Now",
             exchangeSuccessful: "Exchange Successful!",
             transactionCompleted: "Transaction completed successfully",
-            coins: "Coins",
+            coins: "Birr",
             ok: "OK",
-            minimumExchange: "Minimum exchange amount is 100 Coins",
-            insufficientBalance: "Insufficient Coin balance",
+            minimumExchange: "Minimum exchange amount is 100 Birr",
+            insufficientBalance: "Insufficient Birr balance",
             exchangeFailed: "Failed to process exchange. Please try again."
         },
         amharic: {
@@ -225,7 +225,7 @@ export default function ExchangePage() {
                         <div className="text-right">
                             <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t("perCoin")}</p>
                             <div className="flex items-center gap-1 justify-end mt-1">
-                                <Coins size={16} className="text-emerald-300" />
+                                <span className="text-sm font-black text-emerald-300">Birr</span>
                                 <span className="text-sm font-bold text-white">1 {t("coin")}</span>
                             </div>
                         </div>
@@ -238,12 +238,12 @@ export default function ExchangePage() {
                         <div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t("availableCoins")}</p>
                             <div className="flex items-center gap-2">
-                                <Coins size={24} className="text-emerald-600" />
+                                <span className="text-2xl font-black text-emerald-600">Birr</span>
                                 <span className="text-3xl font-black text-slate-900">{Number(userData?.teamIncome || 0).toLocaleString()}</span>
                             </div>
                         </div>
                         <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center">
-                            <Coins size={32} className="text-emerald-600" />
+                            <span className="text-3xl font-black text-emerald-600">Birr</span>
                         </div>
                     </div>
                 </section>
@@ -267,7 +267,7 @@ export default function ExchangePage() {
                                 className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-4 text-2xl font-bold text-slate-900 focus:outline-none focus:border-emerald-500 transition-colors"
                             />
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-xl">
-                                <Coins size={18} className="text-emerald-600" />
+                                <span className="text-sm font-black text-emerald-600">Birr</span>
                                 <span className="text-sm font-bold text-emerald-600">{t("coin").toUpperCase()}</span>
                             </div>
                         </div>

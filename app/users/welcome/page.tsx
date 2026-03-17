@@ -77,7 +77,7 @@ function WelcomeContent() {
             buyProduct: "Buy Product",
             vipRules: "Vip Rules",
             withdraw: "Withdraw",
-            transfer: "Transfer",
+            transfer: "Team",
             inviteFriends: "Invite Friends",
             earnRewards: "Earn Multi-Level Rewards",
             announcement: "Announcement",
@@ -108,7 +108,7 @@ function WelcomeContent() {
             buyProduct: "ምርት ይግዙ",
             vipRules: "ቪአይፒ ደንቦች",
             withdraw: "ገንዘብ ያውጡ",
-            transfer: "ማስተላለፍ",
+            transfer: "ቡድን",
             inviteFriends: "ጓደኞችን ይጋብዙ",
             earnRewards: "የብዙ ደረጃ ሽልማቶችን ያግኙ",
             announcement: "ማስታወቂያ",
@@ -668,14 +668,14 @@ function WelcomeContent() {
 
                                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm relative z-10 ${isCoin ? "bg-emerald-100" : "bg-amber-100"}`}>
                                                             {isCoin ? (
-                                                                <Coins size={20} className={isUnread ? "text-emerald-600" : "text-emerald-500"} />
+                                                                <span className={`text-sm font-black ${isUnread ? "text-emerald-600" : "text-emerald-500"}`}>Birr</span>
                                                             ) : (
                                                                 <Star size={20} className={isUnread ? "text-amber-600" : "text-amber-500"} />
                                                             )}
                                                         </div>
                                                         <div className="flex flex-col relative z-10">
                                                             <p className={`text-xs font-bold leading-tight ${isUnread ? isCoin ? "text-emerald-900" : "text-amber-900" : "text-gray-900"}`}>
-                                                                {isCoin ? "Coin" : "Star"} Rate Updated
+                                                                {isCoin ? "Birr" : "Star"} Rate Updated
                                                             </p>
                                                             <p className={`text-[10px] font-bold mt-0.5 ${isUnread ? isCoin ? "text-emerald-600" : "text-amber-600" : "text-gray-700"}`}>
                                                                 New Rate: {notif.newRate} ETB
@@ -919,7 +919,7 @@ function WelcomeContent() {
                                 {[
                                     { label: t('vipRules'), img: "/vip_rule_3d.png", color: "blue", action: () => router.push("/users/vip-rules") },
                                     { label: t('withdraw'), img: "/assets/withdrawal.png", color: "indigo", action: () => router.push("/users/withdraw") },
-                                    { label: t('transfer'), icon: ArrowRightLeft, color: "amber", special: true, action: () => router.push("/users/exchange") }
+                                    { label: t('transfer'), icon: Users, color: "amber", special: true, action: () => router.push("/users/team") }
                                 ].map((item: any, i: number) => (
                                     <button
                                         key={i}

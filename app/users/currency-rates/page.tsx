@@ -37,9 +37,9 @@ export default function CurrencyRatesPage() {
     const translations = {
         english: {
             currencyRates: "Currency Rates",
-            turnerCoin: "Turner Coin",
+            turnerCoin: "Turner Birr",
             turnerStar: "Turner Star",
-            coin: "Coin",
+            coin: "Birr",
             star: "Star",
             etb: "ETB",
             totalAssetValue: "Total Asset Value",
@@ -207,7 +207,7 @@ export default function CurrencyRatesPage() {
                         <div className="relative z-10 flex flex-col h-full justify-between gap-4">
                             <div className="flex justify-between items-start">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${selectedAsset === "COIN" ? "bg-white/20 text-white backdrop-blur-md" : "bg-emerald-500/10 text-emerald-500"}`}>
-                                    <Coins size={24} className={selectedAsset === "COIN" ? "animate-pulse fill-current" : ""} />
+                                    <span className={`text-lg font-black ${selectedAsset === "COIN" ? "text-white animate-pulse" : "text-emerald-500"}`}>Birr</span>
                                 </div>
                             </div>
 

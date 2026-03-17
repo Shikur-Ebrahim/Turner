@@ -226,12 +226,8 @@ export default function InvitePage() {
                             <div className="flex items-center gap-2">
                                 <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.earned}</span>
                                 <div className="relative">
-                                    <div className="absolute inset-0 bg-yellow-400 blur-md opacity-40 animate-pulse"></div>
-                                    <Coins
-                                        size={24}
-                                        className="text-yellow-500 fill-yellow-300 drop-shadow-[0_4px_4px_rgba(234,179,8,0.5)] animate-[bounce_3s_infinite]"
-                                        strokeWidth={2.5}
-                                    />
+                                    <div className="absolute inset-0 bg-yellow-400 blur-md opacity-40 animate-pulse rounded-lg"></div>
+                                    <span className="relative px-2 py-1 bg-yellow-500 text-white text-xs font-black rounded-lg shadow-[0_4px_4px_rgba(234,179,8,0.5)] animate-[bounce_3s_infinite] tracking-wide">Birr</span>
                                 </div>
                             </div>
                         </div>
