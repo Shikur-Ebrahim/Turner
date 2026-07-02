@@ -378,13 +378,13 @@ export default function AdminPaymentMethods() {
                                             )}
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Holder Name</label>
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{formData.bankDetailType === 'smart' ? 'Full Name' : 'Account Holder Name'}</label>
                                                 <div className="relative group">
                                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                                                     <input
                                                         type="text"
                                                         required
-                                                        placeholder="Holder Full Name"
+                                                        placeholder={formData.bankDetailType === 'smart' ? 'Full Name' : 'Holder Full Name'}
                                                         value={formData.holderName}
                                                         onChange={(e) => setFormData({ ...formData, holderName: e.target.value })}
                                                         className="w-full py-4 pl-12 pr-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-600/50 outline-none transition-all font-bold text-gray-900"
@@ -393,13 +393,13 @@ export default function AdminPaymentMethods() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Number</label>
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{formData.bankDetailType === 'smart' ? 'Phone Number' : 'Account Number'}</label>
                                                 <div className="relative group">
                                                     <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                                                     <input
                                                         type="text"
                                                         required
-                                                        placeholder="Account digits only"
+                                                        placeholder={formData.bankDetailType === 'smart' ? 'Phone Number digits only' : 'Account digits only'}
                                                         value={formData.accountNumber}
                                                         onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
                                                         className="w-full py-4 pl-12 pr-4 rounded-2xl bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-600/50 outline-none transition-all font-bold text-gray-900"
@@ -533,11 +533,11 @@ export default function AdminPaymentMethods() {
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center justify-between">
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Holder</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{method.bankDetailType === 'smart' ? 'Name' : 'Holder'}</p>
                                                         <p className="text-xs font-black text-gray-800">{method.holderName}</p>
                                                     </div>
                                                     <div className="flex items-center justify-between">
-                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">A/C Number</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{method.bankDetailType === 'smart' ? 'Phone' : 'A/C Number'}</p>
                                                         <p className="text-sm font-black text-indigo-600 tracking-wider">
                                                             {method.accountNumber}
                                                         </p>

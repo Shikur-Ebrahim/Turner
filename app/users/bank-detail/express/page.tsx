@@ -412,7 +412,7 @@ function WelcomeNotification({ t, method }: { t: any, method: any }) {
     if (!show) return null;
 
     return (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
             <div className={`bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl space-y-8 text-center transform transition-all duration-300 ${animateOut ? 'scale-95 translate-y-4' : 'scale-100 translate-y-0'} animate-in slide-in-from-bottom-8 relative overflow-hidden`}>
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-green-500"></div>
 

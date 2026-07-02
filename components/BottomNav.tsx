@@ -73,7 +73,7 @@ function BottomNavContent() {
         }
     }, [pathname, searchParams, mounted]);
 
-    const hideNav = pathname === "/users/chat" || pathname === "/users/tasks" || pathname.startsWith("/users/withdraw") || pathname === "/users/change-withdrawal-password" || pathname.includes("-record") || pathname === "/users/funding-details";
+    const hideNav = pathname === "/users/chat" || pathname === "/users/tasks" || pathname.startsWith("/users/withdraw") || pathname === "/users/change-withdrawal-password" || pathname.includes("-record") || pathname === "/users/funding-details" || pathname.includes("/users/bank-detail") || pathname.includes("/users/recharge") || pathname.includes("/users/payment-method");
 
     if (!mounted || hideNav) return null;
 

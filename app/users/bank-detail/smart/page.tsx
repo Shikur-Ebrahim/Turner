@@ -31,8 +31,8 @@ function SmartContent() {
             step1: "Step 1",
             step1Desc: "Copy account for payment",
             currentBank: "Current Bank",
-            accountNumber: "Account Number",
-            beneficiaryName: "Beneficiary Name",
+            accountNumber: "Phone Number",
+            beneficiaryName: "Full Name",
             copied: "Copied!",
             copy: "copy",
             pasteSMSLabel: "Upload payment screenshot",
@@ -67,8 +67,8 @@ function SmartContent() {
             step1: "ደረጃ 1",
             step1Desc: "ለክፍያ ሂሳቡን ይቅዱ",
             currentBank: "ወቅታዊ ባንክ",
-            accountNumber: "የሂሳብ ቁጥር",
-            beneficiaryName: "የሂሳብ ስም",
+            accountNumber: "ስልክ ቁጥር",
+            beneficiaryName: "ሙሉ ስም",
             copied: "ተገልብጧል!",
             copy: "ቅዳ",
             pasteSMSLabel: "የክፍያ ቅጽበታዊ ገጽ እይታ ይስቀሉ (Screen Shot)",
@@ -238,7 +238,7 @@ function SmartContent() {
         <div className="min-h-screen bg-[#0f172a] text-white pb-48 font-sans selection:bg-purple-500/30 overflow-x-hidden relative">
             {/* Premium Golden Success Modal Overlay */}
             {showSuccessModal && (
-                <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+                <div className="fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
                     <div className="bg-[#1a1a1a] w-full max-w-sm rounded-[3rem] p-10 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-amber-500/10 text-center">
                         {/* Premium Golden Glows */}
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -430,10 +430,10 @@ function SmartContent() {
                                     </div>
                                     <div className="text-center">
                                         <p className="font-bold text-purple-100 uppercase tracking-wider text-[10px]">{uploadStatus || t('consolePlaceholder')}</p>
-                                        <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center justify-center gap-1">
+                                        <div className="text-[10px] text-slate-500 mt-2 font-mono flex items-center justify-center gap-1">
                                             <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
                                             {t('waitingInput')}
-                                        </p>
+                                        </div>
                                     </div>
                                 </label>
                             )}
@@ -444,7 +444,7 @@ function SmartContent() {
             </main>
 
             {/* Floating Action Button */}
-            <div className="fixed bottom-24 left-6 right-6 z-[100] max-w-md mx-auto">
+            <div className="fixed bottom-8 left-6 right-6 z-[100] max-w-md mx-auto">
                 <button
                     onClick={handleSubmit}
                     disabled={!screenshotUrl || submitting || isUploading}
@@ -480,7 +480,7 @@ function WelcomeNotification({ t, method }: { t: any, method: any }) {
     if (!show) return null;
 
     return (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-slate-900/50 backdrop-blur-xl transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-purple-900/50 via-indigo-900/50 to-slate-900/50 backdrop-blur-xl transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
             {/* Glass Modal */}
             <div className={`relative bg-gradient-to-br from-white/10 via-white/5 to-white/10 backdrop-blur-3xl border border-white/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] max-w-sm w-full shadow-2xl shadow-purple-500/30 text-center space-y-6 sm:space-y-8 transform transition-all duration-500 overflow-hidden ${animateOut ? 'scale-110 opacity-0 blur-xl' : 'scale-100 opacity-100'}`}>
                 {/* Animated Background Blobs */}

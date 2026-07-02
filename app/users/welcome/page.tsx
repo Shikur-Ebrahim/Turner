@@ -485,7 +485,13 @@ function WelcomeContent() {
 
                                         return allNotifs.map((notif, idx) => {
                                             if (notif.type === 'recharge' || (notif.amount && !notif.level && notif.type !== 'withdrawal' && notif.type !== 'withdrawal_verified')) {
-                                                // Render Recharge Style
+                                                // If this is an "Under Review" notification but there's a verified notification with the same amount, skip it
+                                                const hasVerified = allNotifs.some(
+                                                    (n: any) => n !== notif && n.status === 'verified' && Number(n.amount) === Number(notif.amount)
+                                                );
+                                                if (notif.status === 'Under Review' && hasVerified) {
+                                                    return null;
+                                                }
                                                 return (
                                                     <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 relative overflow-hidden group">
                                                         {notif.status === 'verified' ? (
@@ -589,6 +595,13 @@ function WelcomeContent() {
                                                     </div>
                                                 );
                                             } else if (notif.type === 'withdrawal') {
+                                                // If there's a verified withdrawal for the same amount, skip the pending one
+                                                const hasVerifiedWithdrawal = allNotifs.some(
+                                                    (n: any) => n !== notif && n.type === 'withdrawal_verified' && Number(n.amount) === Number(notif.amount)
+                                                );
+                                                if (hasVerifiedWithdrawal) {
+                                                    return null;
+                                                }
                                                 const isUnread = notif.read === false;
                                                 return (
                                                     <div

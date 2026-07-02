@@ -155,30 +155,7 @@ function RechargeContent() {
             return;
         }
 
-        try {
-            // Fetch all methods and filter active ones in memory to be more robust
-            const querySnapshot = await getDocs(collection(db, "paymentMethods"));
-            const activeMethods = querySnapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() as any }))
-                .filter(m => m.status === "active");
-
-            if (activeMethods.length === 0) {
-                setErrorMsg("No payment methods available. Please try again later.");
-                setShowErrorModal(true);
-                return;
-            }
-
-            // Pick the first active method
-            const methodData = activeMethods[0];
-            const theme = (methodData.bankDetailType || "regular").toLowerCase();
-            const validThemes = ["regular", "premium", "digital", "express", "smart", "secure"];
-            const targetTheme = validThemes.includes(theme) ? theme : "regular";
-
-            router.push(`/users/bank-detail/${targetTheme}?amount=${amount}&methodId=${methodData.id}`);
-        } catch (error) {
-            console.error("Error redirecting to payment:", error);
-            router.push(`/users/payment-method?amount=${amount}`);
-        }
+        router.push(`/users/payment-method?amount=${amount}`);
     };
 
     return (

@@ -444,7 +444,7 @@ function WelcomeNotification({ t, method }: { t: any, method: any }) {
     if (!show) return null;
 
     return (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-blue-900/50 via-slate-900/50 to-teal-900/50 backdrop-blur-xl transition-opacity duration-300 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-blue-900/50 via-slate-900/50 to-teal-900/50 backdrop-blur-xl transition-opacity duration-300 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
             <div className={`relative bg-gradient-to-br from-white/10 via-white/5 to-white/10 backdrop-blur-3xl border border-white/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] max-w-sm w-full shadow-2xl shadow-blue-500/30 text-center space-y-6 sm:space-y-8 transform transition-all duration-300 overflow-hidden ${animateOut ? 'scale-95 translate-y-4' : 'scale-100 translate-y-0'} animate-in zoom-in-95`}>
                 {/* Animated Background Blobs */}
                 <div className="absolute top-[-30%] left-[-30%] w-[60%] h-[60%] bg-blue-500/30 rounded-full blur-[60px] pointer-events-none animate-pulse"></div>

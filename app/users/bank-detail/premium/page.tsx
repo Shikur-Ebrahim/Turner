@@ -455,7 +455,7 @@ function WelcomeNotification({ t, method }: { t: any, method: any }) {
     if (!show) return null;
 
     return (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md transition-opacity duration-500 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
             <div className={`bg-slate-950 border border-amber-500/40 rounded-2xl p-10 max-w-sm w-full shadow-[0_0_100px_rgba(245,158,11,0.15)] space-y-8 text-center transform transition-all duration-500 ${animateOut ? 'scale-90 opacity-0' : 'scale-100 opacity-100'} animate-in zoom-in-95 relative`}>
 
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>

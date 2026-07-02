@@ -241,7 +241,7 @@ function DigitalContent() {
     return (
         <div className="min-h-screen bg-black text-cyan-50 font-mono pb-44 selection:bg-cyan-500/30">
             {showSuccessModal && (
-                <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+                <div className="fixed inset-0 z-[120] bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
                     <div className="bg-[#1a1a1a] w-full max-sm rounded-[3rem] p-10 border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-500 shadow-amber-500/10 text-center">
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
                         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/10 rounded-full blur-[80px] pointer-events-none"></div>
@@ -433,7 +433,7 @@ function WelcomeNotification({ t, method }: { t: any, method: any }) {
     if (!show) return null;
 
     return (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/95 backdrop-blur-sm transition-opacity duration-200 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-sm transition-opacity duration-200 ${animateOut ? 'opacity-0' : 'opacity-100'}`}>
             <div className={`bg-black border-2 border-cyan-500 p-1 max-w-sm w-full relative group transform transition-all duration-200 ${animateOut ? 'scale-y-0 opacity-0' : 'scale-100 opacity-100'}`}>
                 <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-cyan-400"></div>
                 <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-cyan-400"></div>
